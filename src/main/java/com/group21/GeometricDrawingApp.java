@@ -5,21 +5,31 @@
 package com.group21;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class GeometricDrawingApp extends Application {
-    @Override
-    public void start(Stage primaryStage) {
-        Label label = new Label("Hello JavaFX!");
-        Scene scene = new Scene(label, 400, 300);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Geometric Drawing App");
-        primaryStage.show();
-    }
 
+    public static Stage stage;
+
+    //static public Select selectShape;   
     public static void main(String[] args) {
         launch(args);
     }
+    @Override
+    public void start(Stage primaryStage)throws Exception{
+        
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/MainView.fxml"));
+        primaryStage.setTitle("Geometric Drawing App - UNISA Group21");
+
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
+
+        primaryStage.show();
+
+    }
+
 }
+

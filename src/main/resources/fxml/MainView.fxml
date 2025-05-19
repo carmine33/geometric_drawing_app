@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.group21.controller.FXMLController" prefWidth="1000.0" prefHeight="500.0">
+
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="File">
+                    <items>
+                        <MenuItem text="New" onAction="#handleNew" fx:id="menuNew"/>
+                        <MenuItem text="Open" onAction="#handleOpen" fx:id="menuOpen"/>
+                        <MenuItem text="Save" onAction="#handleSave" fx:id="menuSave"/>
+                        <MenuItem text="Exit" onAction="#handleExit" fx:id="menuExit"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+
+</BorderPane>
