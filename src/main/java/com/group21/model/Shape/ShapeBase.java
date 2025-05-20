@@ -28,7 +28,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 })
 public abstract class ShapeBase implements Shape {
     protected double x, y;
-
+    private double width;
+    private double height;
+    
     @JsonIgnore
     protected Color fillColor;
 
@@ -39,9 +41,11 @@ public abstract class ShapeBase implements Shape {
 
     public ShapeBase() {}
 
-    public ShapeBase(double x, double y, Color fillColor, Color strokeColor) {
+    public ShapeBase(double x, double y, double width, double height, Color fillColor, Color strokeColor) {
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
         this.fillColor = fillColor;
         this.strokeColor = strokeColor;
     }
@@ -51,6 +55,22 @@ public abstract class ShapeBase implements Shape {
     }
     public double getY() { 
         return y; 
+    }
+    
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void getWidth(double width) {
+        this.width = width;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     public void setX(double x) { 

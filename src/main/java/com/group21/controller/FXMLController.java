@@ -110,7 +110,7 @@ public class FXMLController implements Initializable {
             double endY = e.getY();
             if (currentMouseCommand.equals("Line") && isDrawingLine) {
                 isDrawingLine = false;
-                ShapeBase line = new ShapeLine(lineStartX, lineStartY, 
+                ShapeBase line = new ShapeLine(lineStartX, lineStartY, 0, 0,
                                                  e.getX(), e.getY(), 
                                             strokeColorPicker.getValue()
                                               );

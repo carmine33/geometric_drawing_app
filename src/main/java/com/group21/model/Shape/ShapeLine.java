@@ -22,8 +22,8 @@ public class ShapeLine extends ShapeBase{
         this.type = "Line";
     }
     
-    public ShapeLine(double startX, double startY, double endX, double endY, Color strokeColor) {
-        super(startX, startY, null, strokeColor); // fillColor is unused (null)
+    public ShapeLine(double startX, double startY, double width, double height, double endX, double endY, Color strokeColor) {
+        super(startX, startY, width, height, null, strokeColor); // fillColor is unused (null)
         this.endX = endX;
         this.endY = endY;
         this.type = "Line";
