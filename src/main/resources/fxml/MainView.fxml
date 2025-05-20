@@ -3,21 +3,32 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane  fx:id="rootPane" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.group21.controller.FXMLController" prefWidth="1000.0" prefHeight="500.0">
-
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group21.controller.FXMLController" prefWidth="1000.0" prefHeight="500.0">
     <top>
-        <MenuBar>
-            <menus>
-                <Menu text="File">
-                    <items>
-                        <MenuItem text="New" onAction="#handleNew" fx:id="menuNew"/>
-                        <MenuItem text="Open" onAction="#handleOpen" fx:id="menuOpen"/>
-                        <MenuItem text="Save" onAction="#handleSave" fx:id="menuSave"/>
-                        <MenuItem text="Exit" onAction="#handleExit" fx:id="menuExit"/>
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
+        <VBox>    
+            <MenuBar>
+                <menus>
+                    <Menu text="File">
+                        <items>
+                            <MenuItem text="New" onAction="#handleNew" fx:id="menuNew"/>
+                            <MenuItem text="Open" onAction="#handleLoad" fx:id="menuOpen"/>
+                            <MenuItem text="Save" onAction="#handleSave" fx:id="menuSave"/>
+                            <MenuItem text="Exit" onAction="#handleExit" fx:id="menuExit"/>
+                        </items>
+                    </Menu>
+                </menus>
+            </MenuBar>
+            <ToolBar>
+                <Button fx:id="btnRectangle" text="Rectangle" />
+                <Button fx:id="btnEllipse" text="Ellipse" />
+                <Button fx:id="btnLine" text="Line" />
+                <ColorPicker fx:id="fillColorPicker"/>
+                <ColorPicker fx:id="strokeColorPicker"/>
+            </ToolBar>
+        </VBox> 
     </top>
+    <center>
+        <Pane fx:id="canvasPlaceholder"/>
+    </center>
 </BorderPane>
+

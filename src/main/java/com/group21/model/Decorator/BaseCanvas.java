@@ -22,10 +22,10 @@ public class BaseCanvas implements CanvasInterface {
     public BaseCanvas(double width, double height) {
         this.canvas = new Canvas(width, height);
         this.gc = canvas.getGraphicsContext2D();
-        setupDrawing();
+        //setupDrawing();
     }
 
-    private void setupDrawing() {
+    /*private void setupDrawing() {
         canvas.setOnMousePressed(this::startDraw);
         canvas.setOnMouseDragged(this::draw);
     }
@@ -41,8 +41,12 @@ public class BaseCanvas implements CanvasInterface {
     private void draw(MouseEvent e) {
         gc.lineTo(e.getX(), e.getY());
         gc.stroke();
-    }
+    }*/
 
+    public GraphicsContext getGc() {
+        return gc;
+    }
+    
     @Override
     public void execute() {
         // Optional: extendable in future

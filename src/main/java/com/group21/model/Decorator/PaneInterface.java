@@ -6,14 +6,11 @@ package com.group21.model.Decorator;
 
 /**
  *
- * @author carmi
+ * @author Loren
  */
+import javafx.scene.layout.BorderPane;
 
-
-import javafx.scene.canvas.Canvas;
-
-public interface CanvasInterface {
-    void execute();
-    Canvas getCanvas();
-    void clear();
+public interface PaneInterface {
+    
+    public BorderPane getPane();  
 }
