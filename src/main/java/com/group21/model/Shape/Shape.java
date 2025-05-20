@@ -30,4 +30,6 @@ public interface Shape {
     void draw(GraphicsContext gc);
     
     boolean containsPoint(double x, double y);
+
+    public double getStrokeWidth();
 }

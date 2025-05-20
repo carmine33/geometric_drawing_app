@@ -41,4 +41,9 @@ public class ShapeEllipse extends ShapeBase{
     public boolean containsPoint(double x, double y) {
         return ellipse.contains(x, y);
     }
+
+    @Override
+    public double getStrokeWidth() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

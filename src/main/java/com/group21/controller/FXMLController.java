@@ -70,6 +70,9 @@ public class FXMLController implements Initializable {
     private ShapeSelector selectShape;
     ContextMenu contextMenu = new ContextMenu();
     MenuItem deleteMenu = new MenuItem("Delete");
+    MenuItem cutMenu = new MenuItem("Cut");
+    MenuItem copyMenu = new MenuItem("Copy");
+    MenuItem pasteMenu = new MenuItem("Paste");
     private String currentMouseCommand = null;
     private List<ShapeBase> shapes = new ArrayList<>();
     private double lineStartX, lineStartY;
