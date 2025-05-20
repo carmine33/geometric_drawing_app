@@ -65,47 +65,50 @@ public class FXMLController implements Initializable {
     @FXML private Button btnRectangle;
     @FXML private Button btnEllipse;
     @FXML private Button btnLine;
+    @FXML private Button btnSelect;
     
     private ShapeSelector selectShape;
     ContextMenu contextMenu = new ContextMenu();
     MenuItem deleteMenu = new MenuItem("Delete");
-    private double pastX, pastY;
-    private String currentShape = "Rectangle";
+    private String currentMouseCommand = null;
     private List<ShapeBase> shapes = new ArrayList<>();
     private double lineStartX, lineStartY;
     private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false;
-    private String pastShape;
-    private String mod;
     private Command command = null;
+    private String mod = null;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         baseCanvas = new BaseCanvas(1000, 500);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         
-        btnRectangle.setOnAction(e -> currentShape = "Rectangle");
-        btnEllipse.setOnAction(e -> currentShape = "Ellipse");
-        btnLine.setOnAction(e -> currentShape = "Line");
+        btnRectangle.setOnAction(e -> currentMouseCommand = "Rectangle");
+        btnEllipse.setOnAction(e -> currentMouseCommand = "Ellipse");
+        btnLine.setOnAction(e -> currentMouseCommand = "Line");
+        btnSelect.setOnAction(e-> currentMouseCommand = "Select");
         
         baseCanvas.getCanvas().setOnMousePressed(e -> {
-            if(e.isPrimaryButtonDown()){
+            if(e.isPrimaryButtonDown() && !(currentMouseCommand.equals("Select")) && !(currentMouseCommand.isEmpty()) ){
             lineStartX = e.getX();
             lineStartY = e.getY();
-            if (currentShape.equals("Line")) {
-                isDrawingLine = true;
-            } else if(currentShape.equals("Rectangle")){
-                isDrawingRectangle = true;
-            } else if(currentShape.equals("Ellipse")){
-                isDrawingEllipse = true;
+                if (currentMouseCommand.equals("Line")) {
+                    isDrawingLine = true;
+                } else if(currentMouseCommand.equals("Rectangle")){
+                    isDrawingRectangle = true;
+                } else if(currentMouseCommand.equals("Ellipse")){
+                    isDrawingEllipse = true;
             }} else if(e.isSecondaryButtonDown()){ //se invece clicco tasto destro...
-            select(e);
-        }
+                select(e);
+                initContextMenu();
+               }else if (e.isPrimaryButtonDown() && currentMouseCommand.equals("Select") ){
+                    select(e);
+               }
         });
 
         baseCanvas.getCanvas().setOnMouseReleased(e -> {
             double endX = e.getX();
             double endY = e.getY();
-            if (currentShape.equals("Line") && isDrawingLine) {
+            if (currentMouseCommand.equals("Line") && isDrawingLine) {
                 isDrawingLine = false;
                 ShapeBase line = new ShapeLine(lineStartX, lineStartY, 
                                                  e.getX(), e.getY(), 
@@ -113,7 +116,7 @@ public class FXMLController implements Initializable {
                                               );
                 shapes.add(line);
                 redraw(baseCanvas.getGc());
-            }else if(currentShape.equals("Rectangle")  && isDrawingRectangle){
+            }else if(currentMouseCommand.equals("Rectangle")  && isDrawingRectangle){
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
@@ -128,7 +131,7 @@ public class FXMLController implements Initializable {
                 shapes.add(rectangle);
                 redraw(baseCanvas.getGc());
                 
-            } else if(currentShape.equals("Ellipse")  && isDrawingEllipse){
+            } else if(currentMouseCommand.equals("Ellipse")  && isDrawingEllipse){
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
@@ -177,10 +180,6 @@ public class FXMLController implements Initializable {
                 } 
             }
         }
-        initContextMenu();
-
-        pastX = event.getX();
-        pastY = event.getY();
     }
     
     //funzione per il menu a tendina dopo aver cliccato tasto destro
@@ -202,11 +201,18 @@ public class FXMLController implements Initializable {
         command.execute();
         redraw(baseCanvas.getGc());
     }
+     
+     // Dropdown menù handlers
+    public void handleSelect() {
+        
+    }
         
     // Dropdown menù handlers
     public void handleSave() {
         System.out.println("File saved");
     }
+    
+    
 
     // Called when Load menu item is clicked
     public void handleLoad() {

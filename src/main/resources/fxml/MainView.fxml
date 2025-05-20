@@ -22,6 +22,7 @@
                 <Button fx:id="btnRectangle" text="Rectangle" />
                 <Button fx:id="btnEllipse" text="Ellipse" />
                 <Button fx:id="btnLine" text="Line" />
+                <Button fx:id="btnSelect" text="Select" />
                 <ColorPicker fx:id="fillColorPicker"/>
                 <ColorPicker fx:id="strokeColorPicker"/>
             </ToolBar>

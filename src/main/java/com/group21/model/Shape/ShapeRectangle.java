@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
  *
  * @author Loren
  */
-public class ShapeRectangle extends ShapeBase{    
+    public class ShapeRectangle extends ShapeBase{    
     private double width = 100;
     private double height = 60;
     private Rectangle2D rectangle = null;

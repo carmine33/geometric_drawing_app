@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+//import javafx.geometry.Point2D;
 
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
@@ -78,6 +79,9 @@ public abstract class ShapeBase implements Shape {
     public void setType(String type) { this.type = type; }
 
     public abstract void draw(GraphicsContext gc);
+    
+    // contains serve per capire se un punto (click del mouse) è all'interno della figura.
+    // public abstract boolean contains(double x, double y);   
 
     // Color serialization as RGBA double arrays for save/load implementation
     @JsonProperty("fillColor")
