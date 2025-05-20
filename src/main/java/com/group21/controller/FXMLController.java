@@ -269,7 +269,8 @@ public void handleLoad() {
     @FXML
     private void handleNew() {
         baseCanvas.clear();
-        System.out.println("Canvas cleared");
+        shapes.clear();
+        this.redraw(baseCanvas.getGc());
     }
 
     @FXML
