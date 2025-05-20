@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package com.group21.controller;
 
 import com.group21.model.Decorator.BaseCanvas;
@@ -42,6 +38,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 /**
  * FXML Controller class for the main view.
@@ -69,9 +66,11 @@ public class FXMLController implements Initializable {
     private String currentMouseCommand = null;
     private List<ShapeBase> shapes = new ArrayList<>();
     private double lineStartX, lineStartY;
-    private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false;
+    private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false, isSelected = false;
     private Command command = null;
     private String mod = null;
+    
+
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -94,12 +93,13 @@ public class FXMLController implements Initializable {
                     isDrawingRectangle = true;
                 } else if(currentMouseCommand.equals("Ellipse")){
                     isDrawingEllipse = true;
-            }} else if(e.isSecondaryButtonDown()){ //se invece clicco tasto destro...
+                }
+            } else if(e.isSecondaryButtonDown()){ //se invece clicco tasto destro...
                 select(e);
                 initContextMenu();
-               }else if (e.isPrimaryButtonDown() && currentMouseCommand.equals("Select") ){
-                    select(e);
-               }
+            }else if (e.isPrimaryButtonDown() && currentMouseCommand.equals("Select") ){
+                isSelected = true;
+            }
         });
 
         baseCanvas.getCanvas().setOnMouseReleased(e -> {
@@ -145,6 +145,9 @@ public class FXMLController implements Initializable {
                                            strokeColorPicker.getValue());
                 shapes.add(ellipse);
                 redraw(baseCanvas.getGc());
+            }else if(currentMouseCommand.equals("Select") && isSelected){
+                select(e);
+                isSelected = false; 
             }
         });
     }
@@ -158,26 +161,67 @@ public class FXMLController implements Initializable {
     }
     
     private void redraw(GraphicsContext gc) {
-        gc.clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
-        for (ShapeBase shape : shapes) {
-            shape.draw(gc);
-        }
-    }
-    
-    //funzione per gestire la selezione delle figure 
-    private void select(MouseEvent event) {
-        Iterator<ShapeBase> it = shapes.iterator();
-        while (it.hasNext()) {
-            ShapeBase elem = it.next();
-            if (elem.containsPoint(event.getX(), event.getY())) {
-                selectShape.setSelectedShape(elem);
+    gc.clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
 
-                if (selectShape.getSelectedShape() == null) {
-                    selectShape.setSelectedShape(null);
-                } 
-            }
+    for (ShapeBase shape : shapes) {
+        shape.draw(gc);
+    }
+
+    // Disegna bordo porpora attorno alla forma selezionata
+    ShapeBase selected = selectShape.getSelectedShape();
+    if (selected != null) {
+        gc.setStroke(Color.MEDIUMPURPLE);
+        gc.setLineWidth(3.0);
+
+        if (selected instanceof ShapeRectangle) {
+            ShapeRectangle rect = (ShapeRectangle) selected;
+            gc.strokeRect(rect.getX() - 5, rect.getY() - 5,
+                          rect.getWidth() + 10, rect.getHeight() + 10);
+
+        } else if (selected instanceof ShapeEllipse) {
+            ShapeEllipse ellipse = (ShapeEllipse) selected;
+            double x = ellipse.getX();
+            double y = ellipse.getY();
+            double width = ellipse.getWidth();
+            double height = ellipse.getHeight();
+
+            gc.strokeOval(x - 5, y - 5, width + 10, height + 10);
+
+
+        } else if (selected instanceof ShapeLine) {
+            ShapeLine line = (ShapeLine) selected;
+            gc.setLineWidth(5.0); // bordo più spesso per visibilità
+            gc.strokeLine(line.getX(), line.getY(), line.getEndX(), line.getEndY());
         }
     }
+}
+
+    
+// Funzione per gestire la selezione delle figure
+private void select(MouseEvent event) {
+    double clickX = event.getX();
+    double clickY = event.getY();
+
+    // Scorri le forme dalla più recente alla più vecchia
+    for (int i = shapes.size() - 1; i >= 0; i--) {
+        ShapeBase shape = shapes.get(i);
+
+        // Verifica se il punto cliccato è dentro la figura
+        if (shape.containsPoint(clickX, clickY)) {
+            // Se sì, imposta la figura come selezionata
+            selectShape.setSelectedShape(shape);
+
+            // Ridisegna il canvas con la nuova selezione evidenziata
+            redraw(baseCanvas.getGc());
+            return; // Selezionata una forma, possiamo uscire
+        }
+    }
+
+    // Nessuna figura trovata sotto il click → deseleziona tutto
+    selectShape.setSelectedShape(null);
+    redraw(baseCanvas.getGc());
+}
+
     
     //funzione per il menu a tendina dopo aver cliccato tasto destro
      private void initContextMenu() {
@@ -245,9 +289,7 @@ public class FXMLController implements Initializable {
         }
     }
 
-
-
-public void handleLoad() {
+    public void handleLoad() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Load Shapes");
         fileChooser.getExtensionFilters().add(
