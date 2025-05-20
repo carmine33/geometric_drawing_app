@@ -29,16 +29,23 @@ import com.group21.model.Shape.ShapeEllipse;
 import com.group21.model.Shape.ShapeLine;
 import com.group21.model.Shape.ShapeRectangle;
 
+import com.group21.model.Command.*;
+
 // Import for save/load 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.group21.model.Decorator.PaneInterface;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.input.MouseEvent;
 
 /**
  * FXML Controller class for the main view.
@@ -51,7 +58,6 @@ public class FXMLController implements Initializable {
     @FXML
     private MenuItem menuNew, menuOpen, menuSave, menuExit;
     
-    
     @FXML private Pane canvasPlaceholder;
     private BaseCanvas baseCanvas;
     @FXML private ColorPicker fillColorPicker;
@@ -60,10 +66,17 @@ public class FXMLController implements Initializable {
     @FXML private Button btnEllipse;
     @FXML private Button btnLine;
     
+    private ShapeSelector selectShape;
+    ContextMenu contextMenu = new ContextMenu();
+    MenuItem deleteMenu = new MenuItem("Delete");
+    private double pastX, pastY;
     private String currentShape = "Rectangle";
     private List<ShapeBase> shapes = new ArrayList<>();
     private double lineStartX, lineStartY;
     private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false;
+    private String pastShape;
+    private String mod;
+    private Command command = null;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -75,6 +88,7 @@ public class FXMLController implements Initializable {
         btnLine.setOnAction(e -> currentShape = "Line");
         
         baseCanvas.getCanvas().setOnMousePressed(e -> {
+            if(e.isPrimaryButtonDown()){
             lineStartX = e.getX();
             lineStartY = e.getY();
             if (currentShape.equals("Line")) {
@@ -83,7 +97,9 @@ public class FXMLController implements Initializable {
                 isDrawingRectangle = true;
             } else if(currentShape.equals("Ellipse")){
                 isDrawingEllipse = true;
-            }
+            }} else if(e.isSecondaryButtonDown()){ //se invece clicco tasto destro...
+            select(e);
+        }
         });
 
         baseCanvas.getCanvas().setOnMouseReleased(e -> {
@@ -146,6 +162,45 @@ public class FXMLController implements Initializable {
         for (ShapeBase shape : shapes) {
             shape.draw(gc);
         }
+    }
+    
+    //funzione per gestire la selezione delle figure 
+    private void select(MouseEvent event) {
+        Iterator<ShapeBase> it = shapes.iterator();
+        while (it.hasNext()) {
+            ShapeBase elem = it.next();
+            if (elem.containsPoint(event.getX(), event.getY())) {
+                selectShape.setSelectedShape(elem);
+
+                if (selectShape.getSelectedShape() == null) {
+                    selectShape.setSelectedShape(null);
+                } 
+            }
+        }
+        initContextMenu();
+
+        pastX = event.getX();
+        pastY = event.getY();
+    }
+    
+    //funzione per il menu a tendina dopo aver cliccato tasto destro
+     private void initContextMenu() {
+        contextMenu.getItems().addAll(deleteMenu);
+        baseCanvas.getCanvas().setOnContextMenuRequested(e -> contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY()));
+     
+
+        deleteMenu.setOnAction(new EventHandler<ActionEvent>() { //set the action of the deleteMenu item
+            public void handle(ActionEvent event) {
+                delete();
+                mod = "Delete";
+            }
+        });
+    }
+     
+     public void delete() {
+        command = new DeleteCommand(selectShape);
+        command.execute();
+        redraw(baseCanvas.getGc());
     }
         
     // Dropdown menù handlers

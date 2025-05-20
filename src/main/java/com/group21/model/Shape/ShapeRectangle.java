@@ -4,6 +4,7 @@
  */
 package com.group21.model.Shape;
 
+import java.awt.geom.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -14,6 +15,7 @@ import javafx.scene.paint.Color;
 public class ShapeRectangle extends ShapeBase{    
     private double width = 100;
     private double height = 60;
+    private Rectangle2D rectangle = null;
     
     // For serialization/deserialization purposes
     public ShapeRectangle() {
@@ -26,6 +28,7 @@ public class ShapeRectangle extends ShapeBase{
         this.height = height;
         this.width = width;
         this.type = "Rectangle";
+        this.rectangle = new Rectangle2D.Double();
     }    
 
     public double getWidth() {
@@ -51,5 +54,10 @@ public class ShapeRectangle extends ShapeBase{
 
         gc.setStroke(strokeColor);
         gc.strokeRect(x, y, width, height);
+    }
+    
+    @Override
+    public boolean containsPoint(double x, double y) {
+        return rectangle.contains(x, y);
     }
 }

@@ -4,6 +4,7 @@
  */
 package com.group21.model.Shape;
 
+import java.awt.geom.Line2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -14,6 +15,7 @@ import javafx.scene.paint.Color;
 public class ShapeLine extends ShapeBase{    
     private double endX;
     private double endY;
+    private Line2D line;
     
     // For serialization/deserialization purposes
     public ShapeLine() {
@@ -25,6 +27,7 @@ public class ShapeLine extends ShapeBase{
         this.endX = endX;
         this.endY = endY;
         this.type = "Line";
+        this.line = new Line2D.Double();
     }
 
     public double getEndX() {
@@ -47,6 +50,11 @@ public class ShapeLine extends ShapeBase{
     public void draw(GraphicsContext gc) {
         gc.setStroke(strokeColor);
         gc.strokeLine(x, y, endX, endY);
+    }
+    
+    @Override
+    public boolean containsPoint(double x, double y) {
+        return line.intersects(x, y, 8.0, 8.0);
     }
     
 }

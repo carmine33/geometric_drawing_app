@@ -9,13 +9,15 @@ package com.group21.model.Shape;
  * @author Loren
  */
 
+import java.awt.geom.Ellipse2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class ShapeEllipse extends ShapeBase{
     
     private double width;
-    private double height;           
+    private double height;    
+    private Ellipse2D ellipse;
     
     // For serialization/deserialization purposes
     public ShapeEllipse() {
@@ -27,6 +29,7 @@ public class ShapeEllipse extends ShapeBase{
         this.width = width;
         this.height = height;
         this.type = "Ellipse";
+        this.ellipse = new Ellipse2D.Double();
     }
 
     public double getWidht() {
@@ -52,5 +55,10 @@ public class ShapeEllipse extends ShapeBase{
 
         gc.setStroke(strokeColor);
         gc.strokeOval(x, y, width, height);
+    }
+    
+    @Override
+    public boolean containsPoint(double x, double y) {
+        return ellipse.contains(x, y);
     }
 }

@@ -28,4 +28,6 @@ public interface Shape {
     void setType(String type);
 
     void draw(GraphicsContext gc);
+    
+    boolean containsPoint(double x, double y);
 }
