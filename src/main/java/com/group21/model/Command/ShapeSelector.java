@@ -27,8 +27,8 @@ public class ShapeSelector {
         this.memory = new Memory();
 
     }
-    
-     public Shape getSelectedShape() {
+
+     public ShapeBase getSelectedShape() {
         return selectedShape;
     }
 
@@ -47,3 +47,5 @@ public class ShapeSelector {
     }
 
 }
+
+

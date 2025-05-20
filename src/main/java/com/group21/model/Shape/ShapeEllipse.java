@@ -39,6 +39,7 @@ public class ShapeEllipse extends ShapeBase{
     
     @Override
     public boolean containsPoint(double x, double y) {
-        return ellipse.contains(x, y);
+        return x >= this.x && x <= this.x + this.getWidth() &&
+        y >= this.y && y <= this.y + this.getHeight();
     }
 }

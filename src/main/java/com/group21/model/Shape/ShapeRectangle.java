@@ -13,8 +13,7 @@ import javafx.scene.paint.Color;
  * @author Loren
  */
     public class ShapeRectangle extends ShapeBase{    
-    private double width = 100;
-    private double height = 60;
+
     private Rectangle2D rectangle = null;
     
     // For serialization/deserialization purposes
@@ -32,14 +31,15 @@ import javafx.scene.paint.Color;
     @Override
     public void draw(GraphicsContext gc) {
         gc.setFill(fillColor);
-        gc.fillRect(x, y, this.width, this.height);
+        gc.fillRect(x, y, this.getWidth(), this.getHeight());
 
         gc.setStroke(strokeColor);
-        gc.strokeRect(x, y, this.width, this.height);
+        gc.strokeRect(x, y, this.getWidth(), this.getHeight());
     }
     
     @Override
     public boolean containsPoint(double x, double y) {
-        return rectangle.contains(x, y);
+        return x >= this.x && x <= this.x + this.getWidth() &&
+        y >= this.y && y <= this.y + this.getHeight();
     }
 }

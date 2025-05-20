@@ -54,7 +54,8 @@ public class ShapeLine extends ShapeBase{
     
     @Override
     public boolean containsPoint(double x, double y) {
-        return line.intersects(x, y, 8.0, 8.0);
+        line.setLine(this.x, this.y, this.endX, this.endY);
+        return line.intersects(x - 4, y - 4, 8.0, 8.0); // controllo se il punto (x,y) interseca una piccola area intorno alla linea (8x8 pixel)
     }
     
 }

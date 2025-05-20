@@ -77,6 +77,7 @@ public class FXMLController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         baseCanvas = new BaseCanvas(1000, 500);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
+        selectShape = new ShapeSelector(shapes, null);
         
         btnRectangle.setOnAction(e -> currentMouseCommand = "Rectangle");
         btnEllipse.setOnAction(e -> currentMouseCommand = "Ellipse");
