@@ -22,8 +22,8 @@ public class ShapeEllipse extends ShapeBase{
         this.type = "Ellipse";
     }
     
-    public ShapeEllipse(double x, double y, double width, double height, Color fillColor, Color strokeColor){
-        super(x, y, width, height, fillColor, strokeColor);
+    public ShapeEllipse(double x, double y, double width, double height, Color fillColor, Color strokeColor, double strokeWidth){
+        super(x, y, width, height, fillColor, strokeColor,strokeWidth);
         this.type = "Ellipse";
         this.ellipse = new Ellipse2D.Double();
     }
@@ -32,7 +32,7 @@ public class ShapeEllipse extends ShapeBase{
     public void draw(GraphicsContext gc) {
         gc.setFill(fillColor);
         gc.fillOval(x, y, this.getWidth(), this.getHeight());
-
+        gc.setLineWidth(strokeWidth);
         gc.setStroke(strokeColor);
         gc.strokeOval(x, y, this.getWidth(), this.getHeight());
     }
@@ -42,4 +42,19 @@ public class ShapeEllipse extends ShapeBase{
         return x >= this.x && x <= this.x + this.getWidth() &&
         y >= this.y && y <= this.y + this.getHeight();
     }
+    
+    @Override
+    public ShapeBase copy() {
+    ShapeEllipse copy = new ShapeEllipse(x, y, getWidth(), getHeight(), fillColor, strokeColor,strokeWidth);
+    copy.setStrokeWidth(this.strokeWidth);
+    return copy;
+    }
+   
+    @Override
+    public ShapeBase clone() {
+    ShapeRectangle copy = new ShapeRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight(),
+            this.getFillColor(), this.getStrokeColor(),this.getStrokeWidth());
+    copy.setStrokeWidth(this.strokeWidth);
+    return copy;
+}
 }

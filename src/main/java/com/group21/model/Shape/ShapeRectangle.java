@@ -21,9 +21,9 @@ import javafx.scene.paint.Color;
         this.type = "Rectangle";
     }
     
-    public ShapeRectangle(double x, double y, double width, double height, Color fillColor, Color strokeColor)
+    public ShapeRectangle(double x, double y, double width, double height, Color fillColor, Color strokeColor, double strokeWidth)
     {
-        super(x, y, width, height, fillColor, strokeColor);
+        super(x, y, width, height, fillColor, strokeColor,strokeWidth);
         this.type = "Rectangle";
         this.rectangle = new Rectangle2D.Double();
     }    
@@ -32,7 +32,7 @@ import javafx.scene.paint.Color;
     public void draw(GraphicsContext gc) {
         gc.setFill(fillColor);
         gc.fillRect(x, y, this.getWidth(), this.getHeight());
-
+        gc.setLineWidth(strokeWidth); 
         gc.setStroke(strokeColor);
         gc.strokeRect(x, y, this.getWidth(), this.getHeight());
     }
@@ -42,4 +42,18 @@ import javafx.scene.paint.Color;
         return x >= this.x && x <= this.x + this.getWidth() &&
         y >= this.y && y <= this.y + this.getHeight();
     }
+    
+    
+    public ShapeBase copy() {
+    ShapeRectangle copy = new ShapeRectangle(x, y, this.getWidth(), this.getHeight(), fillColor, strokeColor,strokeWidth);
+    copy.setStrokeWidth(this.strokeWidth); // <-- copia strokeWidth
+    return copy;
+    }   
+    @Override
+public ShapeBase clone() {
+    ShapeRectangle copy = new ShapeRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight(),
+            this.getFillColor(), this.getStrokeColor(),this.getStrokeWidth());
+    copy.setStrokeWidth(this.strokeWidth);
+    return copy;
+}
 }

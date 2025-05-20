@@ -34,6 +34,8 @@ public abstract class ShapeBase implements Shape {
     @JsonIgnore
     protected Color fillColor;
 
+    protected double strokeWidth = 1.0;
+    
     @JsonIgnore
     protected Color strokeColor;
 
@@ -41,13 +43,14 @@ public abstract class ShapeBase implements Shape {
 
     public ShapeBase() {}
 
-    public ShapeBase(double x, double y, double width, double height, Color fillColor, Color strokeColor) {
+    public ShapeBase(double x, double y, double width, double height, Color fillColor, Color strokeColor, double strokeWidth) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.fillColor = fillColor;
         this.strokeColor = strokeColor;
+        this.strokeWidth= strokeWidth;
     }
 
     public double getX() { 
@@ -114,6 +117,12 @@ public abstract class ShapeBase implements Shape {
             fillColor.getOpacity()
         };
     }
+    
+     
+    public void translate(double dx, double dy) {
+        this.x += dx;
+        this.y += dy;
+    }
 
     @JsonProperty("fillColor")
     public void setFillColorArray(double[] rgba) {
@@ -133,10 +142,20 @@ public abstract class ShapeBase implements Shape {
         };
     }
 
+    public abstract ShapeBase copy();
+    
     @JsonProperty("strokeColor")
     public void setStrokeColorArray(double[] rgba) {
         if (rgba != null && rgba.length == 4) {
             this.strokeColor = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
+    }
+    
+    public double getStrokeWidth() {
+    return strokeWidth;
+}
+
+    public void setStrokeWidth(double strokeWidth) {
+    this.strokeWidth = strokeWidth;
     }
 }

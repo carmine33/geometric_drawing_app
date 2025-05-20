@@ -32,11 +32,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 import java.util.Iterator;
+import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -63,6 +65,13 @@ public class FXMLController implements Initializable {
     private ShapeSelector selectShape;
     ContextMenu contextMenu = new ContextMenu();
     MenuItem deleteMenu = new MenuItem("Delete");
+    MenuItem setStrokeColor = new MenuItem("Imposta colore bordo");
+    MenuItem setStrokeWidth = new MenuItem("Imposta spessore bordo");
+    MenuItem setFillColor = new MenuItem("Imposta colore interno");
+    MenuItem copyShape = new MenuItem("Copia");
+    MenuItem pasteShape = new MenuItem("Incolla");
+
+    private ShapeBase copiedShape = null;
     private String currentMouseCommand = null;
     private List<ShapeBase> shapes = new ArrayList<>();
     private double lineStartX, lineStartY;
@@ -74,19 +83,19 @@ public class FXMLController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        baseCanvas = new BaseCanvas(1000, 500);
+         baseCanvas = new BaseCanvas(1000, 500);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         selectShape = new ShapeSelector(shapes, null);
-        
+
         btnRectangle.setOnAction(e -> currentMouseCommand = "Rectangle");
         btnEllipse.setOnAction(e -> currentMouseCommand = "Ellipse");
         btnLine.setOnAction(e -> currentMouseCommand = "Line");
         btnSelect.setOnAction(e-> currentMouseCommand = "Select");
-        
+
         baseCanvas.getCanvas().setOnMousePressed(e -> {
             if(e.isPrimaryButtonDown() && !(currentMouseCommand.equals("Select")) && !(currentMouseCommand.isEmpty()) ){
-            lineStartX = e.getX();
-            lineStartY = e.getY();
+                lineStartX = e.getX();
+                lineStartY = e.getY();
                 if (currentMouseCommand.equals("Line")) {
                     isDrawingLine = true;
                 } else if(currentMouseCommand.equals("Rectangle")){
@@ -94,10 +103,10 @@ public class FXMLController implements Initializable {
                 } else if(currentMouseCommand.equals("Ellipse")){
                     isDrawingEllipse = true;
                 }
-            } else if(e.isSecondaryButtonDown()){ //se invece clicco tasto destro...
+            } else if(e.isSecondaryButtonDown()){
                 select(e);
                 initContextMenu();
-            }else if (e.isPrimaryButtonDown() && currentMouseCommand.equals("Select") ){
+            } else if (e.isPrimaryButtonDown() && currentMouseCommand.equals("Select") ){
                 isSelected = true;
             }
         });
@@ -108,12 +117,12 @@ public class FXMLController implements Initializable {
             if (currentMouseCommand.equals("Line") && isDrawingLine) {
                 isDrawingLine = false;
                 ShapeBase line = new ShapeLine(lineStartX, lineStartY, 0, 0,
-                                                 e.getX(), e.getY(), 
-                                            strokeColorPicker.getValue()
-                                              );
+                    e.getX(), e.getY(), 
+                    strokeColorPicker.getValue(),1
+                );
                 shapes.add(line);
                 redraw(baseCanvas.getGc());
-            }else if(currentMouseCommand.equals("Rectangle")  && isDrawingRectangle){
+            } else if(currentMouseCommand.equals("Rectangle") && isDrawingRectangle){
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
@@ -122,13 +131,11 @@ public class FXMLController implements Initializable {
                     width = 100;
                     height = 40;
                 }
-                
                 isDrawingRectangle = false;
-                ShapeBase rectangle = new ShapeRectangle(x, y, width, height, fillColorPicker.getValue(), strokeColorPicker.getValue());
+                ShapeBase rectangle = new ShapeRectangle(x, y, width, height, fillColorPicker.getValue(), strokeColorPicker.getValue(),1);
                 shapes.add(rectangle);
                 redraw(baseCanvas.getGc());
-                
-            } else if(currentMouseCommand.equals("Ellipse")  && isDrawingEllipse){
+            } else if(currentMouseCommand.equals("Ellipse") && isDrawingEllipse){
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
@@ -140,17 +147,14 @@ public class FXMLController implements Initializable {
                     width = 100;
                     height = 40;
                 }
-                
                 ShapeBase ellipse = new ShapeEllipse(ellipseX, ellipseY, width, height, fillColorPicker.getValue(),
-                                           strokeColorPicker.getValue());
+                    strokeColorPicker.getValue(),1);
                 shapes.add(ellipse);
                 redraw(baseCanvas.getGc());
-            }else if(currentMouseCommand.equals("Select") && isSelected){
+            } else if(currentMouseCommand.equals("Select") && isSelected){
                 select(e);
                 isSelected = false; 
             }
-            
-            
         });
         
         baseCanvas.getCanvas().setOnMouseDragged(event -> {
@@ -260,16 +264,63 @@ private void select(MouseEvent event) {
     
     //funzione per il menu a tendina dopo aver cliccato tasto destro
      private void initContextMenu() {
-        contextMenu.getItems().addAll(deleteMenu);
-        baseCanvas.getCanvas().setOnContextMenuRequested(e -> contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY()));
-     
+        contextMenu.getItems().clear();
+        contextMenu.getItems().addAll(deleteMenu, setStrokeColor, setStrokeWidth, setFillColor, copyShape, pasteShape);
 
-        deleteMenu.setOnAction(new EventHandler<ActionEvent>() { //set the action of the deleteMenu item
-            public void handle(ActionEvent event) {
-                delete();
-                mod = "Delete";
+        deleteMenu.setOnAction(e -> delete());
+
+        setStrokeColor.setOnAction(e -> {
+            ShapeBase selected = selectShape.getSelectedShape();
+            if (selected != null) {
+                selected.setStrokeColor(strokeColorPicker.getValue());
+                redraw(baseCanvas.getGc());
             }
         });
+
+        setFillColor.setOnAction(e -> {
+            ShapeBase selected = selectShape.getSelectedShape();
+            if (selected != null) {
+                selected.setFillColor(fillColorPicker.getValue());
+                redraw(baseCanvas.getGc());
+            }
+        });
+
+        setStrokeWidth.setOnAction(e -> {
+            ShapeBase selected = selectShape.getSelectedShape();
+            if (selected != null) {
+                TextInputDialog dialog = new TextInputDialog("1.0");
+                dialog.setTitle("Imposta spessore bordo");
+                dialog.setHeaderText("Inserisci lo spessore del bordo (es. 2.0):");
+                Optional<String> result = dialog.showAndWait();
+                result.ifPresent(value -> {
+                    try {
+                        double width = Double.parseDouble(value);
+                        selected.setStrokeWidth(width);
+                        redraw(baseCanvas.getGc());
+                    } catch (NumberFormatException ex) {
+                        showInfo("Errore", "Valore non valido per lo spessore.");
+                    }
+                });
+            }
+        });
+
+        copyShape.setOnAction(e -> {
+            ShapeBase selected = selectShape.getSelectedShape();
+            if (selected != null) {
+                copiedShape = selected.copy();
+            }
+        });
+
+        pasteShape.setOnAction(e -> {
+            if (copiedShape != null) {
+                ShapeBase newShape = (ShapeBase) copiedShape.copy();
+                newShape.translate(10, 10); // spostamento per evitare sovrapposizione
+                shapes.add(newShape);
+                redraw(baseCanvas.getGc());
+            }
+        });
+
+        baseCanvas.getCanvas().setOnContextMenuRequested(e -> contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY()));
     }
      
      public void delete() {
