@@ -65,7 +65,7 @@ public abstract class ShapeBase implements Shape {
         return height;
     }
 
-    public void getWidth(double width) {
+    public void setWidth(double width) {
         this.width = width;
     }
 

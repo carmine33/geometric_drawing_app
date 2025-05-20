@@ -5,23 +5,19 @@
 package com.group21.controller;
 
 import com.group21.model.Decorator.BaseCanvas;
-import com.group21.model.Decorator.CanvasInterface;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.BorderPane;
 
 // Added for additional tools
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 
 // Shapes
 import com.group21.model.Shape.ShapeBase;
@@ -34,14 +30,14 @@ import com.group21.model.Command.*;
 // Import for save/load 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.group21.model.Decorator.PaneInterface;
 import java.io.File;
 import java.io.IOException;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+
 import java.util.Iterator;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
@@ -207,16 +203,66 @@ public class FXMLController implements Initializable {
         
     }
         
-    // Dropdown menù handlers
-    public void handleSave() {
-        System.out.println("File saved");
+   // Save/Load logic implementation
+    public void saveShapes(List<ShapeBase> shapes, File file){
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        try {
+            mapper.writeValue(file, shapes);
+            System.out.println("Saved " + shapes.size() + " shapes to " + file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
-    
+    public List<ShapeBase> loadShapes(File file) {
+        ObjectMapper mapper = new ObjectMapper();
+        List<ShapeBase> shapes = null;
 
-    // Called when Load menu item is clicked
-    public void handleLoad() {
-        System.out.println("File loaded");
+        try {
+            shapes = mapper.readValue(file, 
+                    mapper.getTypeFactory().constructCollectionType(List.class, ShapeBase.class));
+            System.out.println("Loaded " + shapes.size() + " shapes from " + file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return shapes;
+    }
+
+ // Dropdown menù handlers
+    public void handleSave() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Shapes");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        Window window = baseCanvas.getCanvas().getScene().getWindow();
+        File file = fileChooser.showSaveDialog(window);
+        if (file != null) {
+            saveShapes(shapes, file);
+            showInfo("Save successful", "Saved " + shapes.size() + " shapes.");
+        }
+    }
+
+
+
+public void handleLoad() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Load Shapes");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        Window window = baseCanvas.getCanvas().getScene().getWindow();
+        File file = fileChooser.showOpenDialog(window);
+        if (file != null) {
+            List<ShapeBase> loadedShapes = loadShapes(file);
+            if (loadedShapes != null) {
+                shapes.clear();
+                shapes.addAll(loadedShapes);
+                GraphicsContext gc = baseCanvas.getCanvas().getGraphicsContext2D();
+                redraw(gc);
+                showInfo("Load successful", "Loaded " + shapes.size() + " shapes.");
+            }
+        }
     }
     
     @FXML
