@@ -149,7 +149,42 @@ public class FXMLController implements Initializable {
                 select(e);
                 isSelected = false; 
             }
+            
+            
         });
+        
+        baseCanvas.getCanvas().setOnMouseDragged(event -> {
+    ShapeBase selected = selectShape.getSelectedShape();
+    if (selected == null) return;
+
+    // Nuove coordinate del mouse
+    double mouseX = event.getX();
+    double mouseY = event.getY();
+
+    // Ridimensiona la figura in base alla nuova posizione del mouse
+    if (selected instanceof ShapeRectangle) {
+        ShapeRectangle rect = (ShapeRectangle) selected;
+        double newWidth = Math.max(10, mouseX - rect.getX());
+        double newHeight = Math.max(10, mouseY - rect.getY());
+        rect.setWidth(newWidth);
+        rect.setHeight(newHeight);
+
+    } else if (selected instanceof ShapeEllipse) {
+        ShapeEllipse ellipse = (ShapeEllipse) selected;
+        double newWidth = Math.max(10, mouseX - ellipse.getX());
+        double newHeight = Math.max(10, mouseY - ellipse.getY());
+        ellipse.setWidth(newWidth);
+        ellipse.setHeight(newHeight);
+
+    } else if (selected instanceof ShapeLine) {
+        ShapeLine line = (ShapeLine) selected;
+        line.setEndX(mouseX);
+        line.setEndY(mouseY);
+    }
+
+    redraw(baseCanvas.getGc());
+});
+
     }
        
     private void showInfo(String title, String message) {
