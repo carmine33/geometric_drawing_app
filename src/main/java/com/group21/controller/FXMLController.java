@@ -215,7 +215,7 @@ public class FXMLController implements Initializable {
     // Disegna bordo porpora attorno alla forma selezionata
     ShapeBase selected = selectShape.getSelectedShape();
     if (selected != null) {
-        gc.setStroke(Color.MEDIUMPURPLE);
+        gc.setStroke(Color.RED);
         gc.setLineWidth(3.0);
 
         if (selected instanceof ShapeRectangle) {
