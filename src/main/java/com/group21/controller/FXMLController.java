@@ -83,7 +83,7 @@ public class FXMLController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-         baseCanvas = new BaseCanvas(1000, 500);
+        baseCanvas = new BaseCanvas(1000, 500);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         selectShape = new ShapeSelector(shapes, null);
 
@@ -93,7 +93,8 @@ public class FXMLController implements Initializable {
         btnSelect.setOnAction(e-> currentMouseCommand = "Select");
 
         baseCanvas.getCanvas().setOnMousePressed(e -> {
-            if(e.isPrimaryButtonDown() && !(currentMouseCommand.equals("Select")) && !(currentMouseCommand.isEmpty()) ){
+            if(e.isPrimaryButtonDown() && currentMouseCommand != null &&
+        !currentMouseCommand.isEmpty() && !currentMouseCommand.equals("Select")){
                 lineStartX = e.getX();
                 lineStartY = e.getY();
                 if (currentMouseCommand.equals("Line")) {
@@ -106,7 +107,7 @@ public class FXMLController implements Initializable {
             } else if(e.isSecondaryButtonDown()){
                 select(e);
                 initContextMenu();
-            } else if (e.isPrimaryButtonDown() && currentMouseCommand.equals("Select") ){
+            } else if (e.isPrimaryButtonDown() && "Select".equals(currentMouseCommand)){
                 isSelected = true;
             }
         });
@@ -114,7 +115,7 @@ public class FXMLController implements Initializable {
         baseCanvas.getCanvas().setOnMouseReleased(e -> {
             double endX = e.getX();
             double endY = e.getY();
-            if (currentMouseCommand.equals("Line") && isDrawingLine) {
+            if ("Line".equals(currentMouseCommand) && isDrawingLine) {
                 isDrawingLine = false;
                 ShapeBase line = new ShapeLine(lineStartX, lineStartY, 0, 0,
                     e.getX(), e.getY(), 
@@ -122,7 +123,7 @@ public class FXMLController implements Initializable {
                 );
                 shapes.add(line);
                 redraw(baseCanvas.getGc());
-            } else if(currentMouseCommand.equals("Rectangle") && isDrawingRectangle){
+            } else if("Rectangle".equals(currentMouseCommand) && isDrawingRectangle){
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
@@ -138,7 +139,7 @@ public class FXMLController implements Initializable {
                 ShapeBase rectangle = new ShapeRectangle(x, y, width, height, fillColorPicker.getValue(), strokeColorPicker.getValue(),1);
                 shapes.add(rectangle);
                 redraw(baseCanvas.getGc());
-            } else if(currentMouseCommand.equals("Ellipse") && isDrawingEllipse){
+            } else if("Ellipse".equals(currentMouseCommand) && isDrawingEllipse){
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
@@ -156,43 +157,43 @@ public class FXMLController implements Initializable {
                     strokeColorPicker.getValue(),1);
                 shapes.add(ellipse);
                 redraw(baseCanvas.getGc());
-            } else if(currentMouseCommand.equals("Select") && isSelected){
+            } else if("Select".equals(currentMouseCommand) && isSelected){
                 select(e);
                 isSelected = false; 
             }
         });
         
         baseCanvas.getCanvas().setOnMouseDragged(event -> {
-    ShapeBase selected = selectShape.getSelectedShape();
-    if (selected == null) return;
+            ShapeBase selected = selectShape.getSelectedShape();
+            if (selected == null) return;
 
-    // Nuove coordinate del mouse
-    double mouseX = event.getX();
-    double mouseY = event.getY();
+            // Nuove coordinate del mouse
+            double mouseX = event.getX();
+            double mouseY = event.getY();
 
-    // Ridimensiona la figura in base alla nuova posizione del mouse
-    if (selected instanceof ShapeRectangle) {
-        ShapeRectangle rect = (ShapeRectangle) selected;
-        double newWidth = Math.max(10, mouseX - rect.getX());
-        double newHeight = Math.max(10, mouseY - rect.getY());
-        rect.setWidth(newWidth);
-        rect.setHeight(newHeight);
+            // Ridimensiona la figura in base alla nuova posizione del mouse
+            if (selected instanceof ShapeRectangle) {
+                ShapeRectangle rect = (ShapeRectangle) selected;
+                double newWidth = Math.max(10, mouseX - rect.getX());
+                double newHeight = Math.max(10, mouseY - rect.getY());
+                rect.setWidth(newWidth);
+                rect.setHeight(newHeight);
 
-    } else if (selected instanceof ShapeEllipse) {
-        ShapeEllipse ellipse = (ShapeEllipse) selected;
-        double newWidth = Math.max(10, mouseX - ellipse.getX());
-        double newHeight = Math.max(10, mouseY - ellipse.getY());
-        ellipse.setWidth(newWidth);
-        ellipse.setHeight(newHeight);
+            } else if (selected instanceof ShapeEllipse) {
+                ShapeEllipse ellipse = (ShapeEllipse) selected;
+                double newWidth = Math.max(10, mouseX - ellipse.getX());
+                double newHeight = Math.max(10, mouseY - ellipse.getY());
+                ellipse.setWidth(newWidth);
+                ellipse.setHeight(newHeight);
 
-    } else if (selected instanceof ShapeLine) {
-        ShapeLine line = (ShapeLine) selected;
-        line.setEndX(mouseX);
-        line.setEndY(mouseY);
-    }
+            } else if (selected instanceof ShapeLine) {
+                ShapeLine line = (ShapeLine) selected;
+                line.setEndX(mouseX);
+                line.setEndY(mouseY);
+            }
 
-    redraw(baseCanvas.getGc());
-});
+            redraw(baseCanvas.getGc());
+        });
 
     }
        
