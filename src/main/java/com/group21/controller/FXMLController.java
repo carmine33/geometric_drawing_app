@@ -127,10 +127,13 @@ public class FXMLController implements Initializable {
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
                 double height = Math.abs(endY - lineStartY);
-                if(width == 0 && height == 0){
+                if(width == 0) {
                     width = 100;
+                }
+                if(height == 0){
                     height = 40;
                 }
+                
                 isDrawingRectangle = false;
                 ShapeBase rectangle = new ShapeRectangle(x, y, width, height, fillColorPicker.getValue(), strokeColorPicker.getValue(),1);
                 shapes.add(rectangle);
@@ -143,8 +146,10 @@ public class FXMLController implements Initializable {
                 double ellipseX = (lineStartX + endX) / 2;
                 double ellipseY = (lineStartY + endY) / 2;
                 isDrawingEllipse = false;
-                if(width == 0 && height == 0){
+                if(width == 0) {
                     width = 100;
+                }
+                if(height == 0){
                     height = 40;
                 }
                 ShapeBase ellipse = new ShapeEllipse(ellipseX, ellipseY, width, height, fillColorPicker.getValue(),
@@ -234,32 +239,31 @@ public class FXMLController implements Initializable {
         }
     }
 }
-
     
-// Funzione per gestire la selezione delle figure
-private void select(MouseEvent event) {
-    double clickX = event.getX();
-    double clickY = event.getY();
+    // Funzione per gestire la selezione delle figure
+    private void select(MouseEvent event) {
+        double clickX = event.getX();
+        double clickY = event.getY();
 
-    // Scorri le forme dalla più recente alla più vecchia
-    for (int i = shapes.size() - 1; i >= 0; i--) {
-        ShapeBase shape = shapes.get(i);
+        // Scorri le forme dalla più recente alla più vecchia
+        for (int i = shapes.size() - 1; i >= 0; i--) {
+            ShapeBase shape = shapes.get(i);
 
-        // Verifica se il punto cliccato è dentro la figura
-        if (shape.containsPoint(clickX, clickY)) {
-            // Se sì, imposta la figura come selezionata
-            selectShape.setSelectedShape(shape);
+            // Verifica se il punto cliccato è dentro la figura
+            if (shape.containsPoint(clickX, clickY)) {
+                // Se sì, imposta la figura come selezionata
+                selectShape.setSelectedShape(shape);
 
-            // Ridisegna il canvas con la nuova selezione evidenziata
-            redraw(baseCanvas.getGc());
-            return; // Selezionata una forma, possiamo uscire
+                // Ridisegna il canvas con la nuova selezione evidenziata
+                redraw(baseCanvas.getGc());
+                return; // Selezionata una forma, possiamo uscire
+            }
         }
-    }
 
-    // Nessuna figura trovata sotto il click → deseleziona tutto
-    selectShape.setSelectedShape(null);
-    redraw(baseCanvas.getGc());
-}
+        // Nessuna figura trovata sotto il click → deseleziona tutto
+        selectShape.setSelectedShape(null);
+        redraw(baseCanvas.getGc());
+    }
 
     
     //funzione per il menu a tendina dopo aver cliccato tasto destro
@@ -328,13 +332,8 @@ private void select(MouseEvent event) {
         command.execute();
         redraw(baseCanvas.getGc());
     }
-     
-     // Dropdown menù handlers
-    public void handleSelect() {
         
-    }
-        
-   // Save/Load logic implementation
+    // Save/Load logic implementation
     public void saveShapes(List<ShapeBase> shapes, File file){
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
