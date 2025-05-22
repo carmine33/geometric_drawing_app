@@ -5,7 +5,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group21.controller.FXMLController" prefWidth="1000.0" prefHeight="500.0">
     <top>
-        <VBox>    
+        <VBox>
             <MenuBar>
                 <menus>
                     <Menu text="File">
@@ -19,12 +19,40 @@
                 </menus>
             </MenuBar>
             <ToolBar>
-                <Button fx:id="btnRectangle" text="Rectangle" />
-                <Button fx:id="btnEllipse" text="Ellipse" />
-                <Button fx:id="btnLine" text="Line" />
-                <Button fx:id="btnSelect" text="Select" />
-                <ColorPicker fx:id="fillColorPicker"/>
-                <ColorPicker fx:id="strokeColorPicker"/>
+                <HBox spacing="20" alignment="TOP_LEFT">
+                    <!-- Group 1: Shapes -->
+                    <VBox spacing="5">
+                        <Label text="Shapes"/>
+                        <HBox spacing="10">
+                            <Button fx:id="btnRectangle" text="Rectangle"/>
+                            <Button fx:id="btnEllipse" text="Ellipse"/>
+                            <Button fx:id="btnLine" text="Line"/>
+                            <Button fx:id="btnPolygon" text="Polygon"/>
+                        </HBox>
+                    </VBox>
+                    <!-- Group 2: Options -->
+                    <VBox spacing="5">
+                        <Label text="Options"/>
+                        <HBox spacing="10">
+                            <Button fx:id="btnSelect" text="Select" />
+                        </HBox>
+                    </VBox>
+                     <!-- Group 3: Colors -->
+                    <HBox spacing="10" alignment="TOP_LEFT">
+                        <VBox spacing="5">
+                            <Label text="Fill color"/>
+                            <HBox spacing="10">
+                                <ColorPicker fx:id="fillColorPicker"/>
+                            </HBox>
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Border color"/>
+                            <HBox spacing="10">
+                                <ColorPicker fx:id="strokeColorPicker"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </HBox>
             </ToolBar>
         </VBox> 
     </top>
@@ -32,4 +60,3 @@
         <Pane fx:id="canvasPlaceholder"/>
     </center>
 </BorderPane>
-

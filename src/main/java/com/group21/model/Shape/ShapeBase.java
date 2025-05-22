@@ -24,7 +24,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonSubTypes({
   @JsonSubTypes.Type(value = ShapeRectangle.class, name = "Rectangle"),
   @JsonSubTypes.Type(value = ShapeEllipse.class, name = "Ellipse"),
-  @JsonSubTypes.Type(value = ShapeLine.class, name = "Line")
+  @JsonSubTypes.Type(value = ShapeLine.class, name = "Line"),
+  @JsonSubTypes.Type(value = ShapePolygon.class, name = "Polygon")
 })
 public abstract class ShapeBase implements Shape {
     protected double x, y;
