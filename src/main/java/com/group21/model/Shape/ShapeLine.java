@@ -53,11 +53,13 @@ public class ShapeLine extends ShapeBase{
         gc.setLineWidth(strokeWidth);
     }
     
+    // Check if the point (x,y) intersects a small area around the line (8x8 pixels)
     @Override
     public boolean containsPoint(double x, double y) {
         line.setLine(this.x, this.y, this.endX, this.endY);
-        return line.intersects(x - 4, y - 4, 8.0, 8.0); // controllo se il punto (x,y) interseca una piccola area intorno alla linea (8x8 pixel)
+        return line.intersects(x - 4, y - 4, 8.0, 8.0);
     }
+    
     @Override
     public ShapeBase copy() {
     ShapeLine copy = new ShapeLine(x, y, getWidth(), getHeight(),endX,endY,strokeColor,strokeWidth);
