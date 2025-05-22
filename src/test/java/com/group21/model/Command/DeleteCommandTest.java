@@ -27,7 +27,7 @@ public class DeleteCommandTest {
         ShapeRectangle rect = new ShapeRectangle(10, 10, 50, 50, Color.BLUE, Color.BLACK, 1.0);
         shapes.add(rect);
 
-        ShapeSelector selector = new ShapeSelector(shapes, rect);
+        ShapeSelector selector = new ShapeSelector(shapes, rect,null,null);
 
         // Pre-condizioni
         assertEquals(rect, selector.getSelectedShape());

@@ -13,6 +13,7 @@ import com.group21.model.Memory.*;
 import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 
 /**
@@ -27,9 +28,11 @@ public class ShapeSelector {
     @FXML private ColorPicker fillColorPicker;
     @FXML private ColorPicker strokeColorPicker;
 
-    public ShapeSelector(List<ShapeBase> listShape, ShapeBase selectedShape) {
+    public ShapeSelector(List<ShapeBase> listShape, ShapeBase selectedShape, ColorPicker fillColorPicker, ColorPicker strokeColorPicker) {
         this.list = listShape;
         this.selectedShape = selectedShape;
+        this.fillColorPicker = fillColorPicker;
+        this.strokeColorPicker = strokeColorPicker;
         this.memory = new Memory();
 
     }
@@ -91,14 +94,36 @@ public class ShapeSelector {
 
     public void ModFillColorShape() {
     if (this.selectedShape != null) {
-        this.selectedShape.setFillColor(fillColorPicker.getValue());
-        }    
+        ColorPicker picker = new ColorPicker();
+        picker.setValue(this.selectedShape.getFillColor());
+
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        alert.setTitle("Modifica colore di riempimento");
+        alert.getDialogPane().setContent(picker);
+        alert.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            this.selectedShape.setFillColor(picker.getValue());
+        }
+      } 
     }
 
     void ModStrColorShape() {
         if (this.selectedShape != null) {
-            this.selectedShape.setStrokeColor(strokeColorPicker.getValue());
-        } 
+         ColorPicker picker = new ColorPicker();
+         picker.setValue(this.selectedShape.getFillColor());
+
+         Alert alert = new Alert(Alert.AlertType.NONE);
+         alert.setTitle("Modifica colore bordi");
+         alert.getDialogPane().setContent(picker);
+         alert.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            this.selectedShape.setStrokeColor(picker.getValue());
+        }
+       }
     }
 }
 

@@ -90,7 +90,7 @@ public class FXMLController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         baseCanvas = new BaseCanvas(1000, 500);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
-        selectShape = new ShapeSelector(shapes, null);
+        selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
         
         btnRectangle.setOnAction(e -> currentMouseCommand = "Rectangle");
@@ -365,63 +365,60 @@ public class FXMLController implements Initializable {
         contextMenu.getItems().clear();
         contextMenu.getItems().addAll(deleteMenu, setStrokeColor, setStrokeWidth, setFillColor, copyShape, pasteShape);
 
-        deleteMenu.setOnAction(e -> delete());
+        deleteMenu.setOnAction(e -> menuDeleteHandler());
 
-        setStrokeColor.setOnAction(e -> {
-            ShapeBase selected = selectShape.getSelectedShape();
-            if (selected != null) {
-                selected.setStrokeColor(strokeColorPicker.getValue());
-                redraw(baseCanvas.getGc());
-            }
-        });
+        setStrokeColor.setOnAction(e ->menuModifyColorStroke());
 
-        setFillColor.setOnAction(e -> {
-            ShapeBase selected = selectShape.getSelectedShape();
-            if (selected != null) {
-                selected.setFillColor(fillColorPicker.getValue());
-                redraw(baseCanvas.getGc());
-            }
-        });
+        setFillColor.setOnAction(e -> menuModifyColorFill());
 
-        setStrokeWidth.setOnAction(e -> {
-            ShapeBase selected = selectShape.getSelectedShape();
-            if (selected != null) {
-                TextInputDialog dialog = new TextInputDialog("1.0");
-                dialog.setTitle("Set a border width.");
-                dialog.setHeaderText("Insert a width value:");
-                Optional<String> result = dialog.showAndWait();
-                result.ifPresent(value -> {
-                    try {
-                        double width = Double.parseDouble(value);
-                        selected.setStrokeWidth(width);
-                        redraw(baseCanvas.getGc());
-                    } catch (NumberFormatException ex) {
-                        showInfo("Error", "Invalid width value.");
-                    }
-                });
-            }
-        });
+        setStrokeWidth.setOnAction(e ->menuModifyWidthStroke());
 
-        copyShape.setOnAction(e -> {
-            ShapeBase selected = selectShape.getSelectedShape();
-            if (selected != null) {
-                copiedShape = selected.copy();
-            }
-        });
+        copyShape.setOnAction(e ->menuCopyHandler());
 
-        pasteShape.setOnAction(e -> {
-            if (copiedShape != null) {
-                ShapeBase newShape = (ShapeBase) copiedShape.copy();
-                newShape.translate(10, 10); // Displacement to avoid overlap
-                shapes.add(newShape);
-                redraw(baseCanvas.getGc());
-            }
-        });
+        pasteShape.setOnAction(e ->menuPasteHandler());
+        
 
         baseCanvas.getCanvas().setOnContextMenuRequested(e -> contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY()));
     }
+    
      
-     public void delete() {
+    public void menuModifyColorStroke() {
+        
+        command = new ModStrColorCommand(selectShape);
+        command.execute();
+        redraw(baseCanvas.getGc());
+    } 
+     
+     public void menuModifyColorFill() {
+        
+        command = new ModFillColorCommand(selectShape);
+        command.execute();
+        redraw(baseCanvas.getGc());
+  
+    }
+     
+    
+    public void menuModifyWidthStroke(){
+        command = new ModStrWidthCommand(selectShape);
+        command.execute();
+        redraw(baseCanvas.getGc());
+    }  
+    
+    public void menuCopyHandler (){
+        
+        command = new CopyCommand(selectShape);
+        command.execute();
+        
+    } 
+     
+    public void menuPasteHandler(){     
+        command = new PasteCommand(selectShape);
+        command.execute();
+        redraw(baseCanvas.getGc());  
+    }
+     
+     
+     public void menuDeleteHandler() {
         command = new DeleteCommand(selectShape);
         command.execute();
         redraw(baseCanvas.getGc());

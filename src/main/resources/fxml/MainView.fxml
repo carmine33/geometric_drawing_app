@@ -57,6 +57,7 @@
         </VBox> 
     </top>
     <center>
-        <Pane fx:id="canvasPlaceholder"/>
+        <Pane fx:id="canvasPlaceholder">
+        </Pane>
     </center>
 </BorderPane>

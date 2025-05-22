@@ -24,7 +24,7 @@ public class ShapeSelectorTest {
     void testSetAndGetSelectedShape() {
         List<ShapeBase> shapes = new ArrayList<>();
         ShapeRectangle rect = new ShapeRectangle(0, 0, 100, 100, Color.BLACK, Color.BLUE, 1.0);
-        ShapeSelector selector = new ShapeSelector(shapes, null);
+        ShapeSelector selector = new ShapeSelector(shapes, null,null,null);
 
         selector.setSelectedShape(rect);
         assertEquals(rect, selector.getSelectedShape());
@@ -36,7 +36,7 @@ public class ShapeSelectorTest {
         ShapeRectangle rect = new ShapeRectangle(0, 0, 100, 100, Color.BLACK, Color.BLUE, 1.0);
         shapes.add(rect);
 
-        ShapeSelector selector = new ShapeSelector(shapes, rect);
+        ShapeSelector selector = new ShapeSelector(shapes, rect,null,null);
 
         assertTrue(shapes.contains(rect));
         assertEquals(rect, selector.getSelectedShape());
