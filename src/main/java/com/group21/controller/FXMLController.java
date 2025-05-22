@@ -63,6 +63,7 @@ public class FXMLController implements Initializable {
     @FXML private Button btnLine;
     @FXML private Button btnPolygon;
     @FXML private Button btnSelect;
+    @FXML private Button btnTextBox;
     
     private ShapeSelector selectShape;
     ContextMenu contextMenu = new ContextMenu();
@@ -98,6 +99,7 @@ public class FXMLController implements Initializable {
         btnLine.setOnAction(e -> currentMouseCommand = "Line");
         btnPolygon.setOnAction(e -> currentMouseCommand = "Polygon");
         btnSelect.setOnAction(e-> currentMouseCommand = "Select");
+        btnTextBox.setOnAction(e -> currentMouseCommand = "TextBox");
 
         baseCanvas.getCanvas().setOnMousePressed(e -> {
             if(e.isPrimaryButtonDown() && currentMouseCommand != null &&

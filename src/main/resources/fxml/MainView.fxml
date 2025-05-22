@@ -28,6 +28,7 @@
                             <Button fx:id="btnEllipse" text="Ellipse"/>
                             <Button fx:id="btnLine" text="Line"/>
                             <Button fx:id="btnPolygon" text="Polygon"/>
+                            <Button fx:id="btnTextBox" text="TextBox" />
                         </HBox>
                     </VBox>
                     <!-- Group 2: Options -->
