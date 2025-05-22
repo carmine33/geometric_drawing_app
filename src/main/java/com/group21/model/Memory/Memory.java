@@ -17,6 +17,7 @@ public class Memory {
     private Stack<ShapeBase> stackShape;
     private Stack<Double> stackDouble;
     private Stack<ColorPicker> stackColor;
+    private ShapeBase copiedShape;
 
     public Memory() {
         this.stackShape = new Stack<>();
@@ -28,4 +29,11 @@ public class Memory {
         this.stackShape.add(selectedShape);
     }
 
+    public void setCopiedShape(ShapeBase shape) {
+    this.copiedShape = shape;
+}
+
+    public ShapeBase getCopiedShape() {
+    return this.copiedShape;
+    }
 }

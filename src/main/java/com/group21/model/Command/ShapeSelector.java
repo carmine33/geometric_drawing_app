@@ -55,19 +55,22 @@ public class ShapeSelector {
         this.memory.addStackShape(this.selectedShape);
     }
     
-    public void PasteShape(){
-        if ( this.selectedShape!= null) {
-            ShapeBase newShape = (ShapeBase) this.selectedShape.copy();
-            newShape.translate(10, 10); // spostamento per evitare sovrapposizione
-            this.list.add(newShape);
-            this.memory.addStackShape(this.selectedShape);
-        }
+    public ShapeBase PasteShape() {
+    ShapeBase toPaste = this.memory.getCopiedShape();
+    if (toPaste != null) {
+        ShapeBase newShape = (ShapeBase) toPaste.copy();
+        newShape.translate(10, 10); // spostamento per evitare sovrapposizione
+        this.list.add(newShape);
+        return newShape;
     }
+    return null;
+}
     
     
     public void CopyShape() {
     if (this.selectedShape != null) {
-        this.memory.addStackShape(this.selectedShape);;
+        ShapeBase copy = (ShapeBase) this.selectedShape.copy();
+        this.memory.setCopiedShape(copy); 
         }
     }
 

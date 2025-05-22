@@ -70,11 +70,14 @@ public class ShapePolygon extends ShapeBase{
         }
     }
 
-    @Override
+     @Override
     public ShapeBase copy() {
-        List<Point2D> copied = new ArrayList<>(this.vertices);
-        return new ShapePolygon(copied, this.fillColor, this.strokeColor, this.strokeWidth);
-    }
+    ShapePolygon copy = new ShapePolygon(vertices, fillColor, strokeColor,strokeWidth);
+    copy.setStrokeWidth(this.strokeWidth); // <-- copia strokeWidth
+    copy.setFillColor(this.getFillColor());
+    copy.setStrokeColor(this.getStrokeColor());    
+    return copy;
+    } 
 
     @JsonProperty("vertices")
     public double[][] getVerticesAsArray() {

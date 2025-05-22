@@ -33,7 +33,6 @@ public class ShapeRectangleTest {
         assertTrue(rect.containsPoint(50, 40));
         assertFalse(rect.containsPoint(200, 200));
         assertNotNull(rect.copy());
-        assertNotNull(rect.clone());
     }
 }
 

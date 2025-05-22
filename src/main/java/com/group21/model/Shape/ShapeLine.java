@@ -64,6 +64,7 @@ public class ShapeLine extends ShapeBase{
     public ShapeBase copy() {
     ShapeLine copy = new ShapeLine(x, y, getWidth(), getHeight(),endX,endY,strokeColor,strokeWidth);
     copy.setStrokeWidth(this.strokeWidth);
+    copy.setFillColor(this.getFillColor());
     return copy;
     }
     

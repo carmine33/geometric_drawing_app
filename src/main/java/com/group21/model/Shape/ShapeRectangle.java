@@ -44,16 +44,12 @@ import javafx.scene.paint.Color;
     }
     
     
+    @Override
     public ShapeBase copy() {
     ShapeRectangle copy = new ShapeRectangle(x, y, this.getWidth(), this.getHeight(), fillColor, strokeColor,strokeWidth);
     copy.setStrokeWidth(this.strokeWidth); // <-- copia strokeWidth
+    copy.setFillColor(this.getFillColor());
+    copy.setStrokeColor(this.getStrokeColor());    
     return copy;
-    }   
-    @Override
-public ShapeBase clone() {
-    ShapeRectangle copy = new ShapeRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight(),
-            this.getFillColor(), this.getStrokeColor(),this.getStrokeWidth());
-    copy.setStrokeWidth(this.strokeWidth);
-    return copy;
-}
+    } 
 }

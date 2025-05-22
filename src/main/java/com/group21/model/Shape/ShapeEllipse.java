@@ -47,6 +47,8 @@ public class ShapeEllipse extends ShapeBase{
     public ShapeBase copy() {
     ShapeEllipse copy = new ShapeEllipse(x, y, getWidth(), getHeight(), fillColor, strokeColor,strokeWidth);
     copy.setStrokeWidth(this.strokeWidth);
+    copy.setFillColor(this.getFillColor());
+    copy.setStrokeColor(this.getStrokeColor());
     return copy;
     }
    
