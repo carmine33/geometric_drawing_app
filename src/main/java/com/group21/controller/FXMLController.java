@@ -82,6 +82,8 @@ public class FXMLController implements Initializable {
     MenuItem setStrokeWidth = new MenuItem("Set border thickness");
     MenuItem setStrokeColor = new MenuItem("Set border color");
     MenuItem setFillColor = new MenuItem("Set fill color");
+    MenuItem modifyTextBox = new MenuItem("Modify text");
+
 
     private ShapeBase copiedShape = null;
     ShapePolygon currentPolygon = null;
@@ -214,7 +216,40 @@ public class FXMLController implements Initializable {
                     strokeColorPicker.getValue(),1);
                 shapes.add(ellipse);
                 redraw(baseCanvas.getGc());
-            } else if("Select".equals(currentMouseCommand) && isSelected){
+            }else if ("TextBox".equals(currentMouseCommand)) {
+            TextInputDialog textDialog = new TextInputDialog("Testo");
+            textDialog.setTitle("Nuova TextBox");
+            textDialog.setHeaderText("Inserisci il contenuto:");
+            textDialog.setContentText("Testo:");
+            Optional<String> resultText = textDialog.showAndWait();
+            if (resultText.isEmpty()) return;
+
+            TextInputDialog sizeDialog = new TextInputDialog("14");
+            sizeDialog.setTitle("Dimensione font");
+            sizeDialog.setHeaderText("Inserisci la dimensione del testo:");
+            sizeDialog.setContentText("Dimensione:");
+            Optional<String> resultSize = sizeDialog.showAndWait();
+
+            double fontSize = 14;
+            if (resultSize.isPresent()) {
+                try {
+                    fontSize = Double.parseDouble(resultSize.get());
+                } catch (NumberFormatException ignored) {}
+            }
+
+            ShapeTextBox newTextBox = new ShapeTextBox(
+                endX, endY, 0, 0,
+                fillColorPicker.getValue(),
+                strokeColorPicker.getValue(),
+                1.0,
+                resultText.get()
+            );
+            newTextBox.setFontSize(fontSize);
+
+            shapes.add(newTextBox);
+            selectShape.setSelectedShape(newTextBox);
+            redraw(baseCanvas.getGc());
+    } else if("Select".equals(currentMouseCommand) && isSelected){
                 select(e);
                 isSelected = false; 
             }
@@ -330,8 +365,6 @@ public class FXMLController implements Initializable {
                 redraw(baseCanvas.getGc());
             }
         });
-        baseCanvas.getCanvas().setOnMouseClicked(this::handleCanvasClick);
-
     }
        
     private void showInfo(String title, String message) {
@@ -564,43 +597,6 @@ public class FXMLController implements Initializable {
             }
         }
     }
-    
-    private void handleCanvasClick(MouseEvent e) {
-    double x = e.getX();
-    double y = e.getY();
-
-    for (int i = shapes.size() - 1; i >= 0; i--) {
-        ShapeBase shape = shapes.get(i);
-        if (shape instanceof ShapeTextBox && shape.containsPoint(x, y)) {
-            ShapeTextBox textBox = (ShapeTextBox) shape;
-
-            TextInputDialog dialog = new TextInputDialog(textBox.getText());
-            dialog.setTitle("Modifica testo");
-            dialog.setHeaderText("Inserisci nuovo testo:");
-            dialog.setContentText("Testo:");
-
-            dialog.showAndWait().ifPresent(newText -> {
-                textBox.setText(newText);
-                redraw(baseCanvas.getGc());
-            });
-            return;
-        }
-    }
-
-    if ("TextBox".equals(currentMouseCommand)) {
-        ShapeTextBox newTextBox = new ShapeTextBox(
-            x, y, 150, 40,
-            fillColorPicker.getValue(),
-            strokeColorPicker.getValue(),
-            1.0,
-            "Test"
-        );
-        shapes.add(newTextBox);
-        selectShape.setSelectedShape(newTextBox);
-        redraw(baseCanvas.getGc());
-    }
-}
-
     
     @FXML
     private void handleNew() {
