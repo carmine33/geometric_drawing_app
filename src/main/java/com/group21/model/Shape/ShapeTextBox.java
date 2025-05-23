@@ -49,21 +49,17 @@ public class ShapeTextBox extends ShapeBase {
     // Metodo per disegnare la casella di testo
     @Override
     public void draw(GraphicsContext gc) {
-        gc.setStroke(strokeColor);
-        gc.setLineWidth(strokeWidth);
-        gc.setFill(fillColor);
-        gc.fillRect(x, y, this.getWidth(),this.getHeight());
-        gc.strokeRect(x, y, this.getWidth(),this.getHeight());
-
         gc.setFill(Color.BLACK);
         gc.fillText(text != null ? text : "Text", x + 5, y + this.getHeight() / 2);
     }
 
+
      // Verifica se un punto è all'interno della casella
     @Override
     public boolean containsPoint(double px, double py) {
-        return px >= x && px <= x + this.getWidth() && py >= y && py <= y + this.getHeight();
+        return px >= x && px <= x + getTextWidth() + 10 && py >= y && py <= y + getTextHeight() + 6;
     }
+
 
     // Restituisce una copia dell'oggetto con gli stessi attributi
     @Override
@@ -76,5 +72,20 @@ public class ShapeTextBox extends ShapeBase {
     public ShapeBase clone() {
         return copy();
     }
+    
+    //Calcola la larghezza del testo
+        public double getTextWidth() {
+        javafx.scene.text.Text t = new javafx.scene.text.Text(text != null ? text : "Text");
+        t.setFont(javafx.scene.text.Font.getDefault());
+        return t.getLayoutBounds().getWidth();
+    }
+    
+    //Calcola l'altezza del testo
+    public double getTextHeight() {
+        javafx.scene.text.Text t = new javafx.scene.text.Text(text != null ? text : "Text");
+        t.setFont(javafx.scene.text.Font.getDefault());
+        return t.getLayoutBounds().getHeight();
+    }
+
 }
 

@@ -59,4 +59,11 @@
                 <exec.appArgs></exec.appArgs>
             </properties>
         </action>
+        <action>
+            <actionName>CUSTOM-JavaFx</actionName>
+            <displayName>JavaFx</displayName>
+            <goals>
+                <goal>javafx:run</goal>
+            </goals>
+        </action>
     </actions>

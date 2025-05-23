@@ -27,6 +27,7 @@ import com.group21.model.Command.*;
 // Import for save/load 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.group21.model.Shape.ShapeTextBox;
 import java.io.File;
 import java.io.IOException;
 import javafx.stage.FileChooser;
@@ -329,6 +330,7 @@ public class FXMLController implements Initializable {
                 redraw(baseCanvas.getGc());
             }
         });
+        baseCanvas.getCanvas().setOnMouseClicked(this::handleCanvasClick);
 
     }
        
@@ -399,6 +401,15 @@ public class FXMLController implements Initializable {
                 }
                 gc.stroke();
                 
+            }else if (selected instanceof ShapeTextBox) {
+                ShapeTextBox box = (ShapeTextBox) selected;
+
+                double w = box.getTextWidth() + 10;   // margine orizzontale
+                double h = box.getTextHeight() + 6;   // margine verticale
+                double x = box.getX();
+                double y = box.getY();
+
+                gc.strokeRect(x, y, w, h);
             }
         }
     }
@@ -553,6 +564,43 @@ public class FXMLController implements Initializable {
             }
         }
     }
+    
+    private void handleCanvasClick(MouseEvent e) {
+    double x = e.getX();
+    double y = e.getY();
+
+    for (int i = shapes.size() - 1; i >= 0; i--) {
+        ShapeBase shape = shapes.get(i);
+        if (shape instanceof ShapeTextBox && shape.containsPoint(x, y)) {
+            ShapeTextBox textBox = (ShapeTextBox) shape;
+
+            TextInputDialog dialog = new TextInputDialog(textBox.getText());
+            dialog.setTitle("Modifica testo");
+            dialog.setHeaderText("Inserisci nuovo testo:");
+            dialog.setContentText("Testo:");
+
+            dialog.showAndWait().ifPresent(newText -> {
+                textBox.setText(newText);
+                redraw(baseCanvas.getGc());
+            });
+            return;
+        }
+    }
+
+    if ("TextBox".equals(currentMouseCommand)) {
+        ShapeTextBox newTextBox = new ShapeTextBox(
+            x, y, 150, 40,
+            fillColorPicker.getValue(),
+            strokeColorPicker.getValue(),
+            1.0,
+            "Test"
+        );
+        shapes.add(newTextBox);
+        selectShape.setSelectedShape(newTextBox);
+        redraw(baseCanvas.getGc());
+    }
+}
+
     
     @FXML
     private void handleNew() {
