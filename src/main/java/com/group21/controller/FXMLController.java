@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import java.util.Arrays;
 
 //import java.util.Iterator;
 //import javafx.event.ActionEvent;
@@ -43,12 +44,19 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+// Import for Polygon shape manipulation
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Polygon; 
+
 
 /**
  * FXML Controller class for the main view.
  * Handles window initialization and file menu actions.
  * 
- * @author carmi
+ * @author claco
  */
 public class FXMLController implements Initializable {
     
@@ -102,6 +110,9 @@ public class FXMLController implements Initializable {
         btnTextBox.setOnAction(e -> currentMouseCommand = "TextBox");
 
         baseCanvas.getCanvas().setOnMousePressed(e -> {
+            if(contextMenu.isShowing()){
+                contextMenu.hide();
+            }
             if(e.isPrimaryButtonDown() && currentMouseCommand != null &&
               !currentMouseCommand.isEmpty() && !"Select".equals(currentMouseCommand)){
                 lineStartX = e.getX();
@@ -123,7 +134,7 @@ public class FXMLController implements Initializable {
                     polygonPoints.add(new Point2D(lineStartX,lineStartY));
                 }
             } else if(e.isSecondaryButtonDown()){
-                if(!isDrawingPolygon){
+                if(!isDrawingPolygon && !contextMenu.isShowing()){
                     select(e);
                     initContextMenu();
                 }else{                    
@@ -149,6 +160,13 @@ public class FXMLController implements Initializable {
                 }
             } else if (e.isPrimaryButtonDown() && "Select".equals(currentMouseCommand)){
                 isSelected = true;
+                // Stores OG vertices if we're selecting a polygon
+                ShapeBase selected = selectShape.getSelectedShape();
+                if(selected instanceof ShapePolygon){
+                    ShapePolygon polygon = (ShapePolygon) selected;
+                    polygon.storeOriginalVertices();
+                    polygon.setResizeAnchor(polygon.getBoundingBoxTopLeft());
+                }
             }
         });
 
@@ -284,7 +302,28 @@ public class FXMLController implements Initializable {
                     line.setEndY(mouseY);
                 }else if (selected instanceof ShapePolygon){
                     ShapePolygon polygon = (ShapePolygon) selected;
-                    // TODO: implements select of polygons with rectangle shape
+                    Point2D anchor = polygon.getResizeAnchor();
+                    double anchorX = anchor.getX();
+                    double anchorY = anchor.getY();
+
+                    double initialWidth = polygon.getOriginalBoundingBoxWidth();
+                    double initialHeight = polygon.getOriginalBoundingBoxHeight();
+                    if (initialWidth == 0 || initialHeight == 0) return;
+
+                    double newWidth = Math.max(10, e.getX() - anchorX);
+                    double newHeight = Math.max(10, e.getY() - anchorY);
+
+                    double scaleX = Math.max(0.1, newWidth / initialWidth);
+                    double scaleY = Math.max(0.1, newHeight / initialHeight);
+
+                    List<Point2D> scaled = new ArrayList<>();
+                    for (Point2D pt : polygon.getOriginalVertices()) {
+                        double dx = pt.getX() - anchorX;
+                        double dy = pt.getY() - anchorY;
+                        scaled.add(new Point2D(anchorX + dx * scaleX, anchorY + dy * scaleY));
+                    }
+
+                    polygon.setVertices(scaled);
                 }
 
                 redraw(baseCanvas.getGc());
@@ -316,6 +355,7 @@ public class FXMLController implements Initializable {
 
             if (selected instanceof ShapeRectangle) {
                 ShapeRectangle rect = (ShapeRectangle) selected;
+                gc.setLineWidth(2.0);
                 gc.strokeRect(rect.getX() - 5, rect.getY() - 5,
                               rect.getWidth() + 10, rect.getHeight() + 10);
 
@@ -325,13 +365,40 @@ public class FXMLController implements Initializable {
                 double y = ellipse.getY();
                 double width = ellipse.getWidth();
                 double height = ellipse.getHeight();
-
+                gc.setLineWidth(2.0);
                 gc.strokeOval(x - 5, y - 5, width + 10, height + 10);
 
             } else if (selected instanceof ShapeLine) {
                 ShapeLine line = (ShapeLine) selected;
-                gc.setLineWidth(5.0); // Thicker edge for visibility
+                gc.setLineWidth(2.0); // Thicker edge for visibility
                 gc.strokeLine(line.getX(), line.getY(), line.getEndX(), line.getEndY());
+            } else if (selected instanceof ShapePolygon){
+                ShapePolygon polygon = (ShapePolygon) selected;
+                List<Point2D> points = polygon.getVertices();
+                Coordinate[] coords = points.stream()
+                    .map(p -> new Coordinate(p.getX(), p.getY()))
+                    .toArray(Coordinate[]::new);
+                coords = Arrays.copyOf(coords, coords.length + 1);
+                coords[coords.length - 1] = coords[0];
+
+                GeometryFactory gf = new GeometryFactory();
+                LinearRing ring = gf.createLinearRing(coords);
+                Polygon jtsPoly = gf.createPolygon(ring);
+
+                // Create buffer (offset)
+                Geometry outline = jtsPoly.buffer(5.0); // 5 px outward
+
+                // Extract and draw the offset polygon
+                Coordinate[] offsetCoords = outline.getCoordinates();
+                gc.beginPath();
+                gc.setStroke(Color.RED);
+                gc.setLineWidth(2.0);
+                gc.moveTo(offsetCoords[0].x, offsetCoords[0].y);
+                for (int i = 1; i < offsetCoords.length; i++) {
+                    gc.lineTo(offsetCoords[i].x, offsetCoords[i].y);
+                }
+                gc.stroke();
+                
             }
         }
     }
@@ -423,6 +490,7 @@ public class FXMLController implements Initializable {
      public void menuDeleteHandler() {
         command = new DeleteCommand(selectShape);
         command.execute();
+        if(selectShape.getSelectedShape() != null) selectShape.setSelectedShape(null);
         redraw(baseCanvas.getGc());
     }
         

@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ShapePolygon extends ShapeBase{
 
      private List<Point2D> vertices = new ArrayList<>();
+     private List<Point2D> originalVertices = new ArrayList<>();
+     private Point2D resizeAnchor;
 
     // For serialization/deserialization purposes
     public ShapePolygon(){
@@ -99,9 +101,68 @@ public class ShapePolygon extends ShapeBase{
         }
     }
 
-    // TODO
     @Override
     public boolean containsPoint(double x, double y) {
-        return false;
+        int crossings = 0;
+        int count = vertices.size();
+
+        for (int i = 0; i < count; i++) {
+            Point2D a = vertices.get(i);
+            Point2D b = vertices.get((i + 1) % count);
+
+            // Check if the point is between the y-coordinates of the edge
+            if ((a.getY() > y) != (b.getY() > y)) {
+                double atX = (b.getX() - a.getX()) * (y - a.getY()) / (b.getY() - a.getY()) + a.getX();
+                if (x < atX) {
+                    crossings++;
+                }
+            }
+        }
+
+        // Odd number of crossings means point is inside
+        return (crossings % 2 == 1);
     }
+    
+    
+    public void storeOriginalVertices() {
+        originalVertices.clear();
+        for (Point2D pt : vertices) {
+            originalVertices.add(new Point2D(pt.getX(), pt.getY()));
+        }
+    }
+
+    public List<Point2D> getOriginalVertices() {
+        return originalVertices;
+    }
+
+    public void setOriginalVertices(List<Point2D> originalVertices) {
+        this.originalVertices = originalVertices;
+    }
+
+    public void setResizeAnchor(Point2D anchor) {
+        this.resizeAnchor = anchor;
+    }
+
+    public Point2D getResizeAnchor() {
+        return this.resizeAnchor;
+    }
+
+    public Point2D getBoundingBoxTopLeft() {
+        double minX = vertices.stream().mapToDouble(Point2D::getX).min().orElse(0);
+        double minY = vertices.stream().mapToDouble(Point2D::getY).min().orElse(0);
+        return new Point2D(minX, minY);
+    }
+
+    public double getOriginalBoundingBoxWidth() {
+        double minX = originalVertices.stream().mapToDouble(Point2D::getX).min().orElse(0);
+        double maxX = originalVertices.stream().mapToDouble(Point2D::getX).max().orElse(0);
+        return maxX - minX;
+    }
+
+    public double getOriginalBoundingBoxHeight() {
+        double minY = originalVertices.stream().mapToDouble(Point2D::getY).min().orElse(0);
+        double maxY = originalVertices.stream().mapToDouble(Point2D::getY).max().orElse(0);
+        return maxY - minY;
+    }
+
 }
