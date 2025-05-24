@@ -36,6 +36,7 @@
                         <Label text="Options"/>
                         <HBox spacing="10">
                             <Button fx:id="btnSelect" text="Select" />
+                            <Button fx:id="btnUndo" text="Undo" onAction="#undoCommand"/>
                         </HBox>
                     </VBox>
                      <!-- Group 3: Colors -->

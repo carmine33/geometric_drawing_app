@@ -36,6 +36,14 @@ public class ShapeSelector {
         this.memory = new Memory();
 
     }
+    
+    public List<ShapeBase> getShape() {
+        return list;
+    }
+    
+    public Memory getMemory() {
+        return memory;
+    }
 
      public ShapeBase getSelectedShape() {
         return selectedShape;
@@ -53,6 +61,18 @@ public class ShapeSelector {
 
         this.list.remove(this.selectedShape);
         this.memory.addStackShape(this.selectedShape);
+    }
+    
+     public void toFront(double index) {
+        list.remove(selectedShape);
+        list.add((int) index - 1, selectedShape);
+        this.memory.addStackShape(selectedShape);
+    }
+    
+    public void toBack(double index) {
+        list.remove(selectedShape);
+        list.add((int) index, selectedShape);
+        this.memory.addStackShape(selectedShape);
     }
     
     public ShapeBase PasteShape() {

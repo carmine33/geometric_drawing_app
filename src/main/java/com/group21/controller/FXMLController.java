@@ -33,11 +33,13 @@ import java.io.IOException;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import java.util.Arrays;
+import java.util.Iterator;
 
 //import java.util.Iterator;
 //import javafx.event.ActionEvent;
 //import javafx.event.EventHandler;
 import java.util.Optional;
+import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -74,6 +76,7 @@ public class FXMLController implements Initializable {
     @FXML private Button btnSelect;
     @FXML private Button btnTextBox;
     
+    private Invoker invoker;
     private ShapeSelector selectShape;
     ContextMenu contextMenu = new ContextMenu();
     MenuItem deleteMenu = new MenuItem("Delete");
@@ -83,6 +86,8 @@ public class FXMLController implements Initializable {
     MenuItem setStrokeColor = new MenuItem("Set border color");
     MenuItem setFillColor = new MenuItem("Set fill color");
     MenuItem modifyTextBox = new MenuItem("Modify text");
+    MenuItem toFront = new MenuItem("ToFront");
+    MenuItem toBack = new MenuItem("ToBack");
 
 
     private ShapeBase copiedShape = null;
@@ -104,6 +109,7 @@ public class FXMLController implements Initializable {
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
+        invoker = new Invoker();
         
         btnRectangle.setOnAction(e -> currentMouseCommand = "Rectangle");
         btnEllipse.setOnAction(e -> currentMouseCommand = "Ellipse");
@@ -476,9 +482,12 @@ public class FXMLController implements Initializable {
     // Drop-down menù after right-click
      private void initContextMenu() {
         contextMenu.getItems().clear();
-        contextMenu.getItems().addAll(deleteMenu, setStrokeColor, setStrokeWidth, setFillColor, copyShape, pasteShape);
+        contextMenu.getItems().addAll(deleteMenu, setStrokeColor, setStrokeWidth, setFillColor, copyShape, pasteShape,toFront,toBack);
 
         deleteMenu.setOnAction(e -> menuDeleteHandler());
+        
+        toFront.setOnAction(e -> toFront(shapes.indexOf(selectShape.getSelectedShape()), shapes.size()));
+        toBack.setOnAction(e -> toBack(shapes.indexOf(selectShape.getSelectedShape())));
 
         setStrokeColor.setOnAction(e ->menuModifyColorStroke());
 
@@ -533,9 +542,50 @@ public class FXMLController implements Initializable {
      
      public void menuDeleteHandler() {
         command = new DeleteCommand(selectShape);
-        command.execute();
-        if(selectShape.getSelectedShape() != null) selectShape.setSelectedShape(null);
-        redraw(baseCanvas.getGc());
+        invoker.setCommand(command);
+        invoker.startCommand();
+        Iterator<ShapeBase> it =shapes.iterator();
+        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
+        while (it.hasNext()) {
+            ShapeBase elem = it.next();
+            elem.draw(baseCanvas.getGc());
+        }
+    }
+     
+     //il command toFront è creato passando come argomenti la posizione della forma selezionata nella lista e la dimensione della lista stessa;
+     //infine è invocato il command
+      public void toFront(double index, double size) {
+        command = new ToFrontCommand(selectShape, index, size);
+        invoker.setCommand(command);
+        invoker.startCommand();
+        Iterator<ShapeBase> it =shapes.iterator();
+        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
+        while (it.hasNext()) {
+            ShapeBase elem = it.next();
+            elem.draw(baseCanvas.getGc());
+        }
+    }
+      
+     //il command toBack è creato passando come argomento la posizione della forma selezionata nella lista;
+     //infine è invocato il command
+       public void toBack(double index) {
+        command = new ToBackCommand(selectShape, index);
+        invoker.setCommand(command);
+        invoker.startCommand();
+        Iterator<ShapeBase> it =shapes.iterator();
+        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
+        while (it.hasNext()) {
+            ShapeBase elem = it.next();
+            elem.draw(baseCanvas.getGc());
+        }
+    }
+       
+       public void performUndo() {
+        invoker.startUndo();
+        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
+        for (ShapeBase elem : shapes) {
+            elem.draw(baseCanvas.getGc());
+        } 
     }
         
     // Save/Load logic implementation
@@ -609,5 +659,10 @@ public class FXMLController implements Initializable {
     private void handleExit() {
         System.out.println("Exit clicked");
         System.exit(0);
+    }
+    
+     @FXML
+    private void undoCommand(ActionEvent e) {
+        performUndo();
     }
 }

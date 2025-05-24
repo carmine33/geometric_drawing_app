@@ -8,8 +8,7 @@ package com.group21.model.Memory;
  *
  * @author carmi
  */
-import com.group21.model.Shape.ShapeRectangle;
-import com.group21.model.Shape.ShapeBase;
+import com.group21.model.Shape.*;
 import javafx.scene.paint.Color;
 import org.junit.jupiter.api.Test;
 
@@ -18,13 +17,28 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MemoryTest {
 
     @Test
-    void testAddStackShapeStoresShape() {
+    void testAddAndPopStackShape() {
         Memory memory = new Memory();
-        ShapeRectangle shape = new ShapeRectangle(10, 10, 20, 20, Color.BLACK, Color.RED, 1.5);
+        ShapeRectangle shape1 = new ShapeRectangle(10, 10, 20, 20, Color.BLACK, Color.RED, 1.5);
+        ShapeRectangle shape2 = new ShapeRectangle(30, 30, 40, 40, Color.BLACK, Color.BLUE, 2.0);
 
-        memory.addStackShape(shape);
+        memory.addStackShape(shape1);
+        memory.addStackShape(shape2);
 
-        // Non possiamo accedere direttamente allo stack, ma almeno verifichiamo che il metodo non fallisca
-        assertDoesNotThrow(() -> memory.addStackShape(shape));
+        // LIFO: last added is the first popped
+        ShapeBase popped = memory.popStackShape();
+        assertEquals(shape2, popped);
+
+        popped = memory.popStackShape();
+        assertEquals(shape1, popped);
+    }
+
+    @Test
+    void testPopOnEmptyStackThrowsException() {
+        Memory memory = new Memory();
+
+        assertThrows(java.util.EmptyStackException.class, () -> {
+            memory.popStackShape();
+        });
     }
 }

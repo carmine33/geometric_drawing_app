@@ -28,6 +28,10 @@ public class Memory {
     public void addStackShape(ShapeBase selectedShape) {
         this.stackShape.add(selectedShape);
     }
+    
+    public ShapeBase popStackShape() {
+        return this.stackShape.pop();
+    }
 
     public void setCopiedShape(ShapeBase shape) {
     this.copiedShape = shape;

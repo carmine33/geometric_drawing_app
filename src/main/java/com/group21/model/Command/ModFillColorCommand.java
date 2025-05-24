@@ -21,4 +21,9 @@ private ShapeSelector shape;
     public void execute() {
          shape.ModFillColorShape();
     }
+    
+    @Override
+    public void undo() {
+         
+    }
 }

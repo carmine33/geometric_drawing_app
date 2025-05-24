@@ -20,4 +20,9 @@ public class ModStrColorCommand implements Command{
     public void execute() {
          shape.ModStrColorShape();
     }
+    
+    @Override
+    public void undo() {
+         
+    }
 }

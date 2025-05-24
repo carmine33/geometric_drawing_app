@@ -19,4 +19,9 @@ public class ModStrWidthCommand implements Command {
     public void execute() {
          shape.ModStrWidthShape();
     }    
+    
+    @Override
+    public void undo() {
+         
+    } 
 }

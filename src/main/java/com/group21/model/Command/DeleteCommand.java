@@ -4,6 +4,8 @@
  */
 package com.group21.model.Command;
 
+import com.group21.model.Shape.ShapeBase;
+
 /**
  *
  * @author matte
@@ -11,14 +13,21 @@ package com.group21.model.Command;
 public class DeleteCommand implements Command {
 
     private ShapeSelector shape;
+    private double pos;
 
     public DeleteCommand(ShapeSelector shape) {
         this.shape = shape;
+        this.pos = pos;
     }
 
     @Override
     public void execute() {
         shape.deleteShape();
+    }
+    
+     @Override
+    public void undo() {
+        shape.getShape().add((int) pos, (ShapeBase) this.shape.getMemory().popStackShape());
     }
 
 }
