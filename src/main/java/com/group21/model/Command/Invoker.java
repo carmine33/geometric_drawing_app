@@ -20,15 +20,22 @@ public class Invoker {
     }
 
     public void startCommand() {
-        command.execute();
-        stack.add(command);
+        
+        if (command != null) {
+            command.execute();
+            stack.push(command);
+        }
     }
 
     public void startUndo() {
-
-        Command lastCommand = stack.pop();
-        lastCommand.undo();
-
+        
+        if (!stack.isEmpty()) {
+            Command lastCommand = stack.pop();
+            lastCommand.undo();
+        }
     }
-
+    
+    public boolean canUndo() {
+        return !stack.isEmpty();
+    }
 }

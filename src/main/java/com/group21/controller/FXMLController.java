@@ -666,6 +666,7 @@ public class FXMLController implements Initializable {
             List<ShapeBase> loadedShapes = loadShapes(file);
             if (loadedShapes != null) {
                 shapes.clear();
+                selectShape.setSelectedShape(null);
                 shapes.addAll(loadedShapes);
                 GraphicsContext gc = baseCanvas.getCanvas().getGraphicsContext2D();
                 redraw(gc);
@@ -678,6 +679,7 @@ public class FXMLController implements Initializable {
     private void handleNew() {
         baseCanvas.clear();
         shapes.clear();
+        selectShape.setSelectedShape(null);
         this.redraw(baseCanvas.getGc());
     }
 
