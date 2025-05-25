@@ -11,19 +11,24 @@ import com.group21.model.Command.ShapeSelector;
  *
  * @author mikel
  */
-public class ModFillColorCommand implements Command {
-private ShapeSelector shape;
-    
-    public ModFillColorCommand(ShapeSelector shape) {
-        this.shape = shape;
-    }    
+
+public class ModColorCommand implements Command {
+    private ShapeSelector selector;
+    private String tipo; // "fill" oppure "stroke"
+
+    public ModColorCommand(ShapeSelector selector, String tipo) {
+        this.selector = selector;
+        this.tipo = tipo.toLowerCase(); // sicurezza
+    }
+
     @Override
     public void execute() {
-         shape.ModFillColorShape();
+        selector.modColorShape(tipo);
     }
-    
+
     @Override
     public void undo() {
-         
+        // opzionale da implementare
     }
 }
+

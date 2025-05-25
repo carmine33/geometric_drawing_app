@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -75,26 +76,39 @@ public class ShapeSelector {
         this.memory.addStackShape(selectedShape);
     }
     
-    public ShapeBase PasteShape() {
+public ShapeBase pasteShape() {
     ShapeBase toPaste = this.memory.getCopiedShape();
     if (toPaste != null) {
         ShapeBase newShape = (ShapeBase) toPaste.copy();
-        newShape.translate(10, 10); // spostamento per evitare sovrapposizione
+
+        // Gestione specifica per ShapePolygon se serve
+        if (newShape instanceof ShapePolygon) {
+            ShapePolygon poly = (ShapePolygon) newShape;
+            List<Point2D> shifted = new ArrayList<>();
+            for (Point2D p : poly.getVertices()) {
+                shifted.add(new Point2D(p.getX() + 10, p.getY() + 10));
+            }
+            poly.setVertices(shifted);
+        } else {
+            newShape.translate(10, 10);
+        }
+
         this.list.add(newShape);
         return newShape;
     }
     return null;
 }
+
     
     
-    public void CopyShape() {
+    public void copyShape() {
     if (this.selectedShape != null) {
         ShapeBase copy = (ShapeBase) this.selectedShape.copy();
         this.memory.setCopiedShape(copy); 
         }
     }
 
-    void ModStrWidthShape() {
+    void modStrWidthShape() {
         if (this.selectedShape != null) {
             TextInputDialog dialog = new TextInputDialog("1.0");
             dialog.setTitle("Imposta spessore bordo");
@@ -115,51 +129,49 @@ public class ShapeSelector {
         }
     }
 
-public void ModFillColorShape() {
-    if (this.selectedShape != null) {
-        javafx.scene.paint.Color initialColor;
+    public void modColorShape(String tipo) {
+        if (this.selectedShape == null) return;
 
-        if (selectedShape instanceof ShapeTextBox) {
-            initialColor = ((ShapeTextBox) selectedShape).getTextColor();
+        Color initialColor;
+        String titolo;
+
+        if ("fill".equalsIgnoreCase(tipo)) {
+            if (selectedShape instanceof ShapeTextBox) {
+                initialColor = ((ShapeTextBox) selectedShape).getTextColor();
+                titolo = "Modifica colore del testo";
+            } else {
+                initialColor = selectedShape.getFillColor();
+                titolo = "Modifica colore di riempimento";
+            }
+        } else if ("stroke".equalsIgnoreCase(tipo)) {
+            initialColor = selectedShape.getStrokeColor();
+            titolo = "Modifica colore del bordo";
         } else {
-            initialColor = selectedShape.getFillColor();
+            return; // tipo non supportato
         }
 
         ColorPicker picker = new ColorPicker(initialColor);
 
         Alert alert = new Alert(Alert.AlertType.NONE);
-        alert.setTitle("Modifica colore");
+        alert.setTitle(titolo);
         alert.getDialogPane().setContent(picker);
         alert.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            if (selectedShape instanceof ShapeTextBox) {
-                ((ShapeTextBox) selectedShape).setTextColor(picker.getValue());
+            Color nuovoColore = picker.getValue();
+            if ("fill".equalsIgnoreCase(tipo)) {
+                if (selectedShape instanceof ShapeTextBox) {
+                    ((ShapeTextBox) selectedShape).setTextColor(nuovoColore);
+                } else {
+                    selectedShape.setFillColor(nuovoColore);
+                }
             } else {
-                selectedShape.setFillColor(picker.getValue());
+                selectedShape.setStrokeColor(nuovoColore);
             }
         }
     }
-}
 
-
-    void ModStrColorShape() {
-        if (this.selectedShape != null) {
-         ColorPicker picker = new ColorPicker();
-         picker.setValue(this.selectedShape.getFillColor());
-
-         Alert alert = new Alert(Alert.AlertType.NONE);
-         alert.setTitle("Modifica colore bordi");
-         alert.getDialogPane().setContent(picker);
-         alert.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            this.selectedShape.setStrokeColor(picker.getValue());
-        }
-       }
-    }
 }
 
 

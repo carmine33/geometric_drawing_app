@@ -18,7 +18,7 @@ public class ModStrColorCommand implements Command{
 
     @Override
     public void execute() {
-         shape.ModStrColorShape();
+         shape.modColorShape("tipo");
     }
     
     @Override

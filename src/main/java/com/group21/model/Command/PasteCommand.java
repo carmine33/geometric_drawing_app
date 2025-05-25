@@ -20,7 +20,7 @@ public class PasteCommand implements Command {
     
     @Override
     public void execute() {
-        ShapeBase pasted = shape.PasteShape();
+        ShapeBase pasted = shape.pasteShape();
         if (pasted != null) {
             shape.setSelectedShape(pasted);
         }

@@ -532,14 +532,14 @@ public class FXMLController implements Initializable {
      
     public void menuModifyColorStroke() {
         
-        command = new ModStrColorCommand(selectShape);
+        command = new ModColorCommand(selectShape,"stroke");
         command.execute();
         redraw(baseCanvas.getGc());
     } 
      
     public void menuModifyColorFill() {
         
-        command = new ModFillColorCommand(selectShape);
+        command = new ModColorCommand(selectShape,"fill");
         command.execute();
         redraw(baseCanvas.getGc());
         }

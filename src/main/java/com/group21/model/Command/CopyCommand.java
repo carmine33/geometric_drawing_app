@@ -19,7 +19,7 @@ public class CopyCommand implements Command {
     
     @Override
     public void execute() {
-         shape.CopyShape();
+         shape.copyShape();
     }
     
     @Override
