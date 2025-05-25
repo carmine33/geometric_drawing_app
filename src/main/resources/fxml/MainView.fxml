@@ -54,6 +54,14 @@
                             </HBox>
                         </VBox>
                     </HBox>
+                    <!-- Group 4: Zoom -->
+                    <VBox spacing="5">
+                        <Label text="Zoom"/>
+                        <HBox spacing="10">
+                            <Button fx:id="btnZoomIn" text="+"/>
+                            <Button fx:id="btnZoomOut" text="−"/>
+                        </HBox>
+                    </VBox>
                 </HBox>
             </ToolBar>
         </VBox> 

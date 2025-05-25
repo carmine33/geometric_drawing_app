@@ -76,6 +76,8 @@ public class FXMLController implements Initializable {
     @FXML private Button btnPolygon;
     @FXML private Button btnSelect;
     @FXML private Button btnTextBox;
+    @FXML private Button btnZoomIn;
+    @FXML private Button btnZoomOut;
     
     private Invoker invoker;
     private ShapeSelector selectShape;
@@ -103,6 +105,11 @@ public class FXMLController implements Initializable {
     private String mod = null;
     private double previewStartX, previewStartY;
     private double previewCurrentX, previewCurrentY;
+    private ShapeBase previewShape = null;
+    
+    private final double[] zoomLevels = {0.25,0.5, 1.0, 1.5, 1.75};
+    private int currentZoomIndex = 2; // corrisponde a 1.0
+    private double zoomFactor = zoomLevels[currentZoomIndex];
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -118,6 +125,24 @@ public class FXMLController implements Initializable {
         btnPolygon.setOnAction(e -> currentMouseCommand = "Polygon");
         btnSelect.setOnAction(e-> currentMouseCommand = "Select");
         btnTextBox.setOnAction(e -> currentMouseCommand = "TextBox");
+        
+         btnZoomIn.setOnAction(e -> {
+            if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon) return;
+            if (currentZoomIndex < zoomLevels.length - 1) {
+                currentZoomIndex++;
+                zoomFactor = zoomLevels[currentZoomIndex];
+                redraw(baseCanvas.getGc());
+            }
+        });
+
+        btnZoomOut.setOnAction(e -> {
+            if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon) return;
+            if (currentZoomIndex > 0) {
+                currentZoomIndex--;
+                zoomFactor = zoomLevels[currentZoomIndex];
+                redraw(baseCanvas.getGc());
+            }
+        });
 
         baseCanvas.getCanvas().setOnMousePressed(e -> {
             if(contextMenu.isShowing()){
@@ -125,8 +150,11 @@ public class FXMLController implements Initializable {
             }
             if(e.isPrimaryButtonDown() && currentMouseCommand != null &&
               !currentMouseCommand.isEmpty() && !"Select".equals(currentMouseCommand)){
-                lineStartX = e.getX();
-                lineStartY = e.getY();
+                zoomFactor = 1.0;
+                currentZoomIndex = 2; 
+                redraw(baseCanvas.getGc());
+                lineStartX = e.getX()/zoomFactor;
+                lineStartY = e.getY()/zoomFactor;
                 
                 previewStartX = lineStartX;
                 previewStartY = lineStartY;
@@ -168,6 +196,10 @@ public class FXMLController implements Initializable {
                     isDrawingPolygon = false;
                     redraw(baseCanvas.getGc());
                 }
+                // Reset dello zoom al valore predefinito
+                zoomFactor = 1.0;
+                currentZoomIndex = 2; // corrisponde a 1.0
+                redraw(baseCanvas.getGc());
             } else if (e.isPrimaryButtonDown() && "Select".equals(currentMouseCommand)){
                 isSelected = true;
                 // Stores OG vertices if we're selecting a polygon
@@ -181,8 +213,8 @@ public class FXMLController implements Initializable {
         });
 
         baseCanvas.getCanvas().setOnMouseReleased(e -> {
-            double endX = e.getX();
-            double endY = e.getY();
+            double endX = e.getX()/zoomFactor;
+            double endY = e.getY()/zoomFactor;
             if ("Line".equals(currentMouseCommand) && isDrawingLine) {
                 isDrawingLine = false;
                 ShapeBase line = new ShapeLine(lineStartX, lineStartY, 0, 0,
@@ -303,8 +335,8 @@ public class FXMLController implements Initializable {
         
         baseCanvas.getCanvas().setOnMouseDragged(e -> {
             if(!isDrawingPolygon && (isDrawingLine || isDrawingEllipse || isDrawingRectangle)){
-                previewCurrentX = e.getX();
-                previewCurrentY = e.getY();
+                previewCurrentX = e.getX()/zoomFactor;
+                previewCurrentY = e.getY()/zoomFactor;
 
                 redraw(baseCanvas.getGc());
 
@@ -409,6 +441,10 @@ public class FXMLController implements Initializable {
     
     private void redraw(GraphicsContext gc) {
         gc.clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
+        gc.save();
+        if (!isDrawingRectangle && !isDrawingEllipse && !isDrawingLine && !isDrawingPolygon) {
+            gc.scale(zoomFactor, zoomFactor); // Applica lo zoom solo in modalità visualizzazione
+        }
 
         for (ShapeBase shape : shapes) {
             shape.draw(gc);
@@ -477,12 +513,16 @@ public class FXMLController implements Initializable {
                 gc.strokeRect(x, y, w, h);
             }
         }
+        gc.restore();
+        if(previewShape!=null){
+            previewShape.draw(gc);
+        }
     }
     
     // Select method for selecting shapes
     private void select(MouseEvent event) {
-        double clickX = event.getX();
-        double clickY = event.getY();
+        double clickX = event.getX()/zoomFactor;
+        double clickY = event.getY()/zoomFactor;
 
         // Scroll through the forms from newest to oldest
         for (int i = shapes.size() - 1; i >= 0; i--) {
@@ -533,14 +573,16 @@ public class FXMLController implements Initializable {
     public void menuModifyColorStroke() {
         
         command = new ModColorCommand(selectShape,"stroke");
-        command.execute();
+        invoker.setCommand(command);
+        invoker.startCommand();
         redraw(baseCanvas.getGc());
     } 
      
     public void menuModifyColorFill() {
         
         command = new ModColorCommand(selectShape,"fill");
-        command.execute();
+        invoker.setCommand(command);
+        invoker.startCommand();
         redraw(baseCanvas.getGc());
         }
 
@@ -548,7 +590,8 @@ public class FXMLController implements Initializable {
     
     public void menuModifyWidthStroke(){
         command = new ModStrWidthCommand(selectShape);
-        command.execute();
+        invoker.setCommand(command);
+        invoker.startCommand();
         redraw(baseCanvas.getGc());
     }  
     
@@ -561,7 +604,8 @@ public class FXMLController implements Initializable {
      
     public void menuPasteHandler(){     
         command = new PasteCommand(selectShape);
-        command.execute();
+        invoker.setCommand(command);
+        invoker.startCommand();
         redraw(baseCanvas.getGc());  
     }
      

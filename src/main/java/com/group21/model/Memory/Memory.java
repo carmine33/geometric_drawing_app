@@ -24,7 +24,7 @@ public class Memory {
         this.stackDouble = new Stack<>();
         this.stackColor = new Stack<>();
     }
-
+    
     public void addStackShape(ShapeBase selectedShape) {
         this.stackShape.add(selectedShape);
     }
