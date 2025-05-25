@@ -43,6 +43,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
@@ -223,38 +224,56 @@ public class FXMLController implements Initializable {
                 shapes.add(ellipse);
                 redraw(baseCanvas.getGc());
             }else if ("TextBox".equals(currentMouseCommand)) {
-            TextInputDialog textDialog = new TextInputDialog("Testo");
-            textDialog.setTitle("Nuova TextBox");
-            textDialog.setHeaderText("Inserisci il contenuto:");
-            textDialog.setContentText("Testo:");
-            Optional<String> resultText = textDialog.showAndWait();
-            if (resultText.isEmpty()) return;
+        // 1. Inserisci il testo
+        TextInputDialog textDialog = new TextInputDialog("Testo");
+        textDialog.setTitle("Nuova TextBox");
+        textDialog.setHeaderText("Inserisci il contenuto:");
+        textDialog.setContentText("Testo:");
+        Optional<String> resultText = textDialog.showAndWait();
+        if (resultText.isEmpty()) return;
 
-            TextInputDialog sizeDialog = new TextInputDialog("14");
-            sizeDialog.setTitle("Dimensione font");
-            sizeDialog.setHeaderText("Inserisci la dimensione del testo:");
-            sizeDialog.setContentText("Dimensione:");
-            Optional<String> resultSize = sizeDialog.showAndWait();
+        // 2. Inserisci la dimensione
+        TextInputDialog sizeDialog = new TextInputDialog("14");
+        sizeDialog.setTitle("Dimensione font");
+        sizeDialog.setHeaderText("Inserisci la dimensione del testo:");
+        sizeDialog.setContentText("Dimensione:");
+        Optional<String> resultSize = sizeDialog.showAndWait();
+        double fontSize = 14;
+        if (resultSize.isPresent()) {
+            try {
+                fontSize = Double.parseDouble(resultSize.get());
+            } catch (NumberFormatException ignored) {}
+        }
 
-            double fontSize = 14;
-            if (resultSize.isPresent()) {
-                try {
-                    fontSize = Double.parseDouble(resultSize.get());
-                } catch (NumberFormatException ignored) {}
+        // 3. Scegli il tipo di font
+        ChoiceDialog<String> fontDialog = new ChoiceDialog<>("Sans", "Sans", "Serif", "Monospace");
+        fontDialog.setTitle("Tipo di font");
+        fontDialog.setHeaderText("Scegli il font:");
+        fontDialog.setContentText("Font:");
+        Optional<String> resultFont = fontDialog.showAndWait();
+        String fontFamily = "SansSerif";  // default Java name
+        if (resultFont.isPresent()) {
+            switch (resultFont.get()) {
+                case "Serif": fontFamily = "Serif"; break;
+                case "Monospace": fontFamily = "Monospaced"; break;
+                default: fontFamily = "SansSerif"; break;
             }
+        }
 
-            ShapeTextBox newTextBox = new ShapeTextBox(
-                endX, endY, 0, 0,
-                fillColorPicker.getValue(),
-                strokeColorPicker.getValue(),
-                1.0,
-                resultText.get()
-            );
-            newTextBox.setFontSize(fontSize);
+        // Crea la nuova TextBox con tutto
+        ShapeTextBox newTextBox = new ShapeTextBox(
+            endX, endY, 0, 0,
+            fillColorPicker.getValue(),
+            strokeColorPicker.getValue(),
+            1.0,
+            resultText.get()
+        );
+        newTextBox.setFontSize(fontSize);
+        newTextBox.setFontFamily(fontFamily);
 
-            shapes.add(newTextBox);
-            selectShape.setSelectedShape(newTextBox);
-            redraw(baseCanvas.getGc());
+        shapes.add(newTextBox);
+        selectShape.setSelectedShape(newTextBox);
+        redraw(baseCanvas.getGc());
     } else if("Select".equals(currentMouseCommand) && isSelected){
                 select(e);
                 isSelected = false; 
@@ -366,6 +385,13 @@ public class FXMLController implements Initializable {
                     }
 
                     polygon.setVertices(scaled);
+                }else if (selected instanceof ShapeTextBox) {
+                    ShapeTextBox text = (ShapeTextBox) selected;
+
+                    // Calcolo approssimativo: altezza del testo ≈ dimensione font
+                    double newFontSize = Math.max(8, mouseY - text.getY());
+
+                    text.setFontSize(newFontSize);
                 }
 
                 redraw(baseCanvas.getGc());
@@ -511,13 +537,13 @@ public class FXMLController implements Initializable {
         redraw(baseCanvas.getGc());
     } 
      
-     public void menuModifyColorFill() {
+    public void menuModifyColorFill() {
         
         command = new ModFillColorCommand(selectShape);
         command.execute();
         redraw(baseCanvas.getGc());
-  
-    }
+        }
+
      
     
     public void menuModifyWidthStroke(){

@@ -15,17 +15,22 @@ import javafx.scene.text.Text;
 
 public class ShapeTextBox extends ShapeBase {
 
-    // Testo visualizzato nella casella
+    // Testo da visualizzare nella casella
     private String text;
 
-    // Indica se la casella è in modalità "editing" (focus)
+    // Flag che indica se la casella è in modalità modifica attiva (non usato nel disegno)
     private boolean isEditing;
 
-    // Dimensione del font (in punti)
+    // Dimensione del font del testo (default 14 pt)
     private double fontSize = 14;
 
+    // Colore del testo
+    private Color textColor = Color.BLACK;
+    
+    private String fontFamily = "SansSerif";
+
     /**
-     * Costruttore con parametri per posizione, dimensione, colori, spessore e contenuto.
+     * Costruttore che inizializza tutti i parametri necessari, ereditando da ShapeBase
      */
     public ShapeTextBox(double x, double y, double width, double height,
                         Color fillColor, Color strokeColor, double strokeWidth,
@@ -36,38 +41,59 @@ public class ShapeTextBox extends ShapeBase {
         this.isEditing = false;
     }
 
-    /** Restituisce il testo contenuto nella casella. */
+    // Getter del contenuto testuale
     public String getText() {
         return text;
     }
 
-    /** Imposta il testo contenuto nella casella. */
+    // Setter del contenuto testuale
     public void setText(String text) {
         this.text = text;
     }
 
-    /** Restituisce true se la casella è in modalità editing. */
+    // Verifica se la casella è in modalità editing
     public boolean isEditing() {
         return isEditing;
     }
 
-    /** Imposta la modalità editing (focus attivo o disattivo). */
+    // Imposta lo stato di editing (non influenza il disegno attuale)
     public void setEditing(boolean editing) {
         this.isEditing = editing;
     }
 
-    /** Restituisce la dimensione del font usato per il testo. */
+    //Imposta il font selezionato per il testo
+        public void setFontFamily(String fontFamily) {
+        this.fontFamily = fontFamily;
+    }
+
+    //Restituisce il font corrente del testo 
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    // Restituisce la dimensione corrente del font
     public double getFontSize() {
         return fontSize;
     }
 
-    /** Imposta la dimensione del font. */
+    // Imposta una nuova dimensione del font
     public void setFontSize(double fontSize) {
         this.fontSize = fontSize;
     }
 
+    // Restituisce il colore del testo
+    public Color getTextColor() {
+        return textColor;
+    }
+
+    // Imposta il colore del testo
+    public void setTextColor(Color textColor) {
+        this.textColor = textColor;
+    }
+
     /**
-     * Calcola la larghezza del testo corrente usando un nodo JavaFX invisibile.
+     * Calcola la larghezza stimata del testo in pixel
+     * usando un nodo JavaFX invisibile (Text)
      */
     public double getTextWidth() {
         Text t = new Text(text != null ? text : "Text");
@@ -76,7 +102,7 @@ public class ShapeTextBox extends ShapeBase {
     }
 
     /**
-     * Calcola l’altezza del testo corrente usando un nodo JavaFX invisibile.
+     * Calcola l'altezza stimata del testo in pixel
      */
     public double getTextHeight() {
         Text t = new Text(text != null ? text : "Text");
@@ -85,19 +111,20 @@ public class ShapeTextBox extends ShapeBase {
     }
 
     /**
-     * Disegna il testo sulla canvas.
-     * Non disegna alcun rettangolo visivo, solo il testo centrato verticalmente.
+     * Metodo di disegno della TextBox sulla canvas.
+     * Disegna solo il testo con la dimensione, font e colore correnti.
      */
     @Override
     public void draw(GraphicsContext gc) {
-        gc.setFont(Font.font(fontSize));
-        gc.setFill(Color.BLACK);
+        gc.setFont(Font.font(fontFamily, fontSize));
+        gc.setFill(textColor);
         gc.fillText(text != null ? text : "Text", x + 5, y + fontSize);
     }
 
     /**
-     * Restituisce true se il punto cliccato si trova all’interno del rettangolo
-     * virtuale che circonda il testo (usato per selezione).
+     * Verifica se un punto (px, py) si trova all'interno
+     * del rettangolo virtuale che contiene il testo.
+     * Serve per la selezione.
      */
     @Override
     public boolean containsPoint(double px, double py) {
@@ -106,20 +133,21 @@ public class ShapeTextBox extends ShapeBase {
     }
 
     /**
-     * Crea una copia profonda della ShapeTextBox, inclusa la dimensione del font.
+     * Crea una copia della ShapeTextBox con stessi parametri e colore testo.
      */
     @Override
     public ShapeBase copy() {
         ShapeTextBox copy = new ShapeTextBox(
-            x, y, this.getWidth(), this.getHeight(),
-            fillColor, strokeColor, strokeWidth,
-            text
+            x, y, this.getWidth(), this.getHeight(), fillColor, strokeColor, strokeWidth, text
         );
         copy.setFontSize(fontSize);
+        copy.setTextColor(textColor);
         return copy;
     }
 
-    /** Alias di copy() per compatibilità con clone. */
+    /**
+     * Alias di copy(), per compatibilità con clone().
+     */
     @Override
     public ShapeBase clone() {
         return copy();

@@ -115,22 +115,34 @@ public class ShapeSelector {
         }
     }
 
-    public void ModFillColorShape() {
+public void ModFillColorShape() {
     if (this.selectedShape != null) {
-        ColorPicker picker = new ColorPicker();
-        picker.setValue(this.selectedShape.getFillColor());
+        javafx.scene.paint.Color initialColor;
+
+        if (selectedShape instanceof ShapeTextBox) {
+            initialColor = ((ShapeTextBox) selectedShape).getTextColor();
+        } else {
+            initialColor = selectedShape.getFillColor();
+        }
+
+        ColorPicker picker = new ColorPicker(initialColor);
 
         Alert alert = new Alert(Alert.AlertType.NONE);
-        alert.setTitle("Modifica colore di riempimento");
+        alert.setTitle("Modifica colore");
         alert.getDialogPane().setContent(picker);
         alert.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            this.selectedShape.setFillColor(picker.getValue());
+            if (selectedShape instanceof ShapeTextBox) {
+                ((ShapeTextBox) selectedShape).setTextColor(picker.getValue());
+            } else {
+                selectedShape.setFillColor(picker.getValue());
+            }
         }
-      } 
     }
+}
+
 
     void ModStrColorShape() {
         if (this.selectedShape != null) {
