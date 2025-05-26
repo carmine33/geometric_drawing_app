@@ -27,6 +27,13 @@ import com.group21.model.Command.*;
 // Import for save/load 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.group21.model.Factory.ConcreteCreatorEllipse;
+import com.group21.model.Factory.ConcreteCreatorIrregularPolygon;
+import com.group21.model.Factory.ConcreteCreatorLine;
+import com.group21.model.Factory.ConcreteCreatorRectangle;
+import com.group21.model.Factory.ConcreteCreatorText;
+import com.group21.model.Factory.Creator;
+import com.group21.model.Factory.ShapeFactory;
 import com.group21.model.Shape.ShapeTextBox;
 import java.io.File;
 import java.io.IOException;
@@ -171,7 +178,14 @@ public class FXMLController implements Initializable {
                     isDrawingEllipse = true;
                 }else if("Polygon".equals(currentMouseCommand)){
                     isDrawingPolygon = true;
-                    polygonPoints.add(new Point2D(lineStartX,lineStartY));
+                    if (polygonPoints.isEmpty()) {
+                        ConcreteCreatorIrregularPolygon creator = new ConcreteCreatorIrregularPolygon();
+                        ShapePolygon newPolygon = (ShapePolygon) creator.createShape(lineStartX, lineStartY,
+                            strokeColorPicker.getValue(), fillColorPicker.getValue());
+
+                        polygonPoints = new ArrayList<>(newPolygon.getVertices());
+                    }
+                    polygonPoints.add(new Point2D(lineStartX, lineStartY));
                 }else if("TextBox".equals(currentMouseCommand)){
                     isDrawingTextBox = true;
                 }
@@ -224,42 +238,42 @@ public class FXMLController implements Initializable {
             double endY = e.getY()/zoomFactor;
             if ("Line".equals(currentMouseCommand) && isDrawingLine) {
                 isDrawingLine = false;
-                ShapeBase line = new ShapeLine(lineStartX, lineStartY, 0, 0,
-                    e.getX(), e.getY(), 
-                    strokeColorPicker.getValue(),1
-                );
+                ConcreteCreatorLine creator = (ConcreteCreatorLine) ShapeFactory.getCreator("Line");
+                ShapeBase line = creator.createShape(lineStartX, lineStartY, endX, endY, strokeColorPicker.getValue());
                 shapes.add(line);
                 redraw(baseCanvas.getGc());
-            } else if("Rectangle".equals(currentMouseCommand) && isDrawingRectangle){
+            } else if ("Rectangle".equals(currentMouseCommand) && isDrawingRectangle) {
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
                 double height = Math.abs(endY - lineStartY);
-                if(width == 0) {
-                    width = 100;
-                }
-                if(height == 0){
-                    height = 40;
-                }
-                
+
+                if (width == 0) width = 100;
+                if (height == 0) height = 40;
+
                 isDrawingRectangle = false;
-                ShapeBase rectangle = new ShapeRectangle(x, y, width, height, fillColorPicker.getValue(), strokeColorPicker.getValue(),1);
+
+                Creator rectangleCreator = new ConcreteCreatorRectangle();
+                ShapeBase rectangle = rectangleCreator.createShape(x, y, width, height,
+                    strokeColorPicker.getValue(), fillColorPicker.getValue());
+
                 shapes.add(rectangle);
                 redraw(baseCanvas.getGc());
-            } else if("Ellipse".equals(currentMouseCommand) && isDrawingEllipse){
+            } else if ("Ellipse".equals(currentMouseCommand) && isDrawingEllipse) {
                 double x = Math.min(lineStartX, endX);
                 double y = Math.min(lineStartY, endY);
                 double width = Math.abs(endX - lineStartX);
                 double height = Math.abs(endY - lineStartY);
+
+                if (width == 0) width = 100;
+                if (height == 0) height = 40;
+
                 isDrawingEllipse = false;
-                if(width == 0) {
-                    width = 100;
-                }
-                if(height == 0){
-                    height = 40;
-                }
-                ShapeBase ellipse = new ShapeEllipse(x, y, width, height, fillColorPicker.getValue(),
-                    strokeColorPicker.getValue(),1);
+
+                Creator ellipseCreator = new ConcreteCreatorEllipse();
+                ShapeBase ellipse = ellipseCreator.createShape(x, y, width, height,
+                    strokeColorPicker.getValue(), fillColorPicker.getValue());
+
                 shapes.add(ellipse);
                 redraw(baseCanvas.getGc());
             }else if ("TextBox".equals(currentMouseCommand) && isDrawingTextBox) {
@@ -300,13 +314,13 @@ public class FXMLController implements Initializable {
                     }
                 }
 
-                // Crea la nuova TextBox con tutto
-                ShapeTextBox newTextBox = new ShapeTextBox(
-                    endX, endY, 0, 0,
-                    fillColorPicker.getValue(),
+                ConcreteCreatorText creator = new ConcreteCreatorText();
+                ShapeTextBox newTextBox = creator.createShape(
+                    endX, endY,
                     strokeColorPicker.getValue(),
-                    1.0,
-                    resultText.get()
+                    fillColorPicker.getValue(),
+                    resultText.get(),
+                    fontSize
                 );
                 newTextBox.setFontSize(fontSize);
                 newTextBox.setFontFamily(fontFamily);
