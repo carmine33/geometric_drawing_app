@@ -25,7 +25,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
   @JsonSubTypes.Type(value = ShapeRectangle.class, name = "Rectangle"),
   @JsonSubTypes.Type(value = ShapeEllipse.class, name = "Ellipse"),
   @JsonSubTypes.Type(value = ShapeLine.class, name = "Line"),
-  @JsonSubTypes.Type(value = ShapePolygon.class, name = "Polygon")
+  @JsonSubTypes.Type(value = ShapePolygon.class, name = "Polygon"),
+  @JsonSubTypes.Type(value = ShapeTextBox.class, name = "TextBox")
 })
 public abstract class ShapeBase implements Shape {
     protected double x, y;
@@ -106,7 +107,28 @@ public abstract class ShapeBase implements Shape {
     
     // contains serve per capire se un punto (click del mouse) è all'interno della figura.
     // public abstract boolean contains(double x, double y);   
+   
+     
+    public void translate(double dx, double dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+    
+    public abstract ShapeBase copy();
+    
+        
+    public double getStrokeWidth() {
+        return strokeWidth;
+    }
 
+    public void setStrokeWidth(double strokeWidth) {
+        this.strokeWidth = strokeWidth;
+    }
+    
+    // -------------------------------
+    // JSON Serialization/Deserialization
+    // -------------------------------
+    
     // Color serialization as RGBA double arrays for save/load implementation
     @JsonProperty("fillColor")
     public double[] getFillColorArray() {
@@ -117,12 +139,6 @@ public abstract class ShapeBase implements Shape {
             fillColor.getBlue(),
             fillColor.getOpacity()
         };
-    }
-    
-     
-    public void translate(double dx, double dy) {
-        this.x += dx;
-        this.y += dy;
     }
 
     @JsonProperty("fillColor")
@@ -142,21 +158,11 @@ public abstract class ShapeBase implements Shape {
             strokeColor.getOpacity()
         };
     }
-
-    public abstract ShapeBase copy();
     
     @JsonProperty("strokeColor")
     public void setStrokeColorArray(double[] rgba) {
         if (rgba != null && rgba.length == 4) {
             this.strokeColor = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
-    }
-    
-    public double getStrokeWidth() {
-    return strokeWidth;
-}
-
-    public void setStrokeWidth(double strokeWidth) {
-    this.strokeWidth = strokeWidth;
     }
 }

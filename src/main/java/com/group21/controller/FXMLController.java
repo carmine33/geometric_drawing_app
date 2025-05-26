@@ -118,6 +118,8 @@ public class FXMLController implements Initializable {
     private int currentZoomIndex = 2; // corrisponde a 1.0
     private double zoomFactor = zoomLevels[currentZoomIndex];
     
+    private Point2D lastMousePos = null;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         baseCanvas = new BaseCanvas(1000, 500);
@@ -234,6 +236,7 @@ public class FXMLController implements Initializable {
         });
 
         baseCanvas.getCanvas().setOnMouseReleased(e -> {
+            lastMousePos = null;
             double endX = e.getX()/zoomFactor;
             double endY = e.getY()/zoomFactor;
             if ("Line".equals(currentMouseCommand) && isDrawingLine) {
@@ -388,67 +391,113 @@ public class FXMLController implements Initializable {
                 }
             }else if(!isDrawingPolygon && !isDrawingLine && !isDrawingEllipse &&
                      !isDrawingRectangle && !isDrawingTextBox && isSelected){
-            
+                
                 ShapeBase selected = selectShape.getSelectedShape();
                 if (selected == null) return;
-
+                
                 // New mouse coordinates
                 double mouseX = e.getX();
                 double mouseY = e.getY();
 
-                // Resize the figure according to the new mouse position
-                if (selected instanceof ShapeRectangle) {
+                if (lastMousePos == null) {
+                    lastMousePos = new Point2D(mouseX, mouseY);
+                    return;
+                }
+
+                double dx = mouseX - lastMousePos.getX();
+                double dy = mouseY - lastMousePos.getY();
+               
+                if(e.isControlDown()){
                     selectShape.getMemory().saveState(new ArrayList<>(shapes));
-                    ShapeRectangle rect = (ShapeRectangle) selected;
-                    double newWidth = Math.max(10, mouseX - rect.getX());
-                    double newHeight = Math.max(10, mouseY - rect.getY());
-                    rect.setWidth(newWidth);
-                    rect.setHeight(newHeight);
+                    if (lastMousePos == null) {
+                        lastMousePos = new Point2D(mouseX, mouseY);
+                    }
+                    if (selected instanceof ShapeRectangle) {
+                        ShapeRectangle rect = (ShapeRectangle) selected;
+                        rect.setX(rect.getX() + dx);
+                        rect.setY(rect.getY() + dy);
 
-                } else if (selected instanceof ShapeEllipse) {
-                    ShapeEllipse ellipse = (ShapeEllipse) selected;
-                    double newWidth = Math.max(10, mouseX - ellipse.getX());
-                    double newHeight = Math.max(10, mouseY - ellipse.getY());
-                    ellipse.setWidth(newWidth);
-                    ellipse.setHeight(newHeight);
+                    } else if (selected instanceof ShapeEllipse) {
+                        ShapeEllipse ellipse = (ShapeEllipse) selected;
+                        ellipse.setX(ellipse.getX() + dx);
+                        ellipse.setY(ellipse.getY() + dy);
 
-                } else if (selected instanceof ShapeLine) {
-                    ShapeLine line = (ShapeLine) selected;
-                    line.setEndX(mouseX);
-                    line.setEndY(mouseY);
-                }else if (selected instanceof ShapePolygon){
-                    ShapePolygon polygon = (ShapePolygon) selected;
-                    Point2D anchor = polygon.getResizeAnchor();
-                    double anchorX = anchor.getX();
-                    double anchorY = anchor.getY();
+                    } else if (selected instanceof ShapeLine) {
+                        ShapeLine line = (ShapeLine) selected;
+                        line.setX(line.getX() + dx);
+                        line.setY(line.getY() + dy);
+                        line.setEndX(line.getEndX() + dx);
+                        line.setEndY(line.getEndY() + dy);
 
-                    double initialWidth = polygon.getOriginalBoundingBoxWidth();
-                    double initialHeight = polygon.getOriginalBoundingBoxHeight();
-                    if (initialWidth == 0 || initialHeight == 0) return;
+                    } else if (selected instanceof ShapePolygon) {
+                        ShapePolygon polygon = (ShapePolygon) selected;
+                        List<Point2D> movedVertices = new ArrayList<>();
+                        for (Point2D pt : polygon.getVertices()) {
+                            movedVertices.add(new Point2D(pt.getX() + dx, pt.getY() + dy));
+                        }
+                        polygon.setVertices(movedVertices);
 
-                    double newWidth = Math.max(10, e.getX() - anchorX);
-                    double newHeight = Math.max(10, e.getY() - anchorY);
-
-                    double scaleX = Math.max(0.1, newWidth / initialWidth);
-                    double scaleY = Math.max(0.1, newHeight / initialHeight);
-
-                    List<Point2D> scaled = new ArrayList<>();
-                    for (Point2D pt : polygon.getOriginalVertices()) {
-                        double dx = pt.getX() - anchorX;
-                        double dy = pt.getY() - anchorY;
-                        scaled.add(new Point2D(anchorX + dx * scaleX, anchorY + dy * scaleY));
+                    } else if (selected instanceof ShapeTextBox) {
+                        ShapeTextBox text = (ShapeTextBox) selected;
+                        text.setX(text.getX() + dx);
+                        text.setY(text.getY() + dy);
                     }
 
-                    polygon.setVertices(scaled);
-                }else if (selected instanceof ShapeTextBox) {
-                    ShapeTextBox text = (ShapeTextBox) selected;
+                    lastMousePos = new Point2D(mouseX, mouseY);
+                }else if(!e.isControlDown()){
+                    // Resize the figure according to the new mouse position
+                    if (selected instanceof ShapeRectangle) {
+                        selectShape.getMemory().saveState(new ArrayList<>(shapes));
+                        ShapeRectangle rect = (ShapeRectangle) selected;
+                        double newWidth = Math.max(10, mouseX - rect.getX());
+                        double newHeight = Math.max(10, mouseY - rect.getY());
+                        rect.setWidth(newWidth);
+                        rect.setHeight(newHeight);
 
-                    // Calcolo approssimativo: altezza del testo ≈ dimensione font
-                    double newFontSize = Math.max(8, mouseY - text.getY());
+                    } else if (selected instanceof ShapeEllipse) {
+                        ShapeEllipse ellipse = (ShapeEllipse) selected;
+                        double newWidth = Math.max(10, mouseX - ellipse.getX());
+                        double newHeight = Math.max(10, mouseY - ellipse.getY());
+                        ellipse.setWidth(newWidth);
+                        ellipse.setHeight(newHeight);
 
-                    text.setFontSize(newFontSize);
-                }
-                
+                    } else if (selected instanceof ShapeLine) {
+                        ShapeLine line = (ShapeLine) selected;
+                        line.setEndX(mouseX);
+                        line.setEndY(mouseY);
+                    }else if (selected instanceof ShapePolygon){
+                        ShapePolygon polygon = (ShapePolygon) selected;
+                        Point2D anchor = polygon.getResizeAnchor();
+                        double anchorX = anchor.getX();
+                        double anchorY = anchor.getY();
+
+                        double initialWidth = polygon.getOriginalBoundingBoxWidth();
+                        double initialHeight = polygon.getOriginalBoundingBoxHeight();
+                        if (initialWidth == 0 || initialHeight == 0) return;
+
+                        double newWidth = Math.max(10, e.getX() - anchorX);
+                        double newHeight = Math.max(10, e.getY() - anchorY);
+
+                        double scaleX = Math.max(0.1, newWidth / initialWidth);
+                        double scaleY = Math.max(0.1, newHeight / initialHeight);
+
+                        List<Point2D> scaled = new ArrayList<>();
+                        for (Point2D pt : polygon.getOriginalVertices()) {
+                            double poly_dx = pt.getX() - anchorX;
+                            double poly_dy = pt.getY() - anchorY;
+                            scaled.add(new Point2D(anchorX + poly_dx * scaleX, anchorY + poly_dy * scaleY));
+                        }
+
+                        polygon.setVertices(scaled);
+                    }else if (selected instanceof ShapeTextBox) {
+                        ShapeTextBox text = (ShapeTextBox) selected;
+
+                        // Calcolo approssimativo: altezza del testo ≈ dimensione font
+                        double newFontSize = Math.max(8, mouseY - text.getY());
+
+                        text.setFontSize(newFontSize);
+                    }
+                }                
                 redraw(baseCanvas.getGc());
             }
         });

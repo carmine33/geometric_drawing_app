@@ -49,22 +49,25 @@ public class ShapeLine extends ShapeBase{
     @Override
     public void draw(GraphicsContext gc) {
         gc.setStroke(strokeColor);
-        gc.strokeLine(x, y, endX, endY);
         gc.setLineWidth(strokeWidth);
+        gc.strokeLine(x, y, endX, endY);
     }
     
     // Check if the point (x,y) intersects a small area around the line (8x8 pixels)
     @Override
     public boolean containsPoint(double x, double y) {
+        if (line == null) {
+            line = new Line2D.Double();
+        }
         line.setLine(this.x, this.y, this.endX, this.endY);
         return line.intersects(x - 4, y - 4, 8.0, 8.0);
     }
     
     @Override
     public ShapeBase copy() {
-    ShapeLine copy = new ShapeLine(x, y, getWidth(), getHeight(),endX,endY,strokeColor,strokeWidth);
-    copy.setStrokeWidth(this.strokeWidth);
-    copy.setFillColor(this.getFillColor());
-    return copy;
+        ShapeLine copy = new ShapeLine(x, y, getWidth(), getHeight(),endX,endY,strokeColor,strokeWidth);
+        copy.setStrokeWidth(this.strokeWidth);
+        copy.setFillColor(this.getFillColor());
+        return copy;
     }
 }

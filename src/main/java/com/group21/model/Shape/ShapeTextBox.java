@@ -12,26 +12,22 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ShapeTextBox extends ShapeBase {
 
-    // Testo da visualizzare nella casella
     private String text;
-
-    // Flag che indica se la casella è in modalità modifica attiva (non usato nel disegno)
     private boolean isEditing;
-
-    // Dimensione del font del testo (default 14 pt)
     private double fontSize = 14;
-
-    // Colore del testo
     private Color textColor = Color.BLACK;
-    
     private String fontFamily = "SansSerif";
-
-    /**
-     * Costruttore che inizializza tutti i parametri necessari, ereditando da ShapeBase
-     */
+    private double textHeight;
+    private double textWidth;
+    
+    public ShapeTextBox() {
+        // No-args constructor for Jackson serialization
+    }
+    
     public ShapeTextBox(double x, double y, double width, double height,
                         Color fillColor, Color strokeColor, double strokeWidth,
                         String text) {
@@ -41,52 +37,42 @@ public class ShapeTextBox extends ShapeBase {
         this.isEditing = false;
     }
 
-    // Getter del contenuto testuale
     public String getText() {
         return text;
     }
 
-    // Setter del contenuto testuale
     public void setText(String text) {
         this.text = text;
     }
 
-    // Verifica se la casella è in modalità editing
     public boolean isEditing() {
         return isEditing;
     }
 
-    // Imposta lo stato di editing (non influenza il disegno attuale)
     public void setEditing(boolean editing) {
         this.isEditing = editing;
     }
 
-    //Imposta il font selezionato per il testo
-        public void setFontFamily(String fontFamily) {
+    public void setFontFamily(String fontFamily) {
         this.fontFamily = fontFamily;
     }
 
-    //Restituisce il font corrente del testo 
     public String getFontFamily() {
         return fontFamily;
     }
 
-    // Restituisce la dimensione corrente del font
     public double getFontSize() {
         return fontSize;
     }
 
-    // Imposta una nuova dimensione del font
     public void setFontSize(double fontSize) {
         this.fontSize = fontSize;
     }
 
-    // Restituisce il colore del testo
     public Color getTextColor() {
         return textColor;
     }
 
-    // Imposta il colore del testo
     public void setTextColor(Color textColor) {
         this.textColor = textColor;
     }
@@ -95,6 +81,7 @@ public class ShapeTextBox extends ShapeBase {
      * Calcola la larghezza stimata del testo in pixel
      * usando un nodo JavaFX invisibile (Text)
      */
+    @JsonProperty("textWidth")
     public double getTextWidth() {
         Text t = new Text(text != null ? text : "Text");
         t.setFont(Font.font(fontSize));
@@ -104,6 +91,7 @@ public class ShapeTextBox extends ShapeBase {
     /**
      * Calcola l'altezza stimata del testo in pixel
      */
+    @JsonProperty("textHeight")
     public double getTextHeight() {
         Text t = new Text(text != null ? text : "Text");
         t.setFont(Font.font(fontSize));
@@ -145,6 +133,41 @@ public class ShapeTextBox extends ShapeBase {
         copy.setFontFamily(getFontFamily());
         copy.setTextColor(getTextColor());
         return copy;
+    }
+    
+     // -------------------------------
+    // JSON Serialization/Deserialization
+    // -------------------------------
+    
+    // Getter for serialization
+    @JsonProperty("textColor")
+    public double[] getTextColorArray() {
+        if (textColor == null) return null;
+        return new double[]{
+            textColor.getRed(),
+            textColor.getGreen(),
+            textColor.getBlue(),
+            textColor.getOpacity()
+        };
+    }
+
+    // Setter for deserialization
+    @JsonProperty("textColor")
+    public void setTextColorArray(double[] rgba) {
+        if (rgba == null || rgba.length != 4) {
+            this.textColor = null;
+        } else {
+            this.textColor = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+    }
+    
+    @JsonProperty("textWidth")
+    public void setTextWidth(double textWidth) {
+        this.textWidth = textWidth;
+    }
+    @JsonProperty("textHeight")
+    public void setTextHeight(double textHeight) {
+        this.textHeight = textHeight;
     }
     
 }

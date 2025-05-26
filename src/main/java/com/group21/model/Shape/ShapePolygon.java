@@ -4,6 +4,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to c
 Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template*/
 package com.group21.model.Shape;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Point2D;
@@ -15,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  * @author claco   
 */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ShapePolygon extends ShapeBase{
 
      private List<Point2D> vertices = new ArrayList<>();
@@ -47,7 +48,6 @@ public class ShapePolygon extends ShapeBase{
         vertices.add(p);
     }
 
-    //TODO
     @Override
     public void draw(GraphicsContext gc) {
         int count = vertices.size();
@@ -72,35 +72,15 @@ public class ShapePolygon extends ShapeBase{
         }
     }
 
-     @Override
+    @Override
     public ShapeBase copy() {
-    ShapePolygon copy = new ShapePolygon(vertices, fillColor, strokeColor,strokeWidth);
-    copy.setStrokeWidth(this.strokeWidth); // <-- copia strokeWidth
-    copy.setFillColor(this.getFillColor());
-    copy.setStrokeColor(this.getStrokeColor());    
-    return copy;
-    } 
-
-    @JsonProperty("vertices")
-    public double[][] getVerticesAsArray() {
-        double[][] arr = new double[vertices.size()][2];
-        for (int i = 0; i < vertices.size(); i++) {
-            arr[i][0] = vertices.get(i).getX();
-            arr[i][1] = vertices.get(i).getY();
-        }
-        return arr;
+        ShapePolygon copy = new ShapePolygon(vertices, fillColor, strokeColor,strokeWidth);
+        copy.setStrokeWidth(this.strokeWidth); // <-- copia strokeWidth
+        copy.setFillColor(this.getFillColor());
+        copy.setStrokeColor(this.getStrokeColor());    
+        return copy;
     }
-
-    @JsonProperty("vertices")
-    public void setVerticesFromArray(double[][] arr) {
-        vertices = new ArrayList<>();
-        for (double[] pair : arr) {
-            if (pair.length == 2) {
-                vertices.add(new Point2D(pair[0], pair[1]));
-            }
-        }
-    }
-
+    
     @Override
     public boolean containsPoint(double x, double y) {
         int crossings = 0;
@@ -122,7 +102,6 @@ public class ShapePolygon extends ShapeBase{
         // Odd number of crossings means point is inside
         return (crossings % 2 == 1);
     }
-    
     
     public void storeOriginalVertices() {
         originalVertices.clear();
@@ -163,6 +142,63 @@ public class ShapePolygon extends ShapeBase{
         double minY = originalVertices.stream().mapToDouble(Point2D::getY).min().orElse(0);
         double maxY = originalVertices.stream().mapToDouble(Point2D::getY).max().orElse(0);
         return maxY - minY;
+    }
+    
+    // -------------------------------
+    // JSON Serialization/Deserialization
+    // -------------------------------
+
+    @JsonProperty("vertices")
+    public double[][] getVerticesAsArray() {
+        double[][] arr = new double[vertices.size()][2];
+        for (int i = 0; i < vertices.size(); i++) {
+            arr[i][0] = vertices.get(i).getX();
+            arr[i][1] = vertices.get(i).getY();
+        }
+        return arr;
+    }
+
+    @JsonProperty("vertices")
+    public void setVerticesFromArray(double[][] arr) {
+        vertices = new ArrayList<>();
+        for (double[] pair : arr) {
+            if (pair.length == 2) {
+                vertices.add(new Point2D(pair[0], pair[1]));
+            }
+        }
+    }
+
+    @JsonProperty("originalVertices")
+    public double[][] getOriginalVerticesAsArray() {
+        double[][] arr = new double[originalVertices.size()][2];
+        for (int i = 0; i < originalVertices.size(); i++) {
+            arr[i][0] = originalVertices.get(i).getX();
+            arr[i][1] = originalVertices.get(i).getY();
+        }
+        return arr;
+    }
+
+    @JsonProperty("originalVertices")
+    public void setOriginalVerticesFromArray(double[][] arr) {
+        originalVertices = new ArrayList<>();
+        for (double[] pair : arr) {
+            if (pair.length == 2) {
+                originalVertices.add(new Point2D(pair[0], pair[1]));
+            }
+        }
+    }
+
+    @JsonProperty("resizeAnchor")
+    public double[] getResizeAnchorAsArray() {
+        if (resizeAnchor == null) return null;
+        return new double[]{resizeAnchor.getX(), resizeAnchor.getY()};
+    }
+
+    @JsonProperty("resizeAnchor")
+    public void setResizeAnchorFromArray(double[] arr) {
+        if (arr != null && arr.length == 2) {
+            this.resizeAnchor = new Point2D(arr[0], arr[1]);
+        }
     }
 
 }
