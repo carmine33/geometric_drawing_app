@@ -51,12 +51,5 @@ public class ShapeEllipse extends ShapeBase{
     copy.setStrokeColor(this.getStrokeColor());
     return copy;
     }
-   
-    @Override
-    public ShapeBase clone() {
-    ShapeRectangle copy = new ShapeRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight(),
-            this.getFillColor(), this.getStrokeColor(),this.getStrokeWidth());
-    copy.setStrokeWidth(this.strokeWidth);
-    return copy;
-}
+
 }

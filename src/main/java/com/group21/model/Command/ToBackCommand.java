@@ -5,6 +5,7 @@
 package com.group21.model.Command;
 
 import com.group21.model.Shape.*;
+import java.util.ArrayList;
 
 /**
  *
@@ -12,28 +13,25 @@ import com.group21.model.Shape.*;
  */
 public class ToBackCommand implements Command {
 
-    private ShapeSelector shape;
-    private double index;
+    private final ShapeSelector shape;
+    private final double index;
 
     public ToBackCommand(ShapeSelector shape, double index) {
         this.shape = shape;
         this.index = index;
-
     }
 
     @Override
     public void execute() {
-
-        this.shape.toBack(0);
+        shape.getMemory().saveState(new ArrayList<>(shape.getShape())); // Salva lo stato PRIMA della modifica
+        shape.toBack(index);
     }
 
     @Override
     public void undo() {
-        
-        ShapeBase oldShape = (ShapeBase) this.shape.getMemory().popStackShape();
-        this.shape.getShape().remove(oldShape);
-        this.shape.getShape().add((int) index, oldShape);
-
+        if (shape.getMemory().canUndo()) {
+            shape.getShape().clear();
+            shape.getShape().addAll(shape.getMemory().restoreLastState());
+        }
     }
-
 }

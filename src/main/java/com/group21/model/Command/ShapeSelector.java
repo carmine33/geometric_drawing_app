@@ -4,18 +4,20 @@
  */
 package com.group21.model.Command;
 
+import com.group21.model.Memento.Memory;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ColorPicker;
 import com.group21.model.Shape.*;
-import com.group21.model.Memory.*;
 import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.paint.Color;
+import java.util.Collections;
+
 
 /**
  *
@@ -59,26 +61,36 @@ public class ShapeSelector {
         if (this.selectedShape == null) {
             return;
         }
-
+        this.memory.saveState(new ArrayList<>(list));
         this.list.remove(this.selectedShape);
-        this.memory.addStackShape(this.selectedShape);
     }
     
-     public void toFront(double index) {
-        list.remove(selectedShape);
-        list.add((int) index - 1, selectedShape);
-        this.memory.addStackShape(selectedShape);
+    public void toFront(double ignoredIndex) {
+     if (selectedShape != null) {
+        int index = list.indexOf(selectedShape);
+        if (index < list.size() - 1) {
+            list.remove(index);
+            list.add(index + 1, selectedShape);
+        }
+     }
     }
+
     
-    public void toBack(double index) {
-        list.remove(selectedShape);
-        list.add((int) index, selectedShape);
-        this.memory.addStackShape(selectedShape);
+    public void toBack(double ignoredIndex) {
+     if (selectedShape != null) {
+         int index = list.indexOf(selectedShape);
+         if (index > 0) {
+             list.remove(index);
+             list.add(index - 1, selectedShape);
+         }
+     }
     }
+
     
 public ShapeBase pasteShape() {
     ShapeBase toPaste = this.memory.getCopiedShape();
     if (toPaste != null) {
+        this.memory.saveState(new ArrayList<>(list));
         ShapeBase newShape = (ShapeBase) toPaste.copy();
 
         // Gestione specifica per ShapePolygon se serve
@@ -110,6 +122,7 @@ public ShapeBase pasteShape() {
 
     void modStrWidthShape() {
         if (this.selectedShape != null) {
+            memory.saveState(new ArrayList<>(list));
             TextInputDialog dialog = new TextInputDialog("1.0");
             dialog.setTitle("Imposta spessore bordo");
             dialog.setHeaderText("Inserisci lo spessore del bordo (es. 2.0):");
@@ -131,7 +144,7 @@ public ShapeBase pasteShape() {
 
     public void modColorShape(String tipo) {
         if (this.selectedShape == null) return;
-
+        memory.saveState(new ArrayList<>(list));
         Color initialColor;
         String titolo;
 

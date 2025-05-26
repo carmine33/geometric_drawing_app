@@ -5,6 +5,7 @@
 package com.group21.model.Command;
 
 import com.group21.model.Shape.*;
+import java.util.ArrayList;
 
 /**
  *
@@ -12,30 +13,27 @@ import com.group21.model.Shape.*;
  */
 public class ToFrontCommand implements Command {
 
-    private ShapeSelector shape;
-    private double index;
-    private double size;
+    private final ShapeSelector shape;
+    private final double index;
+    private final double size;
 
     public ToFrontCommand(ShapeSelector shape, double index, double size) {
         this.shape = shape;
         this.index = index;
         this.size = size;
-
     }
 
     @Override
     public void execute() {
-
-        this.shape.toFront(size);
+        shape.getMemory().saveState(new ArrayList<>(shape.getShape())); // Salva lo stato PRIMA della modifica
+        shape.toFront(size);
     }
 
     @Override
     public void undo() {
-
-        ShapeBase oldShape = (ShapeBase) this.shape.getMemory().popStackShape();
-        this.shape.getShape().remove(oldShape);
-        this.shape.getShape().add((int) index, oldShape);
-
+        if (shape.getMemory().canUndo()) {
+            shape.getShape().clear();
+            shape.getShape().addAll(shape.getMemory().restoreLastState());
+        }
     }
-
 }

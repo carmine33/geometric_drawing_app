@@ -67,10 +67,4 @@ public class ShapeLine extends ShapeBase{
     copy.setFillColor(this.getFillColor());
     return copy;
     }
-    
-    @Override
-    public ShapeBase clone() {
-    return new ShapeLine(this.getX(), this.getY(), this.getWidth(), this.getHeight(),endX,endY,
-                              this.getStrokeColor(),this.getStrokeWidth());
-    }
 }

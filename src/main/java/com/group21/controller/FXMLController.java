@@ -81,6 +81,7 @@ public class FXMLController implements Initializable {
     
     private Invoker invoker;
     private ShapeSelector selectShape;
+    private List<ShapeBase> shapes = new ArrayList<>();
     ContextMenu contextMenu = new ContextMenu();
     MenuItem deleteMenu = new MenuItem("Delete");
     MenuItem copyShape = new MenuItem("Copy");
@@ -97,7 +98,6 @@ public class FXMLController implements Initializable {
     ShapePolygon currentPolygon = null;
     private List<Point2D> polygonPoints = new ArrayList<>();
     private String currentMouseCommand = null;
-    private List<ShapeBase> shapes = new ArrayList<>();
     private double lineStartX, lineStartY;
     private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false, 
                     isDrawingPolygon = false, isSelected = false, isDrawingTextBox=false;
@@ -144,7 +144,7 @@ public class FXMLController implements Initializable {
             }
         });
 
-        baseCanvas.getCanvas().setOnMousePressed(e -> {
+        baseCanvas.getCanvas().setOnMousePressed(e ->  {
             if(contextMenu.isShowing()){
                 contextMenu.hide();
             }
@@ -208,6 +208,9 @@ public class FXMLController implements Initializable {
                 isSelected = true;
                 // Stores OG vertices if we're selecting a polygon
                 ShapeBase selected = selectShape.getSelectedShape();
+                if (selected != null) {
+                    selectShape.getMemory().saveState(new ArrayList<>(shapes));
+                } 
                 if(selected instanceof ShapePolygon){
                     ShapePolygon polygon = (ShapePolygon) selected;
                     polygon.storeOriginalVertices();
@@ -381,6 +384,7 @@ public class FXMLController implements Initializable {
 
                 // Resize the figure according to the new mouse position
                 if (selected instanceof ShapeRectangle) {
+                    selectShape.getMemory().saveState(new ArrayList<>(shapes));
                     ShapeRectangle rect = (ShapeRectangle) selected;
                     double newWidth = Math.max(10, mouseX - rect.getX());
                     double newHeight = Math.max(10, mouseY - rect.getY());
@@ -655,12 +659,14 @@ public class FXMLController implements Initializable {
         }
     }
        
-       public void performUndo() {
-        invoker.startUndo();
-        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
-        for (ShapeBase elem : shapes) {
-            elem.draw(baseCanvas.getGc());
-        } 
+    public void performUndo() {
+        if (selectShape.getMemory().canUndo()) {
+            shapes.clear();
+            shapes.addAll(selectShape.getMemory().restoreLastState());
+            redraw(baseCanvas.getGc());
+        } else {
+            showInfo("Undo", "Nessuno stato precedente disponibile.");
+        }
     }
         
     // Save/Load logic implementation
@@ -714,6 +720,7 @@ public class FXMLController implements Initializable {
         if (file != null) {
             List<ShapeBase> loadedShapes = loadShapes(file);
             if (loadedShapes != null) {
+                selectShape.getMemory().saveState(new ArrayList<>(shapes));
                 shapes.clear();
                 selectShape.setSelectedShape(null);
                 shapes.addAll(loadedShapes);
@@ -726,6 +733,7 @@ public class FXMLController implements Initializable {
     
     @FXML
     private void handleNew() {
+        selectShape.getMemory().saveState(new ArrayList<>(shapes));
         baseCanvas.clear();
         shapes.clear();
         selectShape.setSelectedShape(null);

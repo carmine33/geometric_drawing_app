@@ -2,12 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.group21.model.Memory;
+package com.group21.model.Memento;
 
 /**
  *
  * @author carmi
  */
+import com.group21.model.Memento.Memory;
 import com.group21.model.Shape.*;
 import javafx.scene.paint.Color;
 import org.junit.jupiter.api.Test;

@@ -5,6 +5,7 @@
 package com.group21.model.Command;
 
 import com.group21.model.Shape.ShapeBase;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,21 +14,28 @@ import com.group21.model.Shape.ShapeBase;
 public class DeleteCommand implements Command {
 
     private ShapeSelector shape;
-    private double pos;
+    private ShapeBase deletedShape;
 
     public DeleteCommand(ShapeSelector shape) {
         this.shape = shape;
-        this.pos = pos;
     }
 
     @Override
     public void execute() {
-        shape.deleteShape();
-    }
-    
-     @Override
-    public void undo() {
-        shape.getShape().add((int) pos, (ShapeBase) this.shape.getMemory().popStackShape());
+        ShapeBase selected = shape.getSelectedShape();
+        if (selected != null) {
+            shape.getMemory().saveState(new ArrayList<>(shape.getShape())); // salva prima della modifica
+            deletedShape = selected;
+            shape.getShape().remove(selected);
+            shape.setSelectedShape(null);
+        }
     }
 
+    @Override
+    public void undo() {
+        if (shape.getMemory().canUndo()) {
+            shape.getShape().clear();
+            shape.getShape().addAll(shape.getMemory().restoreLastState());
+        }
+    }
 }

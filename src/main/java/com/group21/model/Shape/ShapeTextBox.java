@@ -134,23 +134,18 @@ public class ShapeTextBox extends ShapeBase {
 
     /**
      * Crea una copia della ShapeTextBox con stessi parametri e colore testo.
+     * @return 
      */
     @Override
     public ShapeBase copy() {
-        ShapeTextBox copy = new ShapeTextBox(
-            x, y, this.getWidth(), this.getHeight(), fillColor, strokeColor, strokeWidth, text
-        );
-        copy.setFontSize(fontSize);
-        copy.setTextColor(textColor);
+        ShapeTextBox copy = new ShapeTextBox(getX(), getY(), getWidth(), getHeight(),
+            getFillColor(), getStrokeColor(), getStrokeWidth(), getText());
+
+        copy.setFontSize(getFontSize());
+        copy.setFontFamily(getFontFamily());
+        copy.setTextColor(getTextColor());
         return copy;
     }
-
-    /**
-     * Alias di copy(), per compatibilità con clone().
-     */
-    @Override
-    public ShapeBase clone() {
-        return copy();
-    }
+    
 }
 
