@@ -100,7 +100,7 @@ public class FXMLController implements Initializable {
     private List<ShapeBase> shapes = new ArrayList<>();
     private double lineStartX, lineStartY;
     private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false, 
-                    isDrawingPolygon = false, isSelected = false;
+                    isDrawingPolygon = false, isSelected = false, isDrawingTextBox=false;
     private Command command = null;
     private String mod = null;
     private double previewStartX, previewStartY;
@@ -127,7 +127,7 @@ public class FXMLController implements Initializable {
         btnTextBox.setOnAction(e -> currentMouseCommand = "TextBox");
         
          btnZoomIn.setOnAction(e -> {
-            if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon) return;
+            if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon || isDrawingTextBox) return;
             if (currentZoomIndex < zoomLevels.length - 1) {
                 currentZoomIndex++;
                 zoomFactor = zoomLevels[currentZoomIndex];
@@ -136,7 +136,7 @@ public class FXMLController implements Initializable {
         });
 
         btnZoomOut.setOnAction(e -> {
-            if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon) return;
+            if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon || isDrawingTextBox) return;
             if (currentZoomIndex > 0) {
                 currentZoomIndex--;
                 zoomFactor = zoomLevels[currentZoomIndex];
@@ -163,9 +163,7 @@ public class FXMLController implements Initializable {
                 
                 if(!isSelected && selectShape.getSelectedShape()!= null){
                     selectShape.setSelectedShape(null);
-                }
-                
-                if ("Line".equals(currentMouseCommand)) {
+                }else if ("Line".equals(currentMouseCommand)) {
                     isDrawingLine = true;
                 } else if("Rectangle".equals(currentMouseCommand)){
                     isDrawingRectangle = true;
@@ -174,6 +172,8 @@ public class FXMLController implements Initializable {
                 }else if("Polygon".equals(currentMouseCommand)){
                     isDrawingPolygon = true;
                     polygonPoints.add(new Point2D(lineStartX,lineStartY));
+                }else if("TextBox".equals(currentMouseCommand)){
+                    isDrawingTextBox = true;
                 }
             } else if(e.isSecondaryButtonDown()){
                 if(!isDrawingPolygon && !contextMenu.isShowing()){
@@ -259,7 +259,8 @@ public class FXMLController implements Initializable {
                     strokeColorPicker.getValue(),1);
                 shapes.add(ellipse);
                 redraw(baseCanvas.getGc());
-            }else if ("TextBox".equals(currentMouseCommand)) {
+            }else if ("TextBox".equals(currentMouseCommand) && isDrawingTextBox) {
+                isDrawingTextBox = false;
                 // 1. Inserisci il testo
                 TextInputDialog textDialog = new TextInputDialog("Testo");
                 textDialog.setTitle("Nuova TextBox");
@@ -338,7 +339,7 @@ public class FXMLController implements Initializable {
         });
         
         baseCanvas.getCanvas().setOnMouseDragged(e -> {
-            if(!isDrawingPolygon && (isDrawingLine || isDrawingEllipse || isDrawingRectangle)){
+            if(!isDrawingPolygon && (isDrawingLine || isDrawingEllipse || isDrawingRectangle || isDrawingTextBox)){
                 previewCurrentX = e.getX()/zoomFactor;
                 previewCurrentY = e.getY()/zoomFactor;
 
@@ -369,7 +370,7 @@ public class FXMLController implements Initializable {
                 
                 }
             }else if(!isDrawingPolygon && !isDrawingLine && !isDrawingEllipse &&
-                     !isDrawingRectangle && isSelected){
+                     !isDrawingRectangle && !isDrawingTextBox && isSelected){
             
                 ShapeBase selected = selectShape.getSelectedShape();
                 if (selected == null) return;
@@ -446,7 +447,7 @@ public class FXMLController implements Initializable {
     private void redraw(GraphicsContext gc) {
         gc.clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
         gc.save();
-        if (!isDrawingRectangle && !isDrawingEllipse && !isDrawingLine && !isDrawingPolygon) {
+        if (!isDrawingRectangle && !isDrawingEllipse && !isDrawingLine && !isDrawingPolygon && !isDrawingTextBox) {
             gc.scale(zoomFactor, zoomFactor); // Applica lo zoom solo in modalità visualizzazione
         }
 
