@@ -52,15 +52,18 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javax.tools.Tool;
 // Import for Polygon shape manipulation
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon; 
+import static org.locationtech.jts.math.MathUtil.clamp;
 
 
 /**
@@ -73,6 +76,7 @@ public class FXMLController implements Initializable {
     
     //@FXML private MenuItem menuNew, menuOpen, menuSave, menuExit;
     
+    @FXML private ScrollPane scrollPane;
     @FXML private Pane canvasPlaceholder;
     private BaseCanvas baseCanvas;
     @FXML private ColorPicker fillColorPicker;
@@ -85,6 +89,7 @@ public class FXMLController implements Initializable {
     @FXML private Button btnTextBox;
     @FXML private Button btnZoomIn;
     @FXML private Button btnZoomOut;
+    @FXML private Button btnPan;
     
     private Invoker invoker;
     private ShapeSelector selectShape;
@@ -107,7 +112,7 @@ public class FXMLController implements Initializable {
     private String currentMouseCommand = null;
     private double lineStartX, lineStartY;
     private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false, 
-                    isDrawingPolygon = false, isSelected = false, isDrawingTextBox=false;
+                    isDrawingPolygon = false, isSelected = false, isDrawingTextBox=false, isPanMode=false;
     private Command command = null;
     private String mod = null;
     private double previewStartX, previewStartY;
@@ -119,14 +124,18 @@ public class FXMLController implements Initializable {
     private double zoomFactor = zoomLevels[currentZoomIndex];
     
     private Point2D lastMousePos = null;
+    private double lastMouseX;
+    private double lastMouseY;
+    private PanCommand panCommand;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        baseCanvas = new BaseCanvas(1000, 500);
+        baseCanvas = new BaseCanvas(2000, 2000);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
         invoker = new Invoker();
+        panCommand = new PanCommand(canvasPlaceholder, scrollPane);
         
         btnRectangle.setOnAction(e -> currentMouseCommand = "Rectangle");
         btnEllipse.setOnAction(e -> currentMouseCommand = "Ellipse");
@@ -143,7 +152,16 @@ public class FXMLController implements Initializable {
                 redraw(baseCanvas.getGc());
             }
         });
-
+        
+        btnPan.setOnAction(e -> {
+            panCommand.execute(); // alterna attivazione/disattivazione
+            if (panCommand.isActive()) {
+                currentMouseCommand = "Pan";
+            } else {
+                currentMouseCommand = null;
+            }
+        });
+ 
         btnZoomOut.setOnAction(e -> {
             if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon || isDrawingTextBox) return;
             if (currentZoomIndex > 0) {
@@ -813,4 +831,42 @@ public class FXMLController implements Initializable {
     private void undoCommand(ActionEvent e) {
         performUndo();
     }
+    
+    @FXML
+    private void setupPanTool() {
+    btnPan.setOnAction(event -> {
+        isPanMode = true;
+        setActiveToolButton(btnPan);});
+    
+
+    baseCanvas.getCanvas().setOnMouseDragged(event -> {
+        
+            double deltaX = lastMouseX - event.getSceneX();
+            double deltaY = lastMouseY - event.getSceneY();
+
+            double newHValue = scrollPane.getHvalue() + deltaX / baseCanvas.getCanvas().getWidth();
+            double newVValue = scrollPane.getVvalue() + deltaY / baseCanvas.getCanvas().getHeight();
+
+            scrollPane.setHvalue(clamp(newHValue, 0, 1));
+            scrollPane.setVvalue(clamp(newVValue, 0, 1));
+
+            lastMouseX = event.getSceneX();
+            lastMouseY = event.getSceneY();
+            event.consume();
+        
+        });   
+    }
+    
+    private void setActiveToolButton(Button activeButton) {
+    // Rimuovi stile da tutti i bottoni degli strumenti
+    btnPan.setStyle("");
+    btnSelect.setStyle("");
+
+    // Evidenzia il bottone attivo
+    if (activeButton != null) {
+        activeButton.setStyle("-fx-background-color: lightblue;");
+    }
+    
+    }
+    
 }
