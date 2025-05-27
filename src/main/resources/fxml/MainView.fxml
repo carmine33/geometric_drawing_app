@@ -38,6 +38,7 @@
                             <Button fx:id="btnSelect" text="Select" />
                             <Button fx:id="btnUndo" text="Undo" onAction="#undoCommand"/>
                             <Button fx:id="btnPan" text="Pan" onAction="#setupPanTool"/>
+                            <Button fx:id="btnToggleGrid" text="Grid"/>
                         </HBox>
                     </VBox>
                      <!-- Group 3: Colors -->
@@ -69,7 +70,7 @@
     </top>
     <center>
         <ScrollPane  fx:id="scrollPane" pannable="false" > 
-        <Pane fx:id="canvasPlaceholder" prefWidth="2000.0" prefHeight="2000.0"  >
+        <Pane fx:id="canvasPlaceholder" prefWidth="1500.0" prefHeight="700.0"  >
         </Pane>
         </ScrollPane>
     </center>

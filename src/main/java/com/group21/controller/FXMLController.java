@@ -27,6 +27,7 @@ import com.group21.model.Command.*;
 // Import for save/load 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.group21.model.Decorator.GridDecorator;
 import com.group21.model.Factory.ConcreteCreatorEllipse;
 import com.group21.model.Factory.ConcreteCreatorIrregularPolygon;
 import com.group21.model.Factory.ConcreteCreatorLine;
@@ -56,7 +57,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javax.tools.Tool;
 // Import for Polygon shape manipulation
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -90,6 +90,7 @@ public class FXMLController implements Initializable {
     @FXML private Button btnZoomIn;
     @FXML private Button btnZoomOut;
     @FXML private Button btnPan;
+    @FXML private Button btnToggleGrid;
     
     private Invoker invoker;
     private ShapeSelector selectShape;
@@ -127,15 +128,18 @@ public class FXMLController implements Initializable {
     private double lastMouseX;
     private double lastMouseY;
     private PanCommand panCommand;
+    private GridDecorator gridDecorator;
+    private boolean isGridVisible = false;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        baseCanvas = new BaseCanvas(2000, 2000);
+        baseCanvas = new BaseCanvas(1500,700);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
         invoker = new Invoker();
         panCommand = new PanCommand(canvasPlaceholder, scrollPane);
+        gridDecorator = new GridDecorator(baseCanvas);
         
         btnRectangle.setOnAction(e -> currentMouseCommand = "Rectangle");
         btnEllipse.setOnAction(e -> currentMouseCommand = "Ellipse");
@@ -171,6 +175,11 @@ public class FXMLController implements Initializable {
             }
         });
 
+        btnToggleGrid.setOnAction(e -> {
+            isGridVisible = !isGridVisible;
+            redraw(baseCanvas.getGc());
+        });
+        
         baseCanvas.getCanvas().setOnMousePressed(e ->  {
             if(contextMenu.isShowing()){
                 contextMenu.hide();
@@ -532,8 +541,17 @@ public class FXMLController implements Initializable {
     private void redraw(GraphicsContext gc) {
         gc.clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
         gc.save();
-        if (!isDrawingRectangle && !isDrawingEllipse && !isDrawingLine && !isDrawingPolygon && !isDrawingTextBox) {
-            gc.scale(zoomFactor, zoomFactor); // Applica lo zoom solo in modalità visualizzazione
+        
+        // 1. Calcola gli offset reali in coordinate del canvas
+        double scrollXOffset = scrollPane.getHvalue() * (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth());
+        double scrollYOffset = scrollPane.getVvalue() * (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight());
+
+        // 2. Applica pan + zoom
+        gc.translate(-scrollXOffset * zoomFactor, -scrollYOffset * zoomFactor);
+        gc.scale(zoomFactor, zoomFactor);
+        
+        if (isGridVisible) {
+            gridDecorator.drawGrid(gc, scrollXOffset, scrollYOffset, zoomFactor);
         }
 
         for (ShapeBase shape : shapes) {
@@ -837,6 +855,8 @@ public class FXMLController implements Initializable {
     btnPan.setOnAction(event -> {
         isPanMode = true;
         setActiveToolButton(btnPan);});
+    
+    
     
 
     baseCanvas.getCanvas().setOnMouseDragged(event -> {
