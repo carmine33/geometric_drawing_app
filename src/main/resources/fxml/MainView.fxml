@@ -70,7 +70,7 @@
     </top>
     <center>
         <ScrollPane  fx:id="scrollPane" pannable="false" > 
-        <Pane fx:id="canvasPlaceholder" prefWidth="4000.0" prefHeight="4000.0"  >
+        <Pane fx:id="canvasPlaceholder" prefWidth="8000.0" prefHeight="4000.0"  >
         </Pane>
         </ScrollPane>
     </center>
