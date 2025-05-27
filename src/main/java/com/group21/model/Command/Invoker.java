@@ -26,16 +26,4 @@ public class Invoker {
             stack.push(command);
         }
     }
-
-    public void startUndo() {
-        
-        if (!stack.isEmpty()) {
-            Command lastCommand = stack.pop();
-            lastCommand.undo();
-        }
-    }
-    
-    public boolean canUndo() {
-        return !stack.isEmpty();
-    }
 }

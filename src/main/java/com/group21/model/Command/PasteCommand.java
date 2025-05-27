@@ -26,9 +26,4 @@ public class PasteCommand implements Command {
         }
     }
     
-    @Override
-    public void undo() {
-        
-    }
-    
 }

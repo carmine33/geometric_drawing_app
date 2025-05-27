@@ -50,11 +50,6 @@ public class PanCommand implements Command {
         }
     }
 
-    @Override
-    public void undo() {
-        // Metodo richiesto dall'interfaccia Command, ma lasciato vuoto
-    }
-
     public boolean isActive() {
         return active;
     }

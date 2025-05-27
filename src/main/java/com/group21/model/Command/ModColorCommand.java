@@ -26,9 +26,5 @@ public class ModColorCommand implements Command {
         selector.modColorShape(tipo);
     }
 
-    @Override
-    public void undo() {
-        // opzionale da implementare
-    }
 }
 

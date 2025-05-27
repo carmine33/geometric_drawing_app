@@ -19,9 +19,5 @@ public class ModStrWidthCommand implements Command {
     public void execute() {
          shape.modStrWidthShape();
     }    
-    
-    @Override
-    public void undo() {
-         
-    } 
+
 }

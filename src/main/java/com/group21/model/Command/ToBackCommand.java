@@ -27,11 +27,4 @@ public class ToBackCommand implements Command {
         shape.toBack(index);
     }
 
-    @Override
-    public void undo() {
-        if (shape.getMemory().canUndo()) {
-            shape.getShape().clear();
-            shape.getShape().addAll(shape.getMemory().restoreLastState());
-        }
-    }
 }

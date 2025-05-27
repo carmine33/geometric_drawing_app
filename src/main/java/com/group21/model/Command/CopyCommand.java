@@ -21,9 +21,5 @@ public class CopyCommand implements Command {
     public void execute() {
          shape.copyShape();
     }
-    
-    @Override
-    public void undo() {
-         
-    }
+  
 }

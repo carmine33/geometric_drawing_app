@@ -31,11 +31,4 @@ public class DeleteCommand implements Command {
         }
     }
 
-    @Override
-    public void undo() {
-        if (shape.getMemory().canUndo()) {
-            shape.getShape().clear();
-            shape.getShape().addAll(shape.getMemory().restoreLastState());
-        }
-    }
 }
