@@ -133,7 +133,7 @@ public class FXMLController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        baseCanvas = new BaseCanvas(8000,4000);
+        baseCanvas = new BaseCanvas(4000,4000);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
