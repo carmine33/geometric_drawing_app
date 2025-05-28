@@ -130,11 +130,20 @@ public class FXMLController implements Initializable {
     private PanCommand panCommand;
     private GridDecorator gridDecorator;
     private boolean isGridVisible = false;
+    private double currentMouseX;
+    private double currentMouseY;
+    
+    private boolean isPanning = false;
+    private double panStartX, panStartY;
+
+
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         baseCanvas = new BaseCanvas(4000,4000);
+        baseCanvas.getCanvas().setCache(false);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
+        
         selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
         invoker = new Invoker();
@@ -153,6 +162,8 @@ public class FXMLController implements Initializable {
             if (currentZoomIndex < zoomLevels.length - 1) {
                 currentZoomIndex++;
                 zoomFactor = zoomLevels[currentZoomIndex];
+                
+                updateScrollPaneViewport();
                 redraw(baseCanvas.getGc());
             }
         });
@@ -171,6 +182,8 @@ public class FXMLController implements Initializable {
             if (currentZoomIndex > 0) {
                 currentZoomIndex--;
                 zoomFactor = zoomLevels[currentZoomIndex];
+                
+                updateScrollPaneViewport();
                 redraw(baseCanvas.getGc());
             }
         });
@@ -181,13 +194,19 @@ public class FXMLController implements Initializable {
         });
         
         baseCanvas.getCanvas().setOnMousePressed(e ->  {
+            if ("Pan".equals(currentMouseCommand)) {
+                isPanning = true;
+                panStartX = e.getSceneX();
+                panStartY = e.getSceneY();
+                return; // evita conflitti con altri comandi
+            }
+
             if(contextMenu.isShowing()){
                 contextMenu.hide();
             }
             if(e.isPrimaryButtonDown() && currentMouseCommand != null &&
               !currentMouseCommand.isEmpty() && !"Select".equals(currentMouseCommand)){
-                zoomFactor = 1.0;
-                currentZoomIndex = 2; 
+                
                 redraw(baseCanvas.getGc());
                 lineStartX = e.getX()/zoomFactor;
                 lineStartY = e.getY()/zoomFactor;
@@ -238,14 +257,14 @@ public class FXMLController implements Initializable {
                                                     fillColorPicker.getValue(),
                                                     strokeColorPicker.getValue(), 1);
                         shapes.add(polygon);
+                            polygon.getVertices().forEach(p -> 
+        adjustCanvasSizeIfNeeded(p.getX() + 100, p.getY() + 100));
                     }
                     polygonPoints.clear();
                     isDrawingPolygon = false;
                     redraw(baseCanvas.getGc());
                 }
-                // Reset dello zoom al valore predefinito
-                zoomFactor = 1.0;
-                currentZoomIndex = 2; // corrisponde a 1.0
+                
                 redraw(baseCanvas.getGc());
             } else if (e.isPrimaryButtonDown() && "Select".equals(currentMouseCommand)){
                 isSelected = true;
@@ -263,6 +282,10 @@ public class FXMLController implements Initializable {
         });
 
         baseCanvas.getCanvas().setOnMouseReleased(e -> {
+            if (isPanning) {
+            isPanning = false;
+            return;
+        }
             lastMousePos = null;
             double endX = e.getX()/zoomFactor;
             double endY = e.getY()/zoomFactor;
@@ -271,6 +294,7 @@ public class FXMLController implements Initializable {
                 ConcreteCreatorLine creator = (ConcreteCreatorLine) ShapeFactory.getCreator("Line");
                 ShapeBase line = creator.createShape(lineStartX, lineStartY, endX, endY, strokeColorPicker.getValue());
                 shapes.add(line);
+                adjustCanvasSizeIfNeeded(endX + 100, endY + 100);
                 redraw(baseCanvas.getGc());
             } else if ("Rectangle".equals(currentMouseCommand) && isDrawingRectangle) {
                 double x = Math.min(lineStartX, endX);
@@ -288,6 +312,7 @@ public class FXMLController implements Initializable {
                     strokeColorPicker.getValue(), fillColorPicker.getValue());
 
                 shapes.add(rectangle);
+                adjustCanvasSizeIfNeeded(x + width + 100, y + height + 100);
                 redraw(baseCanvas.getGc());
             } else if ("Ellipse".equals(currentMouseCommand) && isDrawingEllipse) {
                 double x = Math.min(lineStartX, endX);
@@ -305,6 +330,7 @@ public class FXMLController implements Initializable {
                     strokeColorPicker.getValue(), fillColorPicker.getValue());
 
                 shapes.add(ellipse);
+                adjustCanvasSizeIfNeeded(x + width + 100, y + height + 100);
                 redraw(baseCanvas.getGc());
             }else if ("TextBox".equals(currentMouseCommand) && isDrawingTextBox) {
                 isDrawingTextBox = false;
@@ -356,6 +382,8 @@ public class FXMLController implements Initializable {
                 newTextBox.setFontFamily(fontFamily);
 
                 shapes.add(newTextBox);
+                adjustCanvasSizeIfNeeded(newTextBox.getX() + newTextBox.getTextWidth() + 100,
+                         newTextBox.getY() + newTextBox.getTextHeight() + 100);
                 selectShape.setSelectedShape(newTextBox);
                 redraw(baseCanvas.getGc());
     } else if("Select".equals(currentMouseCommand) && isSelected){
@@ -364,58 +392,83 @@ public class FXMLController implements Initializable {
             }
         });
         
-        baseCanvas.getCanvas().setOnMouseMoved( e-> {
-            if(isDrawingPolygon && polygonPoints.size() >= 1){
+        baseCanvas.getCanvas().setOnMouseMoved(e -> {
+            if (isDrawingPolygon && polygonPoints.size() >= 1) {
+                double scrollXOffset = scrollPane.getHvalue() *
+                    (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+                double scrollYOffset = scrollPane.getVvalue() *
+                    (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
+
+                // Salva la posizione del mouse in coordinate del canvas
+                currentMouseX = (e.getX() / zoomFactor) + scrollXOffset;
+                currentMouseY = (e.getY() / zoomFactor) + scrollYOffset;
+
+                // Redraw mostrerà anche il segmento corrente
                 redraw(baseCanvas.getGc());
-
-                // Draw preview
-                baseCanvas.getGc().setStroke(strokeColorPicker.getValue());
-                baseCanvas.getGc().setLineWidth(1.0);
-
-                // Draw lines between all current points
-                for (int i = 0; i < polygonPoints.size() - 1; i++) {
-                    Point2D p1 = polygonPoints.get(i);
-                    Point2D p2 = polygonPoints.get(i + 1);
-                    baseCanvas.getGc().strokeLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-                }
-
-                // Draw line from last point to current mouse position
-                Point2D last = polygonPoints.get(polygonPoints.size() - 1);
-                baseCanvas.getGc().strokeLine(last.getX(), last.getY(), e.getX(), e.getY());
             }
         });
+
+
         
         baseCanvas.getCanvas().setOnMouseDragged(e -> {
+            if (isPanning) {
+                double deltaX = panStartX - e.getSceneX();
+                double deltaY = panStartY - e.getSceneY();
+
+                double newHValue = scrollPane.getHvalue() + deltaX / (baseCanvas.getCanvas().getWidth() * zoomFactor);
+                double newVValue = scrollPane.getVvalue() + deltaY / (baseCanvas.getCanvas().getHeight() * zoomFactor);
+
+                scrollPane.setHvalue(clamp(newHValue, 0, 1));
+                scrollPane.setVvalue(clamp(newVValue, 0, 1));
+
+                panStartX = e.getSceneX();
+                panStartY = e.getSceneY();
+
+                e.consume();
+                return; // evita esecuzioni non necessarie
+            }
+                double scrollXOffset = scrollPane.getHvalue() * (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+                double scrollYOffset = scrollPane.getVvalue() * (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
             if(!isDrawingPolygon && (isDrawingLine || isDrawingEllipse || isDrawingRectangle || isDrawingTextBox)){
-                previewCurrentX = e.getX()/zoomFactor;
-                previewCurrentY = e.getY()/zoomFactor;
+                previewCurrentX = (e.getX() / zoomFactor) + scrollXOffset;
+                previewCurrentY = (e.getY() / zoomFactor) + scrollYOffset;
 
                 redraw(baseCanvas.getGc());
 
-                baseCanvas.getGc().setStroke(strokeColorPicker.getValue());
-                baseCanvas.getGc().setLineWidth(1.0);
-                baseCanvas.getGc().setFill(fillColorPicker.getValue());
-                
+                GraphicsContext gc = baseCanvas.getGc();
+                gc.save();
+
+                // Applica scroll + zoom
+                gc.translate(-scrollXOffset * zoomFactor, -scrollYOffset * zoomFactor);
+                gc.scale(zoomFactor, zoomFactor);
+
+                // Colori e stili
+                gc.setStroke(strokeColorPicker.getValue());
+                gc.setLineWidth(1.0);
+                gc.setFill(fillColorPicker.getValue());
+
+                // Disegna l'anteprima della figura
                 if(isDrawingLine){
-                    baseCanvas.getGc().strokeLine(previewStartX, previewStartY, previewCurrentX, previewCurrentY);
-                
+                    gc.strokeLine(previewStartX, previewStartY, previewCurrentX, previewCurrentY);
+
                 }else if(isDrawingEllipse){
                     double x = Math.min(previewStartX, previewCurrentX);
                     double y = Math.min(previewStartY, previewCurrentY);
                     double w = Math.abs(previewCurrentX - previewStartX);
                     double h = Math.abs(previewCurrentY - previewStartY);
-                    baseCanvas.getGc().fillOval(x, y, w, h);
-                    baseCanvas.getGc().strokeOval(x, y, w, h);
-                
+                    gc.fillOval(x, y, w, h);
+                    gc.strokeOval(x, y, w, h);
+
                 }else if(isDrawingRectangle){
                     double x = Math.min(previewStartX, previewCurrentX);
                     double y = Math.min(previewStartY, previewCurrentY);
                     double w = Math.abs(previewCurrentX - previewStartX);
                     double h = Math.abs(previewCurrentY - previewStartY);
-                    baseCanvas.getGc().fillRect(x, y, w, h);
-                    baseCanvas.getGc().strokeRect(x, y, w, h);
-                
+                    gc.fillRect(x, y, w, h);
+                    gc.strokeRect(x, y, w, h);
                 }
+
+                gc.restore();
             }else if(!isDrawingPolygon && !isDrawingLine && !isDrawingEllipse &&
                      !isDrawingRectangle && !isDrawingTextBox && isSelected){
                 
@@ -543,8 +596,9 @@ public class FXMLController implements Initializable {
         gc.save();
         
         // 1. Calcola gli offset reali in coordinate del canvas
-        double scrollXOffset = scrollPane.getHvalue() * (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth());
-        double scrollYOffset = scrollPane.getVvalue() * (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight());
+        double scrollXOffset = scrollPane.getHvalue() * (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+        double scrollYOffset = scrollPane.getVvalue() * (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
+
 
         // 2. Applica pan + zoom
         gc.translate(-scrollXOffset * zoomFactor, -scrollYOffset * zoomFactor);
@@ -621,11 +675,47 @@ public class FXMLController implements Initializable {
                 gc.strokeRect(x, y, w, h);
             }
         }
+         // Anteprima del poligono durante il disegno
+        if (isDrawingPolygon && polygonPoints.size() >= 1 && currentMouseX >= 0 && currentMouseY >= 0) {
+            gc.setStroke(strokeColorPicker.getValue());
+            gc.setLineWidth(1.0);
+
+            for (int i = 0; i < polygonPoints.size() - 1; i++) {
+                Point2D p1 = polygonPoints.get(i);
+                Point2D p2 = polygonPoints.get(i + 1);
+                gc.strokeLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+            }
+
+            Point2D last = polygonPoints.get(polygonPoints.size() - 1);
+            gc.strokeLine(last.getX(), last.getY(), currentMouseX, currentMouseY);
+        }
+
         gc.restore();
         if(previewShape!=null){
             previewShape.draw(gc);
         }
+        canvasPlaceholder.requestLayout();
     }
+    
+   private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeight) {
+    double currentWidth = baseCanvas.getCanvas().getWidth();
+    double currentHeight = baseCanvas.getCanvas().getHeight();
+
+    if (requiredWidth > currentWidth || requiredHeight > currentHeight) {
+        double newWidth = Math.max(currentWidth, requiredWidth);
+        double newHeight = Math.max(currentHeight, requiredHeight);
+        
+        baseCanvas.getCanvas().setWidth(newWidth);
+        baseCanvas.getCanvas().setHeight(newHeight);
+
+        canvasPlaceholder.setPrefSize(newWidth, newHeight);
+        canvasPlaceholder.setMinSize(newWidth, newHeight);
+        canvasPlaceholder.setMaxSize(newWidth, newHeight);
+        canvasPlaceholder.resize(newWidth, newHeight);
+        canvasPlaceholder.layout(); // forza rilayout
+    }
+}
+
     
     // Select method for selecting shapes
     private void select(MouseEvent event) {
@@ -817,6 +907,15 @@ public class FXMLController implements Initializable {
         }
     }
     
+    private void updateScrollPaneViewport() {
+    double scaledWidth = baseCanvas.getCanvas().getWidth() * zoomFactor;
+    double scaledHeight = baseCanvas.getCanvas().getHeight() * zoomFactor;
+
+    canvasPlaceholder.setPrefSize(scaledWidth, scaledHeight);
+    canvasPlaceholder.setMinSize(scaledWidth, scaledHeight);
+    canvasPlaceholder.setMaxSize(scaledWidth, scaledHeight);
+}
+
     @FXML
     private void handleNew() {
         selectShape.getMemory().saveState(new ArrayList<>(shapes));

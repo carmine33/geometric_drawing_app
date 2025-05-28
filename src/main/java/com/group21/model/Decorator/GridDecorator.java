@@ -23,8 +23,9 @@ public class GridDecorator {
         gc.setStroke(gridColor);
         gc.setLineWidth(gridLineWidth / zoomFactor); // Mantieni spessore costante con lo zoom
 
-        double canvasWidth = canvas.getCanvas().getWidth();
-        double canvasHeight = canvas.getCanvas().getHeight();
+        double canvasWidth = canvas.getCanvas().getWidth() / zoomFactor;
+        double canvasHeight = canvas.getCanvas().getHeight() / zoomFactor;
+
 
         double scaledGridSize = gridSize * zoomFactor;
 
