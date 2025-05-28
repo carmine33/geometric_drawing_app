@@ -84,7 +84,7 @@ public class ShapeTextBox extends ShapeBase {
     @JsonProperty("textWidth")
     public double getTextWidth() {
         Text t = new Text(text != null ? text : "Text");
-        t.setFont(Font.font(fontSize));
+        t.setFont(Font.font(fontFamily, fontSize));
         return t.getLayoutBounds().getWidth();
     }
 
@@ -94,7 +94,7 @@ public class ShapeTextBox extends ShapeBase {
     @JsonProperty("textHeight")
     public double getTextHeight() {
         Text t = new Text(text != null ? text : "Text");
-        t.setFont(Font.font(fontSize));
+        t.setFont(Font.font(fontFamily, fontSize));
         return t.getLayoutBounds().getHeight();
     }
 
@@ -106,7 +106,9 @@ public class ShapeTextBox extends ShapeBase {
     public void draw(GraphicsContext gc) {
         gc.setFont(Font.font(fontFamily, fontSize));
         gc.setFill(textColor);
-        gc.fillText(text != null ? text : "Text", x + 5, y + fontSize);
+        double textX = x + 5;
+        double textY = y + getTextHeight();
+        gc.fillText(text != null ? text : "Text", textX, textY);
     }
 
     /**
@@ -119,6 +121,7 @@ public class ShapeTextBox extends ShapeBase {
         return px >= x && px <= x + getTextWidth() + 10 &&
                py >= y && py <= y + getTextHeight() + 6;
     }
+
 
     /**
      * Crea una copia della ShapeTextBox con stessi parametri e colore testo.

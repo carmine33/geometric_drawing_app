@@ -613,7 +613,7 @@ public class FXMLController implements Initializable {
             }else if (selected instanceof ShapeTextBox) {
                 ShapeTextBox box = (ShapeTextBox) selected;
 
-                double w = box.getTextWidth() + 10;   // margine orizzontale
+                double w = box.getTextWidth() + 11;   // margine orizzontale
                 double h = box.getTextHeight() + 6;   // margine verticale
                 double x = box.getX();
                 double y = box.getY();
@@ -722,12 +722,7 @@ public class FXMLController implements Initializable {
         command = new DeleteCommand(selectShape);
         invoker.setCommand(command);
         invoker.startCommand();
-        Iterator<ShapeBase> it =shapes.iterator();
-        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
-        while (it.hasNext()) {
-            ShapeBase elem = it.next();
-            elem.draw(baseCanvas.getGc());
-        }
+        redraw(baseCanvas.getGc());
     }
      
      //il command toFront è creato passando come argomenti la posizione della forma selezionata nella lista e la dimensione della lista stessa;
@@ -736,12 +731,8 @@ public class FXMLController implements Initializable {
         command = new ToFrontCommand(selectShape, index, size);
         invoker.setCommand(command);
         invoker.startCommand();
-        Iterator<ShapeBase> it =shapes.iterator();
-        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
-        while (it.hasNext()) {
-            ShapeBase elem = it.next();
-            elem.draw(baseCanvas.getGc());
-        }
+        redraw(baseCanvas.getGc());
+
     }
       
      //il command toBack è creato passando come argomento la posizione della forma selezionata nella lista;
@@ -750,12 +741,8 @@ public class FXMLController implements Initializable {
         command = new ToBackCommand(selectShape, index);
         invoker.setCommand(command);
         invoker.startCommand();
-        Iterator<ShapeBase> it =shapes.iterator();
-        baseCanvas.getGc().clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
-        while (it.hasNext()) {
-            ShapeBase elem = it.next();
-            elem.draw(baseCanvas.getGc());
-        }
+        redraw(baseCanvas.getGc());
+
     }
        
     public void performUndo() {
