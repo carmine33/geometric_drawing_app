@@ -89,7 +89,7 @@ public class FXMLController implements Initializable {
     @FXML private Button btnTextBox;
     @FXML private Button btnZoomIn;
     @FXML private Button btnZoomOut;
-    //@FXML private Button btnPan;
+    @FXML private Button btnPan;
     @FXML private Button btnToggleGrid;
     
     private Invoker invoker;
@@ -168,14 +168,14 @@ public class FXMLController implements Initializable {
             }
         });
         
-       /* btnPan.setOnAction(e -> {
+        btnPan.setOnAction(e -> {
             panCommand.execute(); // alterna attivazione/disattivazione
             if (panCommand.isActive()) {
                 currentMouseCommand = "Pan";
             } else {
                 currentMouseCommand = null;
             }
-        });*/
+        });
  
         btnZoomOut.setOnAction(e -> {
             if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon || isDrawingTextBox) return;
@@ -421,8 +421,8 @@ public class FXMLController implements Initializable {
 
 
         
-        baseCanvas.getCanvas().setOnMouseDragged(e -> {
-            if (isPanning) {
+                baseCanvas.getCanvas().setOnMouseDragged(e -> {
+            if (isPanMode && isPanning) {
                 double deltaX = panStartX - e.getSceneX();
                 double deltaY = panStartY - e.getSceneY();
 
@@ -434,9 +434,8 @@ public class FXMLController implements Initializable {
 
                 panStartX = e.getSceneX();
                 panStartY = e.getSceneY();
-
                 e.consume();
-                return; // evita esecuzioni non necessarie
+                return;
             }
                 double scrollXOffset = scrollPane.getHvalue() * (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
                 double scrollYOffset = scrollPane.getVvalue() * (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
@@ -984,7 +983,7 @@ private void updateScrollPaneViewport() {
         performUndo();
     }
     
-   /* @FXML
+   @FXML
     private void setupPanTool() {
     btnPan.setOnAction(event -> {
         isPanMode = true;
@@ -1009,9 +1008,9 @@ private void updateScrollPaneViewport() {
             event.consume();
         
         });   
-    } */
+    }
     
-   /* private void setActiveToolButton(Button activeButton) {
+   private void setActiveToolButton(Button activeButton) {
     // Rimuovi stile da tutti i bottoni degli strumenti
     btnPan.setStyle("");
     btnSelect.setStyle("");
@@ -1021,6 +1020,6 @@ private void updateScrollPaneViewport() {
         activeButton.setStyle("-fx-background-color: lightblue;");
     }
     
-    }*/
+    }
     
 }

@@ -37,7 +37,7 @@
                         <HBox spacing="10">
                             <Button fx:id="btnSelect" text="Select" />
                             <Button fx:id="btnUndo" text="Undo" onAction="#undoCommand"/>
-                            <!--<Button fx:id="btnPan" text="Pan" onAction="#setupPanTool"/>-->
+                            <Button fx:id="btnPan" text="Pan" onAction="#setupPanTool"/>
                             <Button fx:id="btnToggleGrid" text="Grid"/>
                         </HBox>
                     </VBox>
