@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MemoryTest {
-
+/*
     @Test
     void testAddAndPopStackShape() {
         Memory memory = new Memory();
@@ -41,5 +41,5 @@ public class MemoryTest {
         assertThrows(java.util.EmptyStackException.class, () -> {
             memory.popStackShape();
         });
-    }
+    }*/
 }

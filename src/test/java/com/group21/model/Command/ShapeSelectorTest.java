@@ -8,41 +8,71 @@ package com.group21.model.Command;
  *
  * @author carmi
  */
-import com.group21.model.Shape.ShapeRectangle;
-import com.group21.model.Shape.ShapeBase;
-import javafx.scene.paint.Color;
-import org.junit.jupiter.api.Test;
 
+
+import com.group21.model.Shape.ShapeBase;
+import com.group21.model.Shape.ShapeRectangle;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ShapeSelectorTest {
 
-    @Test
-    void testSetAndGetSelectedShape() {
-        List<ShapeBase> shapes = new ArrayList<>();
-        ShapeRectangle rect = new ShapeRectangle(0, 0, 100, 100, Color.BLACK, Color.BLUE, 1.0);
-        ShapeSelector selector = new ShapeSelector(shapes, null,null,null);
+    private ShapeSelector shapeSelector;
+    private List<ShapeBase> shapeList;
+    private ShapeRectangle shape;
 
-        selector.setSelectedShape(rect);
-        assertEquals(rect, selector.getSelectedShape());
+    @BeforeEach
+    public void setUp() {
+        shapeList = new ArrayList<>();
+        shape = new ShapeRectangle(10, 10, 20, 20, null, null, 1.0);
+        shapeList.add(shape);
+        shapeSelector = new ShapeSelector(shapeList, shape, null, null);
     }
 
     @Test
-    void testDeleteShapeRemovesFromListAndClearsSelection() {
-        List<ShapeBase> shapes = new ArrayList<>();
-        ShapeRectangle rect = new ShapeRectangle(0, 0, 100, 100, Color.BLACK, Color.BLUE, 1.0);
-        shapes.add(rect);
+    public void testDeleteShape() {
+        shapeSelector.deleteShape();
+        assertTrue(shapeList.isEmpty(), "Shape list should be empty after deletion");
+    }
 
-        ShapeSelector selector = new ShapeSelector(shapes, rect,null,null);
+    @Test
+    public void testToFront() {
+        ShapeRectangle second = new ShapeRectangle(30, 30, 20, 20, null, null, 1.0);
+        shapeList.add(second);
+        shapeSelector.setSelectedShape(shape);
+        shapeSelector.toFront(0);
+        assertEquals(second, shapeList.get(0), "Second shape should now be at index 0");
+        assertEquals(shape, shapeList.get(1), "Selected shape should be moved forward");
+    }
 
-        assertTrue(shapes.contains(rect));
-        assertEquals(rect, selector.getSelectedShape());
+    @Test
+    public void testToBack() {
+        ShapeRectangle first = new ShapeRectangle(5, 5, 20, 20, null, null, 1.0);
+        shapeList.add(0, first);
+        shapeSelector.setSelectedShape(shape);
+        shapeSelector.toBack(0);
+        assertEquals(shape, shapeList.get(0), "Selected shape should be moved backward");
+        assertEquals(first, shapeList.get(1), "First shape should now be after selected shape");
+    }
 
-        selector.deleteShape();
+    @Test
+    public void testCopyAndPasteShape() {
+        shapeSelector.setSelectedShape(shape);
+        shapeSelector.copyShape();
+        ShapeBase pasted = shapeSelector.pasteShape();
+        assertNotNull(pasted, "Pasted shape should not be null");
+        assertEquals(2, shapeList.size(), "List should contain original and copied shape");
+    }
 
-        assertFalse(shapes.contains(rect));
+    @Test
+    public void testSetAndGetSelectedShape() {
+        shapeSelector.setSelectedShape(null);
+        assertNull(shapeSelector.getSelectedShape(), "Selected shape should be null after reset");
+        shapeSelector.setSelectedShape(shape);
+        assertEquals(shape, shapeSelector.getSelectedShape(), "Selected shape should be the one set");
     }
 }
+

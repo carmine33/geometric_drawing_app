@@ -8,9 +8,12 @@ package com.group21.model.Command;
  *
  * @author carmi
  */
+
+
 import com.group21.model.Shape.ShapeRectangle;
 import com.group21.model.Shape.ShapeBase;
 import javafx.scene.paint.Color;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,26 +21,34 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DeleteCommandTest {
+class DeleteCommandTest {
+
+    private ShapeSelector shapeSelector;
+    private List<ShapeBase> shapeList;
+    private ShapeBase rectangle;
+
+    @BeforeEach
+    void setUp() {
+        shapeList = new ArrayList<>();
+        rectangle = new ShapeRectangle(10, 10, 100, 50, Color.BLUE, Color.BLACK, 1.0);
+        shapeList.add(rectangle);
+
+        // Usa null per i ColorPicker
+        shapeSelector = new ShapeSelector(shapeList, rectangle, null, null);
+    }
 
     @Test
-    void testExecuteDeletesSelectedShape() {
-        // Setup
-        List<ShapeBase> shapes = new ArrayList<>();
-        ShapeRectangle rect = new ShapeRectangle(10, 10, 50, 50, Color.BLUE, Color.BLACK, 1.0);
-        shapes.add(rect);
+    void execute_shouldRemoveSelectedShapeAndClearSelection() {
+        DeleteCommand deleteCommand = new DeleteCommand(shapeSelector);
 
-        ShapeSelector selector = new ShapeSelector(shapes, rect,null,null);
+        // Execute delete
+        deleteCommand.execute();
 
-        // Pre-condizioni
-        assertEquals(rect, selector.getSelectedShape());
-        assertTrue(shapes.contains(rect));
+        // Assert shape was removed
+        assertFalse(shapeList.contains(rectangle), "La forma dovrebbe essere rimossa dalla lista");
 
-        // Execute command
-        DeleteCommand command = new DeleteCommand(selector);
-        command.execute();
-
-        // Post-condizioni
-        assertFalse(shapes.contains(rect));
+        // Assert selection is cleared
+        assertNull(shapeSelector.getSelectedShape(), "La selezione dovrebbe essere nulla dopo la rimozione");
     }
 }
+

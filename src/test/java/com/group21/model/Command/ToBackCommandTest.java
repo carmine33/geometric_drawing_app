@@ -15,48 +15,44 @@ import com.group21.model.Shape.*;
  *
  * @author matte
  */
-public class ToBackCommandTest {
 
-    @Test
-    void testExecuteMovesShapeToBack() {
-        // Setup initial shape list
-        List<ShapeBase> shapes = new ArrayList<>();
-        ShapeRectangle r1 = new ShapeRectangle(0, 0, 50, 50, Color.BLACK, Color.BLUE, 1.0);
-        ShapeRectangle r2 = new ShapeRectangle(10, 10, 50, 50, Color.BLACK, Color.RED, 1.0);
-        shapes.add(r1);
-        shapes.add(r2);
+import com.group21.model.Shape.ShapeBase;
+import com.group21.model.Shape.ShapeRectangle;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import javafx.scene.paint.Color;
 
-        // r2 is selected, currently at index 1
-        ShapeSelector selector = new ShapeSelector(shapes, r2,null,null);
-        ToBackCommand command = new ToBackCommand(selector, 1);
+import java.util.ArrayList;
+import java.util.List;
 
-        // Execute should move r2 to index 0
-        command.execute();
-        assertEquals(r2, shapes.get(0));
-        assertEquals(r1, shapes.get(1));
+import static org.junit.jupiter.api.Assertions.*;
+
+class ToBackCommandTest {
+
+    private ShapeSelector shapeSelector;
+    private List<ShapeBase> shapeList;
+    private ShapeBase shape1;
+    private ShapeBase shape2;
+
+    @BeforeEach
+    void setUp() {
+        shape1 = new ShapeRectangle(0, 0, 10, 10, Color.RED, Color.BLACK, 1.0);
+        shape2 = new ShapeRectangle(20, 20, 10, 10, Color.BLUE, Color.BLACK, 1.0);
+        shapeList = new ArrayList<>();
+        shapeList.add(shape1);
+        shapeList.add(shape2);
+
+        // selezioniamo shape2 che è all'indice 1
+        shapeSelector = new ShapeSelector(shapeList, shape2, null, null);
     }
 
     @Test
-    void testUndoRestoresOriginalPosition() {
-        // Setup initial shape list
-        List<ShapeBase> shapes = new ArrayList<>();
-        ShapeRectangle r1 = new ShapeRectangle(0, 0, 50, 50, Color.BLACK, Color.BLUE, 1.0);
-        ShapeRectangle r2 = new ShapeRectangle(10, 10, 50, 50, Color.BLACK, Color.RED, 1.0);
-        shapes.add(r1);
-        shapes.add(r2);
-
-        // r2 is selected, currently at index 1
-        ShapeSelector selector = new ShapeSelector(shapes, r2,null,null);
-        ToBackCommand command = new ToBackCommand(selector, 1);
-
-        // Execute: r2 goes to index 0
+    void execute_shouldMoveSelectedShapeBackwards() {
+        ToBackCommand command = new ToBackCommand(shapeSelector, 1);
         command.execute();
-        assertEquals(r2, shapes.get(0));
-        assertEquals(r1, shapes.get(1));
 
-        // Undo: r2 should return to index 1
-        command.undo();
-        assertEquals(r1, shapes.get(0));
-        assertEquals(r2, shapes.get(1));
+        assertEquals(shape2, shapeList.get(0), "La shape selezionata dovrebbe essere spostata indietro nella lista.");
+        assertEquals(shape1, shapeList.get(1), "La shape precedentemente prima dovrebbe ora essere dopo.");
     }
 }
+

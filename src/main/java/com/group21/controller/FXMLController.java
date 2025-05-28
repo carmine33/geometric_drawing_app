@@ -89,7 +89,7 @@ public class FXMLController implements Initializable {
     @FXML private Button btnTextBox;
     @FXML private Button btnZoomIn;
     @FXML private Button btnZoomOut;
-    @FXML private Button btnPan;
+    //@FXML private Button btnPan;
     @FXML private Button btnToggleGrid;
     
     private Invoker invoker;
@@ -106,7 +106,7 @@ public class FXMLController implements Initializable {
     MenuItem toFront = new MenuItem("ToFront");
     MenuItem toBack = new MenuItem("ToBack");
 
-
+    private static final int CANVAS_MARGIN = 30; // margine uniforme
     private ShapeBase copiedShape = null;
     ShapePolygon currentPolygon = null;
     private List<Point2D> polygonPoints = new ArrayList<>();
@@ -168,14 +168,14 @@ public class FXMLController implements Initializable {
             }
         });
         
-        btnPan.setOnAction(e -> {
+       /* btnPan.setOnAction(e -> {
             panCommand.execute(); // alterna attivazione/disattivazione
             if (panCommand.isActive()) {
                 currentMouseCommand = "Pan";
             } else {
                 currentMouseCommand = null;
             }
-        });
+        });*/
  
         btnZoomOut.setOnAction(e -> {
             if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon || isDrawingTextBox) return;
@@ -204,12 +204,17 @@ public class FXMLController implements Initializable {
             if(contextMenu.isShowing()){
                 contextMenu.hide();
             }
+                        // Calcola gli offset dovuti allo scroll
+            double scrollXOffset = scrollPane.getHvalue() *
+                (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+            double scrollYOffset = scrollPane.getVvalue() *
+                (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
             if(e.isPrimaryButtonDown() && currentMouseCommand != null &&
               !currentMouseCommand.isEmpty() && !"Select".equals(currentMouseCommand)){
                 
                 redraw(baseCanvas.getGc());
-                lineStartX = e.getX()/zoomFactor;
-                lineStartY = e.getY()/zoomFactor;
+                lineStartX = (e.getX() / zoomFactor) + scrollXOffset;
+                lineStartY = (e.getY() / zoomFactor) + scrollYOffset;
                 
                 previewStartX = lineStartX;
                 previewStartY = lineStartY;
@@ -287,14 +292,20 @@ public class FXMLController implements Initializable {
             return;
         }
             lastMousePos = null;
-            double endX = e.getX()/zoomFactor;
-            double endY = e.getY()/zoomFactor;
+            double scrollXOffset = scrollPane.getHvalue() *
+                (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+            double scrollYOffset = scrollPane.getVvalue() *
+                (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
+
+            double endX = (e.getX() / zoomFactor) + scrollXOffset;
+            double endY = (e.getY() / zoomFactor) + scrollYOffset;
+
             if ("Line".equals(currentMouseCommand) && isDrawingLine) {
                 isDrawingLine = false;
                 ConcreteCreatorLine creator = (ConcreteCreatorLine) ShapeFactory.getCreator("Line");
                 ShapeBase line = creator.createShape(lineStartX, lineStartY, endX, endY, strokeColorPicker.getValue());
                 shapes.add(line);
-                adjustCanvasSizeIfNeeded(endX + 100, endY + 100);
+                adjustCanvasSizeIfNeeded(endX + CANVAS_MARGIN, endY + CANVAS_MARGIN);
                 redraw(baseCanvas.getGc());
             } else if ("Rectangle".equals(currentMouseCommand) && isDrawingRectangle) {
                 double x = Math.min(lineStartX, endX);
@@ -312,7 +323,7 @@ public class FXMLController implements Initializable {
                     strokeColorPicker.getValue(), fillColorPicker.getValue());
 
                 shapes.add(rectangle);
-                adjustCanvasSizeIfNeeded(x + width + 100, y + height + 100);
+                adjustCanvasSizeIfNeeded(x + width + CANVAS_MARGIN, y + height + CANVAS_MARGIN);
                 redraw(baseCanvas.getGc());
             } else if ("Ellipse".equals(currentMouseCommand) && isDrawingEllipse) {
                 double x = Math.min(lineStartX, endX);
@@ -330,7 +341,7 @@ public class FXMLController implements Initializable {
                     strokeColorPicker.getValue(), fillColorPicker.getValue());
 
                 shapes.add(ellipse);
-                adjustCanvasSizeIfNeeded(x + width + 100, y + height + 100);
+                adjustCanvasSizeIfNeeded(x + width + CANVAS_MARGIN, y + height + CANVAS_MARGIN);
                 redraw(baseCanvas.getGc());
             }else if ("TextBox".equals(currentMouseCommand) && isDrawingTextBox) {
                 isDrawingTextBox = false;
@@ -382,8 +393,8 @@ public class FXMLController implements Initializable {
                 newTextBox.setFontFamily(fontFamily);
 
                 shapes.add(newTextBox);
-                adjustCanvasSizeIfNeeded(newTextBox.getX() + newTextBox.getTextWidth() + 100,
-                         newTextBox.getY() + newTextBox.getTextHeight() + 100);
+                adjustCanvasSizeIfNeeded(newTextBox.getX() + newTextBox.getTextWidth() + CANVAS_MARGIN,
+                         newTextBox.getY() + newTextBox.getTextHeight() + CANVAS_MARGIN);
                 selectShape.setSelectedShape(newTextBox);
                 redraw(baseCanvas.getGc());
     } else if("Select".equals(currentMouseCommand) && isSelected){
@@ -476,8 +487,9 @@ public class FXMLController implements Initializable {
                 if (selected == null) return;
                 
                 // New mouse coordinates
-                double mouseX = e.getX();
-                double mouseY = e.getY();
+double mouseX = (e.getX() / zoomFactor) + scrollXOffset;
+double mouseY = (e.getY() / zoomFactor) + scrollYOffset;
+
 
                 if (lastMousePos == null) {
                     lastMousePos = new Point2D(mouseX, mouseY);
@@ -697,30 +709,44 @@ public class FXMLController implements Initializable {
         canvasPlaceholder.requestLayout();
     }
     
-   private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeight) {
+private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeight) {
     double currentWidth = baseCanvas.getCanvas().getWidth();
     double currentHeight = baseCanvas.getCanvas().getHeight();
 
     if (requiredWidth > currentWidth || requiredHeight > currentHeight) {
         double newWidth = Math.max(currentWidth, requiredWidth);
         double newHeight = Math.max(currentHeight, requiredHeight);
-        
+
         baseCanvas.getCanvas().setWidth(newWidth);
         baseCanvas.getCanvas().setHeight(newHeight);
 
+        // Imposta il canvasPlaceholder alle stesse dimensioni del canvas
         canvasPlaceholder.setPrefSize(newWidth, newHeight);
         canvasPlaceholder.setMinSize(newWidth, newHeight);
         canvasPlaceholder.setMaxSize(newWidth, newHeight);
         canvasPlaceholder.resize(newWidth, newHeight);
-        canvasPlaceholder.layout(); // forza rilayout
+        canvasPlaceholder.layout();
+        scrollPane.layout();  // forza il ricalcolo della viewport della ScrollPane
+
+
+        // Applica lo zoom come scaling (non va usato *zoomFactor nelle size)
+        updateScrollPaneViewport();
     }
 }
+
+
+
 
     
     // Select method for selecting shapes
     private void select(MouseEvent event) {
-        double clickX = event.getX()/zoomFactor;
-        double clickY = event.getY()/zoomFactor;
+        double scrollXOffset = scrollPane.getHvalue() *
+        (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+    double scrollYOffset = scrollPane.getVvalue() *
+        (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
+
+    double clickX = (event.getX() / zoomFactor) + scrollXOffset;
+    double clickY = (event.getY() / zoomFactor) + scrollYOffset;
 
         // Scroll through the forms from newest to oldest
         for (int i = shapes.size() - 1; i >= 0; i--) {
@@ -764,7 +790,13 @@ public class FXMLController implements Initializable {
         pasteShape.setOnAction(e ->menuPasteHandler());
         
 
-        baseCanvas.getCanvas().setOnContextMenuRequested(e -> contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY()));
+        baseCanvas.getCanvas().setOnContextMenuRequested(e -> {
+    if (isDrawingPolygon) {
+        e.consume();  // Impedisce l'apertura del context menu
+    } else {
+        contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY());
+    }
+});
     }
     
      
@@ -907,14 +939,30 @@ public class FXMLController implements Initializable {
         }
     }
     
-    private void updateScrollPaneViewport() {
-    double scaledWidth = baseCanvas.getCanvas().getWidth() * zoomFactor;
-    double scaledHeight = baseCanvas.getCanvas().getHeight() * zoomFactor;
+private void updateScrollPaneViewport() {
+    double canvasWidth = baseCanvas.getCanvas().getWidth();
+    double canvasHeight = baseCanvas.getCanvas().getHeight();
 
-    canvasPlaceholder.setPrefSize(scaledWidth, scaledHeight);
-    canvasPlaceholder.setMinSize(scaledWidth, scaledHeight);
-    canvasPlaceholder.setMaxSize(scaledWidth, scaledHeight);
+    // Calcola le dimensioni scalate per il canvas
+    double scaledWidth = canvasWidth * zoomFactor;
+    double scaledHeight = canvasHeight * zoomFactor;
+
+    // Imposta le dimensioni effettive del canvasPlaceholder (e quindi dello ScrollPane)
+    canvasPlaceholder.setPrefWidth(scaledWidth);
+    canvasPlaceholder.setPrefHeight(scaledHeight);
+    canvasPlaceholder.setMinWidth(scaledWidth);
+    canvasPlaceholder.setMinHeight(scaledHeight);
+    canvasPlaceholder.setMaxWidth(scaledWidth);
+    canvasPlaceholder.setMaxHeight(scaledHeight);
+
+    scrollPane.setPannable(true);
+    scrollPane.layout(); // forza aggiornamento layout
 }
+
+
+
+
+
 
     @FXML
     private void handleNew() {
@@ -936,7 +984,7 @@ public class FXMLController implements Initializable {
         performUndo();
     }
     
-    @FXML
+   /* @FXML
     private void setupPanTool() {
     btnPan.setOnAction(event -> {
         isPanMode = true;
@@ -961,9 +1009,9 @@ public class FXMLController implements Initializable {
             event.consume();
         
         });   
-    }
+    } */
     
-    private void setActiveToolButton(Button activeButton) {
+   /* private void setActiveToolButton(Button activeButton) {
     // Rimuovi stile da tutti i bottoni degli strumenti
     btnPan.setStyle("");
     btnSelect.setStyle("");
@@ -973,6 +1021,6 @@ public class FXMLController implements Initializable {
         activeButton.setStyle("-fx-background-color: lightblue;");
     }
     
-    }
+    }*/
     
 }

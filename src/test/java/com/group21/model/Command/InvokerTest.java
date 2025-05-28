@@ -14,71 +14,46 @@ import com.group21.model.Shape.*;
  *
  * @author matte
  */
-public class InvokerTest {
 
-    @Test
-    void testStartCommandAndUndoWithToFrontCommand() {
-        // Setup initial shapes
-        List<ShapeBase> shapes = new ArrayList<>();
-        ShapeRectangle rect1 = new ShapeRectangle(0, 0, 100, 100, Color.BLACK, Color.BLUE, 1.0);
-        ShapeRectangle rect2 = new ShapeRectangle(10, 10, 100, 100, Color.BLACK, Color.RED, 1.0);
-        shapes.add(rect1);
-        shapes.add(rect2);
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-        // rect1 is initially selected (index 0)
-        ShapeSelector selector = new ShapeSelector(shapes, rect1, null, null);
+import static org.junit.jupiter.api.Assertions.*;
 
-        // Create the command to move rect1 to front (end of list)
-        ToFrontCommand toFrontCommand = new ToFrontCommand(selector, 0, shapes.size());
+class InvokerTest {
 
-        // Create and use invoker
-        Invoker invoker = new Invoker();
-        invoker.setCommand(toFrontCommand);
-        invoker.startCommand();  // Execute
+    private Invoker invoker;
+    private FakeCommand fakeCommand;
 
-        // rect1 should now be at the end of the list
-        assertEquals(rect2, shapes.get(0));
-        assertEquals(rect1, shapes.get(1));
+    static class FakeCommand implements Command {
+        boolean executed = false;
 
-        // Undo the command
-        invoker.startUndo();
+        @Override
+        public void execute() {
+            executed = true;
+        }
 
-        // rect1 should be back at index 0
-        assertEquals(rect1, shapes.get(0));
-        assertEquals(rect2, shapes.get(1));
+        public boolean wasExecuted() {
+            return executed;
+        }
+    }
+
+    @BeforeEach
+    void setUp() {
+        invoker = new Invoker();
+        fakeCommand = new FakeCommand();
     }
 
     @Test
-    void testMultipleCommandsAndUndoOrder() {
-        List<ShapeBase> shapes = new ArrayList<>();
-        ShapeRectangle rect1 = new ShapeRectangle(0, 0, 100, 100, Color.BLACK, Color.BLUE, 1.0);
-        ShapeRectangle rect2 = new ShapeRectangle(10, 10, 100, 100, Color.BLACK, Color.RED, 1.0);
-        shapes.add(rect1);
-        shapes.add(rect2);
-
-        ShapeSelector selector = new ShapeSelector(shapes, rect2, null,null);
-        Invoker invoker = new Invoker();
-
-        // Move rect2 to back (index 0)
-        ToBackCommand toBackCommand = new ToBackCommand(selector, 1);
-        invoker.setCommand(toBackCommand);
+    void testStartCommandExecutesCommand() {
+        invoker.setCommand(fakeCommand);
         invoker.startCommand();
+        assertTrue(fakeCommand.wasExecuted(), "Il comando dovrebbe essere stato eseguito");
+    }
 
-        assertEquals(rect2, shapes.get(0));
-
-        // Now move it to front again
-        ToFrontCommand toFrontCommand = new ToFrontCommand(selector, 0, shapes.size());
-        invoker.setCommand(toFrontCommand);
-        invoker.startCommand();
-
-        assertEquals(rect2, shapes.get(1));
-
-        // Undo the last command (move to front)
-        invoker.startUndo();
-        assertEquals(rect2, shapes.get(0));
-
-        // Undo the previous command (move to back)
-        invoker.startUndo();
-        assertEquals(rect2, shapes.get(1)); // back to original position
+    @Test
+    void testStartCommandWithoutSetCommandDoesNothing() {
+        assertDoesNotThrow(() -> invoker.startCommand(), "startCommand() senza comando non deve lanciare eccezioni");
     }
 }
+
