@@ -307,7 +307,6 @@ public class FXMLController implements Initializable {
     baseCanvas.getCanvas().setOnMouseReleased(e -> {
         // Se non è tasto sinistro, ignora
         if (e.getButton() != MouseButton.PRIMARY) return;
-
         // Tool di disegno
         if (!"Select".equals(currentMouseCommand)) {
             // Offset per lo scroll e zoom
