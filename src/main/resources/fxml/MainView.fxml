@@ -39,9 +39,6 @@
                             <Button fx:id="btnUndo" text="Undo" onAction="#undoCommand"/>
                             <Button fx:id="btnPan" text="Pan"/>
                             <Button fx:id="btnToggleGrid" text="Grid"/>
-                            <Button fx:id="multiSelectButton" text="MultiSelect" onAction="#onMultiSelectMode"/>
-                            <Button fx:id="groupButton" text="Group" onAction="#onGroupSelected"/>
-
                         </HBox>
                     </VBox>
                      <!-- Group 3: Colors -->

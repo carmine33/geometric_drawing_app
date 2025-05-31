@@ -118,11 +118,6 @@ public class FXMLController implements Initializable {
     private double currentMouseX;
     private double currentMouseY;
     
-    private boolean multiSelectMode = false;
-    private double selectionStartX, selectionStartY;
-    private Rectangle selectionRectangle;
-    private final List<ShapeBase> selectedShapes = new ArrayList<>();
-    
     private DrawingToolContext toolContext = new DrawingToolContext();
     private boolean hasSavedStateDuringDrag = false;
 
@@ -138,7 +133,7 @@ public class FXMLController implements Initializable {
         strokeColorPicker.setValue(Color.web("#000000"));
         invoker = new Invoker();
         gridDecorator = new GridDecorator(baseCanvas);
-        
+
         //Strategy Pattern
         btnSelect.setOnAction(e -> {
             currentMouseCommand = "Select";
@@ -393,6 +388,9 @@ baseCanvas.getCanvas().setOnMouseDragged(e -> {
         redraw(baseCanvas.getGc());
     }
 });
+    //forzano il ridisegno del canvas ad ogni scroll orizzontale o verticale
+    scrollPane.hvalueProperty().addListener((obs, oldVal, newVal) -> redraw(baseCanvas.getGc()));
+    scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> redraw(baseCanvas.getGc()));
     
     }
        
@@ -519,8 +517,7 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
         canvasPlaceholder.resize(newWidth, newHeight);
         canvasPlaceholder.layout();
         scrollPane.layout();  // forza il ricalcolo della viewport della ScrollPane
-
-
+        
         // Applica lo zoom come scaling (non va usato *zoomFactor nelle size)
         updateScrollPaneViewport();
         scrollPane.setHvalue(scrollPane.getHvalue()); // forza aggiornamento
@@ -752,15 +749,13 @@ private void updateScrollPaneViewport() {
     double scaledHeight = canvasHeight * zoomFactor;
 
     // Imposta le dimensioni effettive del canvasPlaceholder (e quindi dello ScrollPane)
-    canvasPlaceholder.setPrefWidth(scaledWidth);
-    canvasPlaceholder.setPrefHeight(scaledHeight);
-    canvasPlaceholder.setMinWidth(scaledWidth);
-    canvasPlaceholder.setMinHeight(scaledHeight);
-    canvasPlaceholder.setMaxWidth(scaledWidth);
-    canvasPlaceholder.setMaxHeight(scaledHeight);
-
-    scrollPane.setPannable(true);
-    scrollPane.layout(); // forza aggiornamento layout
+    canvasPlaceholder.setPrefSize(scaledWidth, scaledHeight);
+    canvasPlaceholder.setMinSize(scaledWidth, scaledHeight);
+    canvasPlaceholder.setMaxSize(scaledWidth, scaledHeight);
+    
+    // forza aggiornamento layout
+    canvasPlaceholder.requestLayout();
+    scrollPane.layout();
 }
 
     @FXML
@@ -796,17 +791,6 @@ private void updateScrollPaneViewport() {
              activeButton.setStyle("-fx-background-color: lightblue;");
          }
      }
-
-   
-     @FXML
-    private void onMultiSelectMode() {
-         multiSelectMode = true;
-    }
-    
-    @FXML
-    private void onGroupSelected() {
-
-    }
     
     private void resizeShape(ShapeBase selected, double mouseX, double mouseY) {
         if (selected instanceof ShapeRectangle) {
