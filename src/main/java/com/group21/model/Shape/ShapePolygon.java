@@ -222,4 +222,9 @@ public class ShapePolygon extends ShapeBase{
         this.setVertices(movedVertices);
     }
     
+    @Override
+public List<String> getSupportedActions() {
+    return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+}
+    
 }

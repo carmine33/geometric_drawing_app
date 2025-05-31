@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import javafx.geometry.Bounds;
 
 public class ShapeTextBox extends ShapeBase {
@@ -179,6 +180,11 @@ public class ShapeTextBox extends ShapeBase {
         this.x += dx;
         this.y += dy;
     }
+
+    @Override
+public List<String> getSupportedActions() {
+    return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "modifyText");
+}
 
 }
 

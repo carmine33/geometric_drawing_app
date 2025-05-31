@@ -10,6 +10,7 @@ package com.group21.model.Shape;
  */
 
 import java.awt.geom.Ellipse2D;
+import java.util.List;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -58,6 +59,12 @@ public class ShapeEllipse extends ShapeBase{
         this.x += dx;
         this.y += dy;
     }
+    
+    @Override
+public List<String> getSupportedActions() {
+    return List.of("delete", "copy","paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+}
+
 
 
 }

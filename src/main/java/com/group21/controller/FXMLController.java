@@ -50,6 +50,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon; 
 import com.group21.controller.Strategy.*;
+import java.util.Optional;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseButton;
 
 /**
@@ -556,34 +558,76 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
     }
 
     // Drop-down menù after right-click
-     private void initContextMenu() {
+    private void initContextMenu() {
         contextMenu.getItems().clear();
-        contextMenu.getItems().addAll(deleteMenu, setStrokeColor, setStrokeWidth, setFillColor, copyShape, pasteShape,toFront,toBack);
+        ShapeBase selected = selectShape.getSelectedShape();
+        if (selected == null) return;
 
-        deleteMenu.setOnAction(e -> menuDeleteHandler());
-        
-        toFront.setOnAction(e -> toFront(shapes.indexOf(selectShape.getSelectedShape()), shapes.size()));
-        toBack.setOnAction(e -> toBack(shapes.indexOf(selectShape.getSelectedShape())));
+        List<String> actions = selected.getSupportedActions(); // Questo metodo deve essere definito in ShapeBase e nelle sottoclassi
 
-        setStrokeColor.setOnAction(e ->menuModifyColorStroke());
+        if (actions.contains("delete")) {
+            MenuItem delete = new MenuItem("Delete");
+            delete.setOnAction(e -> menuDeleteHandler());
+            contextMenu.getItems().add(delete);
+        }
 
-        setFillColor.setOnAction(e -> menuModifyColorFill());
+        if (actions.contains("copy")) {
+            MenuItem copy = new MenuItem("Copy");
+            copy.setOnAction(e -> menuCopyHandler());
+            contextMenu.getItems().add(copy);
+        }
 
-        setStrokeWidth.setOnAction(e ->menuModifyWidthStroke());
+        if (actions.contains("paste")) {
+            MenuItem paste = new MenuItem("Paste");
+            paste.setOnAction(e -> menuPasteHandler());
+            contextMenu.getItems().add(paste);
+        }
 
-        copyShape.setOnAction(e ->menuCopyHandler());
+        if (actions.contains("strokeColor")) {
+            MenuItem strokeColor = new MenuItem("Set border color");
+            strokeColor.setOnAction(e -> menuModifyColorStroke());
+            contextMenu.getItems().add(strokeColor);
+        }
 
-        pasteShape.setOnAction(e ->menuPasteHandler());
-        
+        if (actions.contains("strokeWidth")) {
+            MenuItem strokeWidth = new MenuItem("Set border thickness");
+            strokeWidth.setOnAction(e -> menuModifyWidthStroke());
+            contextMenu.getItems().add(strokeWidth);
+        }
+
+        if (actions.contains("fillColor")) {
+            MenuItem fillColor = new MenuItem("Set fill color");
+            fillColor.setOnAction(e -> menuModifyColorFill());
+            contextMenu.getItems().add(fillColor);
+        }
+
+        if (actions.contains("toFront")) {
+            MenuItem front = new MenuItem("ToFront");
+            front.setOnAction(e -> toFront(shapes.indexOf(selected), shapes.size()));
+            contextMenu.getItems().add(front);
+        }
+
+        if (actions.contains("toBack")) {
+            MenuItem back = new MenuItem("ToBack");
+            back.setOnAction(e -> toBack(shapes.indexOf(selected)));
+            contextMenu.getItems().add(back);
+        }
+
+        if (actions.contains("modifyText")) {
+            MenuItem modifyText = new MenuItem("Modify text");
+            modifyText.setOnAction(e -> menuModifyText());
+            contextMenu.getItems().add(modifyText);
+        }
 
         baseCanvas.getCanvas().setOnContextMenuRequested(e -> {
-    if (isDrawingPolygon) {
-        e.consume();  // Impedisce l'apertura del context menu
-    } else {
-        contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY());
+            if (isDrawingPolygon) {
+                e.consume(); // Impedisce il menu mentre disegni un poligono
+            } else {
+                contextMenu.show(baseCanvas.getCanvas(), e.getScreenX(), e.getScreenY());
+            }
+        });
     }
-});
-    }
+
     
     public void menuModifyColorStroke() {
         
@@ -848,5 +892,23 @@ private void updateScrollPaneViewport() {
         public void setPreviewShape(ShapeBase shape) {
         this.previewShape = shape;
     }
+
+    public void menuModifyText() {
+    ShapeBase shape = selectShape.getSelectedShape();
+    if (shape instanceof ShapeTextBox) {
+        ShapeTextBox textBox = (ShapeTextBox) shape;
+        TextInputDialog dialog = new TextInputDialog(textBox.getText());
+        dialog.setTitle("Modify Text");
+        dialog.setHeaderText("Enter new text for the TextBox:");
+        dialog.setContentText("Text:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(newText -> {
+            textBox.setText(newText);
+            redraw(baseCanvas.getGc());
+        });
+    }
+}
+
     
 }

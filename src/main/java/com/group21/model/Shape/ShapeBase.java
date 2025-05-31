@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
@@ -112,6 +113,7 @@ public abstract class ShapeBase implements Shape {
     
     public abstract ShapeBase copy();
     
+    public abstract List<String> getSupportedActions();
         
     public double getStrokeWidth() {
         return strokeWidth;
