@@ -11,6 +11,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import javafx.geometry.Bounds;
 
 /**
  * 
@@ -83,24 +84,31 @@ public class ShapePolygon extends ShapeBase{
     
     @Override
     public boolean containsPoint(double x, double y) {
-        int crossings = 0;
-        int count = vertices.size();
+        int windingNumber = 0;
+        int n = vertices.size();
 
-        for (int i = 0; i < count; i++) {
-            Point2D a = vertices.get(i);
-            Point2D b = vertices.get((i + 1) % count);
+        for (int i = 0; i < n; i++) {
+            Point2D p1 = vertices.get(i);
+            Point2D p2 = vertices.get((i + 1) % n);
 
-            // Check if the point is between the y-coordinates of the edge
-            if ((a.getY() > y) != (b.getY() > y)) {
-                double atX = (b.getX() - a.getX()) * (y - a.getY()) / (b.getY() - a.getY()) + a.getX();
-                if (x < atX) {
-                    crossings++;
+            if (p1.getY() <= y) {
+                if (p2.getY() > y) { // upward crossing
+                    double isLeft = (p2.getX() - p1.getX()) * (y - p1.getY()) - (x - p1.getX()) * (p2.getY() - p1.getY());
+                    if (isLeft > 0) {
+                        windingNumber++;
+                    }
+                }
+            } else {
+                if (p2.getY() <= y) { // downward crossing
+                    double isLeft = (p2.getX() - p1.getX()) * (y - p1.getY()) - (x - p1.getX()) * (p2.getY() - p1.getY());
+                    if (isLeft < 0) {
+                        windingNumber--;
+                    }
                 }
             }
         }
 
-        // Odd number of crossings means point is inside
-        return (crossings % 2 == 1);
+        return windingNumber != 0;
     }
     
     public void storeOriginalVertices() {
@@ -201,4 +209,13 @@ public class ShapePolygon extends ShapeBase{
         }
     }
 
+    @Override
+    public void translate(double dx, double dy) {
+        List<Point2D> movedVertices = new ArrayList<>();
+        for (Point2D pt : this.getVertices()) {
+            movedVertices.add(new Point2D(pt.getX() + dx, pt.getY() + dy));
+        }
+        this.setVertices(movedVertices);
+    }
+    
 }

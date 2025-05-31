@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-//import javafx.geometry.Point2D;
 
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
@@ -107,12 +106,9 @@ public abstract class ShapeBase implements Shape {
     
     // contains serve per capire se un punto (click del mouse) è all'interno della figura.
     // public abstract boolean contains(double x, double y);   
-   
+    
      
-    public void translate(double dx, double dy) {
-        this.x += dx;
-        this.y += dy;
-    }
+    public abstract void translate(double dx, double dy);
     
     public abstract ShapeBase copy();
     

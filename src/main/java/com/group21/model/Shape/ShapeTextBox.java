@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import javafx.geometry.Bounds;
 
 public class ShapeTextBox extends ShapeBase {
 
@@ -172,6 +173,12 @@ public class ShapeTextBox extends ShapeBase {
     public void setTextHeight(double textHeight) {
         this.textHeight = textHeight;
     }
-    
+
+    @Override
+    public void translate(double dx, double dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+
 }
 

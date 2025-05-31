@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group21.controller.FXMLController" prefWidth="1000.0" prefHeight="500.0">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group21.controller.FXMLController" prefWidth="1070.0" prefHeight="500.0">
     <top>
         <VBox>
             <MenuBar>
@@ -37,8 +37,11 @@
                         <HBox spacing="10">
                             <Button fx:id="btnSelect" text="Select" />
                             <Button fx:id="btnUndo" text="Undo" onAction="#undoCommand"/>
-                            <Button fx:id="btnPan" text="Pan" onAction="#setupPanTool"/>
+                            <Button fx:id="btnPan" text="Pan"/>
                             <Button fx:id="btnToggleGrid" text="Grid"/>
+                            <Button fx:id="multiSelectButton" text="MultiSelect" onAction="#onMultiSelectMode"/>
+                            <Button fx:id="groupButton" text="Group" onAction="#onGroupSelected"/>
+
                         </HBox>
                     </VBox>
                      <!-- Group 3: Colors -->

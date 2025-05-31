@@ -5,6 +5,7 @@
 package com.group21.model.Shape;
 
 import java.awt.geom.Line2D;
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -70,4 +71,13 @@ public class ShapeLine extends ShapeBase{
         copy.setFillColor(this.getFillColor());
         return copy;
     }
+
+    @Override
+    public void translate(double dx, double dy) {
+        this.x += dx;
+        this.y += dy;
+        this.endX += dx;
+        this.endY += dy;
+    }
+    
 }

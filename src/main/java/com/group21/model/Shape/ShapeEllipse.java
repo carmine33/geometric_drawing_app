@@ -10,6 +10,7 @@ package com.group21.model.Shape;
  */
 
 import java.awt.geom.Ellipse2D;
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -51,4 +52,12 @@ public class ShapeEllipse extends ShapeBase{
         copy.setStrokeColor(this.getStrokeColor());
         return copy;
     }
+
+    @Override
+    public void translate(double dx, double dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+
+
 }
