@@ -9,9 +9,11 @@ package com.group21.controller.Strategy;
  * @author carmi
  */
 
+import com.group21.model.Command.ShapeSelector;
 import com.group21.model.Factory.ConcreteCreatorRectangle;
 import com.group21.model.Shape.ShapeBase;
 import com.group21.model.Shape.ShapeRectangle;
+import java.util.ArrayList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -24,15 +26,15 @@ public class RectangleTool implements DrawingToolStrategy {
     private Runnable redrawCallback;
     private ShapeBase previewShape;
     private double offsetX = 0, offsetY = 0, zoomFactor = 1.0;
+    private ShapeSelector selectShape;
 
-
-    public RectangleTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor, Runnable redrawCallback) {
+    public RectangleTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor, ShapeSelector selectShape, Runnable redrawCallback) {
         this.shapes = shapes;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
+        this.selectShape = selectShape;
         this.redrawCallback = redrawCallback;
     }
-
     @Override
     public void onMousePressed(MouseEvent e) {
         startX = (e.getX() / zoomFactor) + offsetX;
@@ -66,6 +68,7 @@ public class RectangleTool implements DrawingToolStrategy {
         if (height == 0) height = 40;
 
         ShapeBase finalShape = new ConcreteCreatorRectangle().createShape(x, y, width, height, strokeColor, fillColor);
+        selectShape.getMemory().saveState(new ArrayList<>(shapes));
         shapes.add(finalShape);
 
         previewShape = null;

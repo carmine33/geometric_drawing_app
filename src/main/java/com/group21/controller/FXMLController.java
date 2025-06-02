@@ -144,61 +144,67 @@ public class FXMLController implements Initializable {
 
         //Strategy Pattern
         btnSelect.setOnAction(e -> {
+            disablePanMode();
             currentMouseCommand = "Select";
         });
 
         btnLine.setOnAction(e -> {
+            disablePanMode();
             currentMouseCommand = "Line";
             final LineTool[] toolHolder = new LineTool[1];
             Runnable callback = () -> {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new LineTool(shapes, strokeColorPicker.getValue(), callback);
+            toolHolder[0] = new LineTool(shapes, strokeColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
 
         btnRectangle.setOnAction(e -> {
+            disablePanMode();
             currentMouseCommand = "Rectangle";
             final RectangleTool[] toolHolder = new RectangleTool[1];
             Runnable callback = () -> {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new RectangleTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), callback);
+            toolHolder[0] = new RectangleTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(),selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
 
         btnEllipse.setOnAction(e -> {
+            disablePanMode();
             currentMouseCommand = "Ellipse";
             final EllipseTool[] toolHolder = new EllipseTool[1];
             Runnable callback = () -> {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new EllipseTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), callback);
+            toolHolder[0] = new EllipseTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
 
         btnTextBox.setOnAction(e -> {
+            disablePanMode();
             currentMouseCommand = "TextBox";
             final TextBoxTool[] toolHolder = new TextBoxTool[1];
             Runnable callback = () -> {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new TextBoxTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), callback);
+            toolHolder[0] = new TextBoxTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
 
         btnPolygon.setOnAction(e -> {
+            disablePanMode();
             currentMouseCommand = "Polygon";
             final PolygonTool[] toolHolder = new PolygonTool[1];
             Runnable callback = () -> {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new PolygonTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), callback);
+            toolHolder[0] = new PolygonTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
         
@@ -402,13 +408,20 @@ baseCanvas.getCanvas().setOnMouseDragged(e -> {
     
     }
        
-    private void showInfo(String title, String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+private void showInfo(String title, String message) {
+    Alert alert = new Alert(AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    
+    // Applica il CSS personalizzato al DialogPane
+    DialogPane dialogPane = alert.getDialogPane();
+    dialogPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+    dialogPane.getStyleClass().add("root");  // o altra classe definita nel tuo CSS
+
+    alert.showAndWait();
+}
+
     
 private void redraw(GraphicsContext gc) {
     gc.clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
@@ -699,35 +712,7 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
         redraw(baseCanvas.getGc());
 
     }
-       
-public void performUndo() {
-    if (selectShape.getMemory().canUndo()) {
-        ShapeBase oldSelected = selectShape.getSelectedShape();
-
-        shapes.clear();
-        List<ShapeBase> restored = selectShape.getMemory().restoreLastState();
-        shapes.addAll(restored);
-
-        // Deselect by default
-        selectShape.setSelectedShape(null);
-
-        // Facoltativo: ripristina selezione se esiste equivalente
-        if (oldSelected != null) {
-            for (ShapeBase shape : restored) {
-                if (shape.equals(oldSelected)) {  // usa equals definito correttamente
-                    selectShape.setSelectedShape(shape);
-                    break;
-                }
-            }
-        }
-        redraw(baseCanvas.getGc());
-    } else {
-        showInfo("Undo", "Nessuno stato precedente disponibile.");
-    }
-}
-
-
-        
+         
     // Save/Load logic implementation
     public void saveShapes(List<ShapeBase> shapes, File file){
         ObjectMapper mapper = new ObjectMapper();
@@ -825,7 +810,29 @@ private void updateScrollPaneViewport() {
     
      @FXML
     private void undoCommand(ActionEvent e) {
-        performUndo();
+            if (selectShape.getMemory().canUndo()) {
+        ShapeBase oldSelected = selectShape.getSelectedShape();
+
+        shapes.clear();
+        List<ShapeBase> restored = selectShape.getMemory().restoreLastState();
+        shapes.addAll(restored);
+
+        // Deselect by default
+        selectShape.setSelectedShape(null);
+
+        // Facoltativo: ripristina selezione se esiste equivalente
+        if (oldSelected != null) {
+            for (ShapeBase shape : restored) {
+                if (shape.equals(oldSelected)) {  // usa equals definito correttamente
+                    selectShape.setSelectedShape(shape);
+                    break;
+                }
+            }
+        }
+        redraw(baseCanvas.getGc());
+    } else {
+        showInfo("Undo", "Nessuno stato precedente disponibile.");
+    }
     }
     
     private void setActiveToolButton(Button activeButton) {
@@ -843,6 +850,7 @@ private void updateScrollPaneViewport() {
      }
     
     private void resizeShape(ShapeBase selected, double mouseX, double mouseY) {
+        disablePanMode();
         if (selected instanceof ShapeRectangle) {
             ShapeRectangle rect = (ShapeRectangle) selected;
             double newWidth = Math.max(10, mouseX - rect.getX());
@@ -947,7 +955,14 @@ private void setButtonIcon(Button button, String iconPath, String label, double 
         System.err.println("Errore caricando " + iconPath);
     }
 }
-
-
     
+    //Funzione da chiamare quando si vuole disabilitare la modalità Pan
+    private void disablePanMode() {
+    if (scrollPane.isPannable()) {
+        scrollPane.setPannable(false);
+        isPanMode = false;  // se usi questa variabile
+        setActiveToolButton(null); // resetto evidenziazione bottoni
+    }
+}
+   
 }

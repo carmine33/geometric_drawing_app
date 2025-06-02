@@ -9,9 +9,11 @@ package com.group21.controller.Strategy;
  * @author carmi
  */
 
+import com.group21.model.Command.ShapeSelector;
 import com.group21.model.Factory.ConcreteCreatorLine;
 import com.group21.model.Shape.ShapeBase;
 import com.group21.model.Shape.ShapeLine;
+import java.util.ArrayList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -24,12 +26,14 @@ public class LineTool implements DrawingToolStrategy {
     private Runnable onUpdateCallback;
     private ShapeBase previewShape;
     private double offsetX, offsetY, zoomFactor = 1.0;
+    private ShapeSelector selectShape;
 
 
-    public LineTool(List<ShapeBase> shapes, Color strokeColor, Runnable onUpdateCallback) {
+    public LineTool(List<ShapeBase> shapes, Color strokeColor, ShapeSelector selectShape, Runnable onUpdateCallback) {
         this.shapes = shapes;
         this.strokeColor = strokeColor;
         this.onUpdateCallback = onUpdateCallback;
+        this.selectShape = selectShape;
     }
 
 @Override
@@ -52,6 +56,7 @@ public void onMousePressed(MouseEvent e) {
         double endX = (e.getX() / zoomFactor) + offsetX;
         double endY = (e.getY() / zoomFactor) + offsetY;
         ShapeBase finalShape = new ConcreteCreatorLine().createShape(startX, startY, endX, endY, strokeColor);
+        selectShape.getMemory().saveState(new ArrayList<>(shapes));
         shapes.add(finalShape);
         previewShape = null;
         onUpdateCallback.run();

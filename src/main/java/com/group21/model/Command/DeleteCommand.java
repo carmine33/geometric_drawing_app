@@ -22,13 +22,7 @@ public class DeleteCommand implements Command {
 
     @Override
     public void execute() {
-        ShapeBase selected = shape.getSelectedShape();
-        if (selected != null) {
-            shape.getMemory().saveState(new ArrayList<>(shape.getShape())); // salva prima della modifica
-            deletedShape = selected;
-            shape.getShape().remove(selected);
-            shape.setSelectedShape(null);
-        }
+        shape.deleteShape();
     }
 
 }

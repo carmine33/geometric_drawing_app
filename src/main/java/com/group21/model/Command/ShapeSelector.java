@@ -17,6 +17,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.paint.Color;
 import java.util.Collections;
+import javafx.scene.control.DialogPane;
 
 
 /**
@@ -63,6 +64,7 @@ public class ShapeSelector {
         }
         this.memory.saveState(new ArrayList<>(list));
         this.list.remove(this.selectedShape);
+        this.setSelectedShape(null);
     }
     
     public void toFront(double ignoredIndex) {
@@ -120,70 +122,89 @@ public ShapeBase pasteShape() {
         }
     }
 
-    void modStrWidthShape() {
-        if (this.selectedShape != null) {
-            memory.saveState(new ArrayList<>(list));
-            TextInputDialog dialog = new TextInputDialog("1.0");
-            dialog.setTitle("Imposta spessore bordo");
-            dialog.setHeaderText("Inserisci lo spessore del bordo (es. 2.0):");
-            Optional<String> result = dialog.showAndWait();
-            result.ifPresent(value -> {
-                try {
-                    double width = Double.parseDouble(value);
-                    this.selectedShape.setStrokeWidth(width);
-                } catch (NumberFormatException ex) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Errore");
-                    alert.setHeaderText("Valore non valido");
-                    alert.setContentText("Inserisci un numero valido per lo spessore del bordo.");
-                    alert.showAndWait();
-                }
-            });
+void modStrWidthShape() {
+    if (this.selectedShape != null) {
+        memory.saveState(new ArrayList<>(list));
+        TextInputDialog dialog = new TextInputDialog("1.0");
+        dialog.setTitle("Imposta spessore bordo");
+        dialog.setHeaderText("Inserisci lo spessore del bordo (es. 2.0):");
+
+        // Applica il CSS personalizzato alla dialog
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+        dialogPane.getStyleClass().add("root");  // o la classe che vuoi definire nel css
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(value -> {
+            try {
+                double width = Double.parseDouble(value);
+                this.selectedShape.setStrokeWidth(width);
+            } catch (NumberFormatException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Errore");
+                alert.setHeaderText("Valore non valido");
+                alert.setContentText("Inserisci un numero valido per lo spessore del bordo.");
+
+                // Applica il CSS personalizzato all'alert
+                DialogPane alertPane = alert.getDialogPane();
+                alertPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+                alertPane.getStyleClass().add("root");
+
+                alert.showAndWait();
+            }
+        });
+    }
+}
+
+
+public void modColorShape(String tipo) {
+    if (this.selectedShape == null) return;
+    memory.saveState(new ArrayList<>(list));
+    Color initialColor;
+    String titolo;
+
+    if ("fill".equalsIgnoreCase(tipo)) {
+        if (selectedShape instanceof ShapeTextBox) {
+            initialColor = ((ShapeTextBox) selectedShape).getTextColor();
+            titolo = "Modifica colore del testo";
+        } else {
+            initialColor = selectedShape.getFillColor();
+            titolo = "Modifica colore di riempimento";
         }
+    } else if ("stroke".equalsIgnoreCase(tipo)) {
+        initialColor = selectedShape.getStrokeColor();
+        titolo = "Modifica colore del bordo";
+    } else {
+        return; // tipo non supportato
     }
 
-    public void modColorShape(String tipo) {
-        if (this.selectedShape == null) return;
-        memory.saveState(new ArrayList<>(list));
-        Color initialColor;
-        String titolo;
+    ColorPicker picker = new ColorPicker(initialColor);
 
+    Alert alert = new Alert(Alert.AlertType.NONE);
+    alert.setTitle(titolo);
+    alert.getDialogPane().setContent(picker);
+    alert.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+    // Applica il CSS personalizzato al dialog
+    DialogPane dialogPane = alert.getDialogPane();
+    dialogPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+    dialogPane.getStyleClass().add("root");
+
+    Optional<ButtonType> result = alert.showAndWait();
+    if (result.isPresent() && result.get() == ButtonType.OK) {
+        Color nuovoColore = picker.getValue();
         if ("fill".equalsIgnoreCase(tipo)) {
             if (selectedShape instanceof ShapeTextBox) {
-                initialColor = ((ShapeTextBox) selectedShape).getTextColor();
-                titolo = "Modifica colore del testo";
+                ((ShapeTextBox) selectedShape).setTextColor(nuovoColore);
             } else {
-                initialColor = selectedShape.getFillColor();
-                titolo = "Modifica colore di riempimento";
+                selectedShape.setFillColor(nuovoColore);
             }
-        } else if ("stroke".equalsIgnoreCase(tipo)) {
-            initialColor = selectedShape.getStrokeColor();
-            titolo = "Modifica colore del bordo";
         } else {
-            return; // tipo non supportato
-        }
-
-        ColorPicker picker = new ColorPicker(initialColor);
-
-        Alert alert = new Alert(Alert.AlertType.NONE);
-        alert.setTitle(titolo);
-        alert.getDialogPane().setContent(picker);
-        alert.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            Color nuovoColore = picker.getValue();
-            if ("fill".equalsIgnoreCase(tipo)) {
-                if (selectedShape instanceof ShapeTextBox) {
-                    ((ShapeTextBox) selectedShape).setTextColor(nuovoColore);
-                } else {
-                    selectedShape.setFillColor(nuovoColore);
-                }
-            } else {
-                selectedShape.setStrokeColor(nuovoColore);
-            }
+            selectedShape.setStrokeColor(nuovoColore);
         }
     }
+}
+
 
 }
 

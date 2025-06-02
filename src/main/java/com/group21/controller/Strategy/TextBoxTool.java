@@ -9,9 +9,11 @@ package com.group21.controller.Strategy;
  * @author carmi
  */
 
+import com.group21.model.Command.ShapeSelector;
 import com.group21.model.Factory.ConcreteCreatorText;
 import com.group21.model.Shape.ShapeBase;
 import com.group21.model.Shape.ShapeTextBox;
+import java.util.ArrayList;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
@@ -27,12 +29,15 @@ public class TextBoxTool implements DrawingToolStrategy {
     private Color strokeColor, fillColor;
     private Runnable redrawCallback;
     private double offsetX = 0, offsetY = 0, zoomFactor = 1.0;
+    private ShapeSelector selectShape;
 
-    public TextBoxTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor, Runnable redrawCallback) {
+    public TextBoxTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor,ShapeSelector selectShape, Runnable redrawCallback) {
         this.shapes = shapes;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
         this.redrawCallback = redrawCallback;
+        this.selectShape = selectShape;
+        
     }
 
     @Override
@@ -77,6 +82,7 @@ public class TextBoxTool implements DrawingToolStrategy {
             ShapeTextBox box = new ConcreteCreatorText().createShape(x, y, strokeColor, fillColor, text.get(), fontSize);
             box.setFontSize(fontSize);
             box.setFontFamily(fontFamily);
+            selectShape.getMemory().saveState(new ArrayList<>(shapes));
             shapes.add(box);
             if (redrawCallback != null) redrawCallback.run();
         }

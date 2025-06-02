@@ -9,9 +9,11 @@ package com.group21.controller.Strategy;
  * @author carmi
  */
 
+import com.group21.model.Command.ShapeSelector;
 import com.group21.model.Factory.ConcreteCreatorEllipse;
 import com.group21.model.Shape.ShapeBase;
 import com.group21.model.Shape.ShapeEllipse;
+import java.util.ArrayList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -24,12 +26,14 @@ public class EllipseTool implements DrawingToolStrategy {
     private double startX, startY;
     private ShapeBase previewShape;
     private double offsetX = 0, offsetY = 0, zoomFactor = 1.0;
+    private ShapeSelector selectShape;
 
-    public EllipseTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor, Runnable redrawCallback) {
+    public EllipseTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor,ShapeSelector selectShape,  Runnable redrawCallback) {
         this.shapes = shapes;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
         this.redrawCallback = redrawCallback;
+        this.selectShape = selectShape;
     }
 
     @Override
@@ -68,6 +72,7 @@ public class EllipseTool implements DrawingToolStrategy {
         if (h == 0) h = 40;
 
         ShapeBase ellipse = new ConcreteCreatorEllipse().createShape(x, y, w, h, strokeColor, fillColor);
+        selectShape.getMemory().saveState(new ArrayList<>(shapes));
         shapes.add(ellipse);
 
         previewShape = null;

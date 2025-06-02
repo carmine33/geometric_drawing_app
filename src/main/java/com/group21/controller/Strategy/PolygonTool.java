@@ -9,6 +9,7 @@ package com.group21.controller.Strategy;
  * @author carmi
  */
 
+import com.group21.model.Command.ShapeSelector;
 import com.group21.model.Factory.ConcreteCreatorIrregularPolygon;
 import com.group21.model.Shape.ShapePolygon;
 import com.group21.model.Shape.ShapeBase;
@@ -29,12 +30,14 @@ public class PolygonTool implements DrawingToolStrategy {
     private double currentMouseX = -1;
     private double currentMouseY = -1;
     private double offsetX = 0, offsetY = 0, zoomFactor = 1.0;
+    private ShapeSelector selectShape;
 
-    public PolygonTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor, Runnable redrawCallback) {
+    public PolygonTool(List<ShapeBase> shapes, Color strokeColor, Color fillColor,ShapeSelector selectShape, Runnable redrawCallback) {
         this.shapes = shapes;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
         this.redrawCallback = redrawCallback;
+        this.selectShape = selectShape;
     }
 
     @Override
@@ -53,6 +56,7 @@ public class PolygonTool implements DrawingToolStrategy {
                 shapes.add(line);
             } else if (polygonPoints.size() >= 3) {
                 ShapePolygon polygon = new ShapePolygon(new ArrayList<>(polygonPoints), fillColor, strokeColor, 1);
+                selectShape.getMemory().saveState(new ArrayList<>(shapes));
                 shapes.add(polygon);
             }
             polygonPoints.clear();
