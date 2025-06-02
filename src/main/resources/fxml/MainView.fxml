@@ -3,12 +3,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group21.controller.FXMLController" prefWidth="1070.0" prefHeight="500.0">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.group21.controller.FXMLController"
+            prefWidth="1000.0" prefHeight="600.0"
+            styleClass="root">
+
+    <!-- === TOP === -->
     <top>
         <VBox>
             <MenuBar>
                 <menus>
-                    <Menu text="File">
+                    <Menu text="File" styleClass="section-title color-label">
                         <items>
                             <MenuItem text="New" onAction="#handleNew" fx:id="menuNew"/>
                             <MenuItem text="Open" onAction="#handleLoad" fx:id="menuOpen"/>
@@ -18,60 +23,70 @@
                     </Menu>
                 </menus>
             </MenuBar>
-            <ToolBar>
-                <HBox spacing="20" alignment="TOP_LEFT">
-                    <!-- Group 1: Shapes -->
-                    <VBox spacing="5">
-                        <Label text="Shapes"/>
-                        <HBox spacing="10">
-                            <Button fx:id="btnRectangle" text="Rectangle"/>
-                            <Button fx:id="btnEllipse" text="Ellipse"/>
-                            <Button fx:id="btnLine" text="Line"/>
-                            <Button fx:id="btnPolygon" text="Polygon"/>
-                            <Button fx:id="btnTextBox" text="TextBox" />
-                        </HBox>
-                    </VBox>
+            <ToolBar styleClass="tool-bar">
+                <HBox spacing="40" alignment="TOP_CENTER">
                     <!-- Group 2: Options -->
-                    <VBox spacing="5">
-                        <Label text="Options"/>
-                        <HBox spacing="10">
-                            <Button fx:id="btnSelect" text="Select" />
-                            <Button fx:id="btnUndo" text="Undo" onAction="#undoCommand"/>
-                            <Button fx:id="btnPan" text="Pan"/>
-                            <Button fx:id="btnToggleGrid" text="Grid"/>
+                    <VBox spacing="8" alignment="TOP_LEFT">
+                        <Label text="Options" styleClass="section-title"/>
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button fx:id="btnSelect" prefWidth="56" prefHeight="48" text="Select" styleClass="option-button"/>
+                            <Button fx:id="btnUndo" prefWidth="56" prefHeight="48" text="Undo" onAction="#undoCommand" styleClass="option-button"/>
+                            <Button fx:id="btnPan" prefWidth="56" prefHeight="48" text="Pan" styleClass="option-button"/>
+                            <Button fx:id="btnToggleGrid" prefWidth="56" prefHeight="48" text="Grid" styleClass="option-button"/>
                         </HBox>
                     </VBox>
-                     <!-- Group 3: Colors -->
-                    <HBox spacing="10" alignment="TOP_LEFT">
-                        <VBox spacing="5">
-                            <Label text="Fill color"/>
-                            <HBox spacing="10">
-                                <ColorPicker fx:id="fillColorPicker"/>
-                            </HBox>
-                        </VBox>
-                        <VBox spacing="5">
-                            <Label text="Border color"/>
-                            <HBox spacing="10">
-                                <ColorPicker fx:id="strokeColorPicker"/>
-                            </HBox>
-                        </VBox>
-                    </HBox>
+                    <Separator orientation="VERTICAL"/>
+                    <!-- Group 3: Colors -->
+                    <VBox spacing="8" alignment="TOP_LEFT">
+                        <Label text="Colors" styleClass="section-title"/>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="Fill color:" styleClass="color-label"/>
+                            <ColorPicker fx:id="fillColorPicker" styleClass="color-picker"/>
+                            <Label text="Border color:" styleClass="color-label"/>
+                            <ColorPicker fx:id="strokeColorPicker" styleClass="color-picker"/>
+                        </HBox>
+                    </VBox>
+                    <Separator orientation="VERTICAL"/>
                     <!-- Group 4: Zoom -->
-                    <VBox spacing="5">
-                        <Label text="Zoom"/>
+                    <VBox spacing="8">
+                        <Label text="Zoom" styleClass="section-title"/>
                         <HBox spacing="10">
-                            <Button fx:id="btnZoomIn" text="+"/>
-                            <Button fx:id="btnZoomOut" text="−"/>
+                            <Button fx:id="btnZoomIn" text="Zoom In" prefWidth="76" prefHeight="48"
+                                    contentDisplay="TOP" styleClass="zoom-button"/>
+                            <Button fx:id="btnZoomOut" text="Zoom Out" prefWidth="76" prefHeight="48"
+                                    contentDisplay="TOP" styleClass="zoom-button"/>
                         </HBox>
                     </VBox>
                 </HBox>
             </ToolBar>
-        </VBox> 
+        </VBox>
     </top>
+
+    <!-- === LEFT === -->
+    <left>
+        <!-- Group 1: Shapes -->
+        <VBox spacing="10" alignment="TOP_CENTER"
+              styleClass="shapes-panel"
+              prefWidth="110" minWidth="110">
+
+            <Label text="Shapes" styleClass="section-title"/>
+
+            <VBox spacing="10" alignment="CENTER">
+                <Button fx:id="btnRectangle" prefWidth="76" prefHeight="72" text="Rectangle" contentDisplay="TOP" styleClass="shape-button"/>
+                <Button fx:id="btnEllipse" prefWidth="76" prefHeight="72" text="Ellipse" contentDisplay="TOP" styleClass="shape-button"/>
+                <Button fx:id="btnLine" prefWidth="76" prefHeight="72" text="Line" contentDisplay="TOP" styleClass="shape-button"/>
+                <Button fx:id="btnPolygon" prefWidth="76" prefHeight="72" text="Polygon" contentDisplay="TOP" styleClass="shape-button"/>
+                <Button fx:id="btnTextBox" prefWidth="76" prefHeight="72" text="TextBox" contentDisplay="TOP" styleClass="shape-button"/>
+
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- === CENTER === -->
     <center>
-        <ScrollPane  fx:id="scrollPane" pannable="false" > 
-        <Pane fx:id="canvasPlaceholder" >
-        </Pane>
+        <ScrollPane fx:id="scrollPane" pannable="false">
+            <Pane fx:id="canvasPlaceholder"/>
         </ScrollPane>
     </center>
 </BorderPane>
+

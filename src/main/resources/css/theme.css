@@ -1,0 +1,130 @@
+/* File: earthy-theme-updated.css */
+
+/* Colore di sfondo principale: beige chiaro caldo */
+.root {
+    -fx-background-color: #f5f0e6; /* beige caldo */
+}
+
+/* Toolbar con sfondo marrone chiaro */
+.tool-bar {
+    -fx-background-color: #a1887f; /* marrone chiaro */
+}
+
+/* Titoli delle sezioni */
+.section-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #6d4c41; /* marrone medio chiaro */
+}
+
+/* MenuBar con angoli arrotondati e sfondo marrone medio */
+.menu-bar {
+    -fx-background-color: #8d6e63; /* marrone medio chiaro */
+    -fx-background-radius: 0;
+}
+
+/* ContextMenu con angoli arrotondati e sfondo marrone */
+.context-menu {
+    -fx-background-color: #8d6e63; /* marrone medio chiaro */
+    -fx-background-radius: 10;
+}
+
+/* Menu a discesa con angoli arrotondati e sfondo marrone */
+.menu {
+    -fx-background-color: #8d6e63; /* marrone medio chiaro */
+    -fx-background-radius: 10;
+}
+
+/* Etichette dei menu */
+.menu .label {
+    -fx-text-fill: #a1887f; /* marrone chiaro */
+}
+
+/* Bottoni Shapes e Toolbar: verde più chiaro */
+.button, .shapes-panel .button, .tool-bar .button {
+    -fx-background-color: #aed581;      /* verde lime chiaro più luminoso */
+    -fx-text-fill: #4e342e;             /* marrone scuro per il testo */
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+}
+
+/* Hover (passaggio mouse) */
+.button:hover, .shapes-panel .button:hover, .tool-bar .button:hover {
+    -fx-background-color: #9ccc65;      /* verde lime medio */
+    -fx-border-color: #689f38;           /* bordo verde scuro */
+}
+
+/* Pressed (cliccato) */
+.button:pressed, .shapes-panel .button:pressed, .tool-bar .button:pressed {
+    -fx-background-color: #8bc34a;      /* verde lime scuro */
+    -fx-border-color: #558b2f;           /* bordo verde più scuro */
+    -fx-text-fill: #f9fbe7;             /* testo chiaro */
+}
+
+.shape-button {
+    -fx-background-color: #aed581;
+    -fx-text-fill: #4e342e;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+}
+
+.shape-button:hover {
+    -fx-background-color: #9ccc65;
+    -fx-border-color: #689f38;
+}
+
+.shape-button:pressed {
+    -fx-background-color: #8bc34a;
+    -fx-border-color: #558b2f;
+    -fx-text-fill: #f9fbe7;
+}
+
+/* Color Picker con stesso verde chiaro dei bottoni */
+.color-picker {
+    -fx-background-color: #aed581; /* verde lime chiaro */
+    -fx-border-color: #aed581;     /* bordo verde lime chiaro */
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 2;
+    -fx-pref-width: 110px;
+    -fx-pref-height: 30px;
+}
+
+.color-picker .color-rect {
+    -fx-background-radius: 4;
+    -fx-background-color: derive(-fx-background-color, 0%);
+}
+
+.color-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.color-picker:hover {
+    -fx-border-color: #9ccc65; /* verde lime medio scuro al passaggio del mouse */
+}
+
+/* Testi menu e File in giallo caldo */
+.menu > .label {
+    -fx-text-fill: #fbc02d; /* Giallo caldo */
+    -fx-font-weight: bold;
+}
+
+.menu-item .label {
+    -fx-text-fill: #fbc02d; /* Giallo caldo */
+}
+
+/* Hover menu item */
+.menu-item:hover {
+    -fx-background-color: #bcaaa4; /* marrone chiaro */
+}
+
+/* Label Fill color e Border color più visibili */
+.color-label {
+    -fx-text-fill: #fff176; /* Giallo chiaro */
+    -fx-font-weight: bold;
+}
+

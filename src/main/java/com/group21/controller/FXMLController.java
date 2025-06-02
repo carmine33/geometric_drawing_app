@@ -51,7 +51,10 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon; 
 import com.group21.controller.Strategy.*;
 import java.util.Optional;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 
 /**
@@ -79,6 +82,7 @@ public class FXMLController implements Initializable {
     @FXML private Button btnZoomOut;
     @FXML private Button btnPan;
     @FXML private Button btnToggleGrid;
+    @FXML private Button btnUndo;
     
     private Invoker invoker;
     private ShapeSelector selectShape;
@@ -130,6 +134,7 @@ public class FXMLController implements Initializable {
         baseCanvas = new BaseCanvas(4000,4000);
         baseCanvas.getCanvas().setCache(false);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
+        setupShapeIcons();//crica icone dei bottoni
         scrollPane.setPannable(false);//scrollPane inizialmente inattivo
         selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
@@ -909,6 +914,34 @@ private void updateScrollPaneViewport() {
         });
     }
 }
+    private void setupShapeIcons() {
+    setButtonIcon(btnRectangle, "/icons/rectangle.png", "Rectangle",48);
+    setButtonIcon(btnEllipse, "/icons/ellipse.png", "Ellipse", 48);
+    setButtonIcon(btnLine, "/icons/line.png", "Line", 48);
+    setButtonIcon(btnPolygon, "/icons/polygon.png", "Polygon", 48);
+    setButtonIcon(btnTextBox, "/icons/text.png", "Text", 48);
+    setButtonIcon(btnSelect, "/icons/select.png", "Select", 20);
+    setButtonIcon(btnUndo, "/icons/undo.png", "Undo", 20);
+    setButtonIcon(btnPan, "/icons/pan.png", "Pan", 20);
+    setButtonIcon(btnToggleGrid, "/icons/grid.png", "Grid", 20);
+    setButtonIcon(btnZoomIn, "/icons/zoom_in.png", "Zoom In", 20);
+    setButtonIcon(btnZoomOut, "/icons/zoom_out.png", "Zoom Out", 20);
+}
+
+private void setButtonIcon(Button button, String iconPath, String label, double size) {
+    try {
+        Image image = new Image(getClass().getResourceAsStream(iconPath));
+        ImageView icon = new ImageView(image);
+        icon.setFitWidth(size);
+        icon.setFitHeight(size);
+        button.setGraphic(icon);
+        button.setText(label);
+        button.setContentDisplay(ContentDisplay.TOP);  // icona sopra, testo sotto
+    } catch (Exception e) {
+        System.err.println("Errore caricando " + iconPath);
+    }
+}
+
 
     
 }
