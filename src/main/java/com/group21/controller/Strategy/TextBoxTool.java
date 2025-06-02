@@ -19,6 +19,8 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 import java.util.Optional;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 
 public class TextBoxTool implements DrawingToolStrategy {
     private List<ShapeBase> shapes;
@@ -44,15 +46,24 @@ public class TextBoxTool implements DrawingToolStrategy {
         double x = (e.getX() / zoomFactor) + offsetX;
         double y = (e.getY() / zoomFactor) + offsetY;
 
-        Optional<String> text = new TextInputDialog("Testo").showAndWait();
+        // Dialogo per il testo
+        TextInputDialog textDialog = new TextInputDialog("Testo");
+        applyThemeToDialog(textDialog);
+        Optional<String> text = textDialog.showAndWait();
         if (text.isEmpty()) return;
 
-        Optional<String> size = new TextInputDialog("14").showAndWait();
+        // Dialogo per la dimensione
+        TextInputDialog sizeDialog = new TextInputDialog("14");
+        applyThemeToDialog(sizeDialog);
+        Optional<String> size = sizeDialog.showAndWait();
         double fontSize = size.map(s -> {
             try { return Double.parseDouble(s); } catch (NumberFormatException e1) { return 14.0; }
         }).orElse(14.0);
 
-        Optional<String> font = new ChoiceDialog<>("Sans", "Sans", "Serif", "Monospace").showAndWait();
+        // Dialogo per il font
+        ChoiceDialog<String> fontDialog = new ChoiceDialog<>("Sans", "Sans", "Serif", "Monospace");
+        applyThemeToDialog(fontDialog);
+        Optional<String> font = fontDialog.showAndWait();
         String fontFamily = "SansSerif";
         if (font.isPresent()) {
             if ("Serif".equals(font.get())) {
@@ -63,14 +74,12 @@ public class TextBoxTool implements DrawingToolStrategy {
                 fontFamily = "SansSerif";
             }
         }
-
-
-        ShapeTextBox box = new ConcreteCreatorText().createShape(x, y, strokeColor, fillColor, text.get(), fontSize);
-        box.setFontSize(fontSize);
-        box.setFontFamily(fontFamily);
-        shapes.add(box);
-        if (redrawCallback != null) redrawCallback.run();
-    }
+            ShapeTextBox box = new ConcreteCreatorText().createShape(x, y, strokeColor, fillColor, text.get(), fontSize);
+            box.setFontSize(fontSize);
+            box.setFontFamily(fontFamily);
+            shapes.add(box);
+            if (redrawCallback != null) redrawCallback.run();
+        }
 
     @Override
     public ShapeBase getPreviewShape() {
@@ -88,5 +97,11 @@ public class TextBoxTool implements DrawingToolStrategy {
         this.offsetY = offsetY;
         this.zoomFactor = zoomFactor;
     }
+    
+    private void applyThemeToDialog(Dialog<?> dialog) {
+    DialogPane dialogPane = dialog.getDialogPane();
+    dialogPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+    dialogPane.getStyleClass().add("root"); // opzionale, aggiunge la classe root
+}
 }
 

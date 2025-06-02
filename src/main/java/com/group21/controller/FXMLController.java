@@ -52,6 +52,7 @@ import org.locationtech.jts.geom.Polygon;
 import com.group21.controller.Strategy.*;
 import java.util.Optional;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -906,6 +907,11 @@ private void updateScrollPaneViewport() {
         dialog.setTitle("Modify Text");
         dialog.setHeaderText("Enter new text for the TextBox:");
         dialog.setContentText("Text:");
+        
+        // Applica il CSS personalizzato alla dialog
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+        dialogPane.getStyleClass().add("root");  // opzionale, aggiunge la classe 'root'
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(newText -> {
