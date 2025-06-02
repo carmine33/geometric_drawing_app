@@ -4,6 +4,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to c
 Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template*/
 package com.group21.model.Shape;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,6 +223,7 @@ public class ShapePolygon extends ShapeBase{
         this.setVertices(movedVertices);
     }
     
+    @JsonIgnore
     @Override
 public List<String> getSupportedActions() {
     return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");

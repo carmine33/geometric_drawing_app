@@ -4,6 +4,7 @@
  */
 package com.group21.model.Shape;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.awt.geom.Line2D;
 import java.util.List;
 import javafx.geometry.Bounds;
@@ -81,6 +82,7 @@ public class ShapeLine extends ShapeBase{
         this.endY += dy;
     }
     
+    @JsonIgnore
     @Override
 public List<String> getSupportedActions() {
     return List.of("delete", "copy","paste", "toFront", "toBack", "strokeColor", "strokeWidth");

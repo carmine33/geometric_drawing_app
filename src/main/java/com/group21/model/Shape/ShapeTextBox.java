@@ -8,6 +8,7 @@ package com.group21.model.Shape;
  *
  * @author carmi
  */
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -181,6 +182,7 @@ public class ShapeTextBox extends ShapeBase {
         this.y += dy;
     }
 
+    @JsonIgnore
     @Override
 public List<String> getSupportedActions() {
     return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "modifyText");

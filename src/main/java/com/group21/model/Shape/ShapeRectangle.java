@@ -4,6 +4,7 @@
  */
 package com.group21.model.Shape;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javafx.geometry.Bounds;
@@ -61,6 +62,7 @@ import javafx.scene.paint.Color;
         this.y += dy;
     }
 
+    @JsonIgnore
     @Override
 public List<String> getSupportedActions() {
     return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");

@@ -9,6 +9,7 @@ package com.group21.model.Shape;
  * @author Loren
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
 import javafx.geometry.Bounds;
@@ -60,6 +61,7 @@ public class ShapeEllipse extends ShapeBase{
         this.y += dy;
     }
     
+    @JsonIgnore
     @Override
 public List<String> getSupportedActions() {
     return List.of("delete", "copy","paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");

@@ -113,6 +113,7 @@ public abstract class ShapeBase implements Shape {
     
     public abstract ShapeBase copy();
     
+    @JsonIgnore
     public abstract List<String> getSupportedActions();
         
     public double getStrokeWidth() {

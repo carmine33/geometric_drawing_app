@@ -89,44 +89,26 @@ public class FXMLController implements Initializable {
     private ShapeSelector selectShape;
     private List<ShapeBase> shapes = new ArrayList<>();
     ContextMenu contextMenu = new ContextMenu();
-    MenuItem deleteMenu = new MenuItem("Delete");
-    MenuItem copyShape = new MenuItem("Copy");
-    MenuItem pasteShape = new MenuItem("Paste");
-    MenuItem setStrokeWidth = new MenuItem("Set border thickness");
-    MenuItem setStrokeColor = new MenuItem("Set border color");
-    MenuItem setFillColor = new MenuItem("Set fill color");
-    MenuItem modifyTextBox = new MenuItem("Modify text");
-    MenuItem toFront = new MenuItem("ToFront");
-    MenuItem toBack = new MenuItem("ToBack");
-
     private static final int CANVAS_MARGIN = 30; // margine uniforme
     private ShapeBase copiedShape = null;
     ShapePolygon currentPolygon = null;
     private List<Point2D> polygonPoints = new ArrayList<>();
     private String currentMouseCommand = null;
-    private double lineStartX, lineStartY;
     private boolean isDrawingLine = false, isDrawingRectangle = false, isDrawingEllipse = false, 
                     isDrawingPolygon = false, isSelected = false, isDrawingTextBox=false, isPanMode=false;
     private Command command = null;
-    private String mod = null;
-    private double previewStartX, previewStartY;
-    private double previewCurrentX, previewCurrentY;
-    private ShapeBase previewShape = null;
-    
+    private String mod = null;    
     private final double[] zoomLevels = {0.25,0.5, 1.0, 1.5, 1.75};
     private int currentZoomIndex = 2; // corrisponde a 1.0
-    private double zoomFactor = zoomLevels[currentZoomIndex];
-    
+    private double zoomFactor = zoomLevels[currentZoomIndex]; 
     private Point2D lastMousePos = null;
-    private double lastMouseX;
-    private double lastMouseY;
     private GridDecorator gridDecorator;
     private boolean isGridVisible = false;
     private double currentMouseX;
     private double currentMouseY;
-    
     private DrawingToolContext toolContext = new DrawingToolContext();
     private boolean hasSavedStateDuringDrag = false;
+    private ShapeBase previewShape;
 
 
     
@@ -141,13 +123,11 @@ public class FXMLController implements Initializable {
         strokeColorPicker.setValue(Color.web("#000000"));
         invoker = new Invoker();
         gridDecorator = new GridDecorator(baseCanvas);
-
         //Strategy Pattern
         btnSelect.setOnAction(e -> {
             disablePanMode();
             currentMouseCommand = "Select";
         });
-
         btnLine.setOnAction(e -> {
             disablePanMode();
             currentMouseCommand = "Line";
@@ -159,7 +139,6 @@ public class FXMLController implements Initializable {
             toolHolder[0] = new LineTool(shapes, strokeColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
-
         btnRectangle.setOnAction(e -> {
             disablePanMode();
             currentMouseCommand = "Rectangle";
@@ -171,7 +150,6 @@ public class FXMLController implements Initializable {
             toolHolder[0] = new RectangleTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(),selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
-
         btnEllipse.setOnAction(e -> {
             disablePanMode();
             currentMouseCommand = "Ellipse";
@@ -183,7 +161,6 @@ public class FXMLController implements Initializable {
             toolHolder[0] = new EllipseTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
-
         btnTextBox.setOnAction(e -> {
             disablePanMode();
             currentMouseCommand = "TextBox";
@@ -195,7 +172,6 @@ public class FXMLController implements Initializable {
             toolHolder[0] = new TextBoxTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
-
         btnPolygon.setOnAction(e -> {
             disablePanMode();
             currentMouseCommand = "Polygon";
@@ -206,24 +182,20 @@ public class FXMLController implements Initializable {
             };
             toolHolder[0] = new PolygonTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
-        });
-        
+        }); 
          btnZoomIn.setOnAction(e -> {
             if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon || isDrawingTextBox) return;
             if (currentZoomIndex < zoomLevels.length - 1) {
                 currentZoomIndex++;
                 zoomFactor = zoomLevels[currentZoomIndex];
-                
                 updateScrollPaneViewport();
                 redraw(baseCanvas.getGc());
             }
         });
-        
         //attiva il panning dello scrollpane
         btnPan.setOnAction(e -> {
             boolean newPanState = !scrollPane.isPannable();
             scrollPane.setPannable(newPanState);
-
             if (newPanState) {
                 currentMouseCommand = "Pan";
                 toolContext.setStrategy(null); // disattiva qualsiasi tool
@@ -232,11 +204,8 @@ public class FXMLController implements Initializable {
             } else {
                 currentMouseCommand = null;
             }
-
             setActiveToolButton(newPanState ? btnPan : null);
         });
-
-        
         btnZoomOut.setOnAction(e -> {
             if (isDrawingRectangle || isDrawingEllipse || isDrawingLine || isDrawingPolygon || isDrawingTextBox) return;
             if (currentZoomIndex > 0) {
@@ -247,71 +216,67 @@ public class FXMLController implements Initializable {
                 redraw(baseCanvas.getGc());
             }
         });
-
         btnToggleGrid.setOnAction(e -> {
             isGridVisible = !isGridVisible;
             redraw(baseCanvas.getGc());
         });
         
         baseCanvas.getCanvas().setOnMousePressed(e -> {
-
-        // Nascondi il context menu se visibile
-        if (contextMenu.isShowing() && e.isPrimaryButtonDown()) {
-            contextMenu.hide();
-        }
-
-        // Se tasto destro (secondary), attiva menu o chiusura poligono
-        if (e.isSecondaryButtonDown()) {
-            if (!"Polygon".equals(currentMouseCommand)) {
-                if(!contextMenu.isShowing()){
-                select(e);
-                initContextMenu();
-                }
-        }
-            // Offset per lo scroll e zoom
-            double scrollXOffset = scrollPane.getHvalue() * 
-                (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
-            double scrollYOffset = scrollPane.getVvalue() * 
-                (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
-
-            if (toolContext.getStrategy() != null) {
-                toolContext.getStrategy().setOffset(scrollXOffset, scrollYOffset, zoomFactor);
-            }
-            toolContext.handleMousePressed(e);
-        }
-
-        // Se selezione attiva
-        if ("Select".equals(currentMouseCommand)) {
-            isSelected = true;
-            select(e);  // <-- essenziale per selezionare forma cliccata
-
-            ShapeBase selected = selectShape.getSelectedShape();
-            if (selected != null) {
-                selectShape.getMemory().saveState(new ArrayList<>(shapes));
-
-                if (selected instanceof ShapePolygon) {
-                    ShapePolygon polygon = (ShapePolygon) selected;
-                    polygon.storeOriginalVertices();
-                    polygon.setResizeAnchor(polygon.getBoundingBoxTopLeft());
-                }
-            }
-        }
-
-        // Altrimenti: modalità disegno (linea, rettangolo, ecc.)
-        else {
-            // Offset per lo scroll e zoom
-            double scrollXOffset = scrollPane.getHvalue() * 
-                (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
-            double scrollYOffset = scrollPane.getVvalue() * 
-                (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
-
-            if (toolContext.getStrategy() != null) {
-                toolContext.getStrategy().setOffset(scrollXOffset, scrollYOffset, zoomFactor);
-            }
-            toolContext.handleMousePressed(e);
-        }
-    });
-
+           // Nascondi il context menu se visibile
+           if (contextMenu.isShowing() && e.isPrimaryButtonDown()) {
+               contextMenu.hide();
+           }
+           // Se tasto destro (secondary)
+           if (e.isSecondaryButtonDown()) {
+               // Se siamo in modalità disegno poligono, chiudi il poligono e consuma evento
+               if ("Polygon".equals(currentMouseCommand)) {
+                   // Logica per chiudere il poligono (ad esempio, toolContext.handleMousePressed(e))
+                   toolContext.handleMousePressed(e);
+                   e.consume(); // Consuma evento per non mostrare il context menu
+                   return;      // Esci qui per evitare che si apra il menu
+               }
+               // Altrimenti (non in modalità poligono), mostra il context menu se non è già visibile
+               if (!contextMenu.isShowing()) {
+                   select(e);
+                   initContextMenu();
+               }
+               // Offset per lo scroll e zoom
+               double scrollXOffset = scrollPane.getHvalue() *
+                   (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+               double scrollYOffset = scrollPane.getVvalue() *
+                   (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
+               if (toolContext.getStrategy() != null) {
+                   toolContext.getStrategy().setOffset(scrollXOffset, scrollYOffset, zoomFactor);
+               }
+               toolContext.handleMousePressed(e);
+           }
+           // Se selezione attiva
+           if ("Select".equals(currentMouseCommand)) {
+               isSelected = true;
+               select(e);  // <-- essenziale per selezionare figura cliccata
+               ShapeBase selected = selectShape.getSelectedShape();
+               if (selected != null) {
+                   selectShape.getMemory().saveState(new ArrayList<>(shapes));
+                   if (selected instanceof ShapePolygon) {
+                       ShapePolygon polygon = (ShapePolygon) selected;
+                       polygon.storeOriginalVertices();
+                       polygon.setResizeAnchor(polygon.getBoundingBoxTopLeft());
+                   }
+               }
+           }
+           // Altrimenti: modalità disegno (linea, rettangolo, ecc.)
+           else {
+               // Offset per lo scroll e zoom
+               double scrollXOffset = scrollPane.getHvalue() *
+                   (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
+               double scrollYOffset = scrollPane.getVvalue() *
+                   (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
+               if (toolContext.getStrategy() != null) {
+                   toolContext.getStrategy().setOffset(scrollXOffset, scrollYOffset, zoomFactor);
+               }
+               toolContext.handleMousePressed(e);
+           }
+       });
 
     baseCanvas.getCanvas().setOnMouseReleased(e -> {
         // Se non è tasto sinistro, ignora
@@ -323,13 +288,11 @@ public class FXMLController implements Initializable {
                 (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
             double scrollYOffset = scrollPane.getVvalue() * 
                 (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
-
             if (toolContext.getStrategy() != null) {
                 toolContext.getStrategy().setOffset(scrollXOffset, scrollYOffset, zoomFactor);
             }
             toolContext.handleMouseReleased(e);
         }
-
         // Modalità selezione
         else if (isSelected) {
             select(e);
@@ -337,9 +300,7 @@ public class FXMLController implements Initializable {
         }
         lastMousePos = null;
     });
-
-
-        
+    
 baseCanvas.getCanvas().setOnMouseMoved(e -> {
     if (!"Select".equals(currentMouseCommand)) {
         // Offset per lo scroll e zoom
@@ -347,19 +308,14 @@ baseCanvas.getCanvas().setOnMouseMoved(e -> {
                 (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
             double scrollYOffset = scrollPane.getVvalue() * 
                 (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
-
             if (toolContext.getStrategy() != null) {
                 toolContext.getStrategy().setOffset(scrollXOffset, scrollYOffset, zoomFactor);
             }
         toolContext.handleMouseMoved(e);
     }
 });
-
-
-
-        
+     
 baseCanvas.getCanvas().setOnMouseDragged(e -> {
-
     // Disegno anteprima solo con tasto sinistro premuto
     if (!"Select".equals(currentMouseCommand) && e.isPrimaryButtonDown()) {
         // Offset per lo scroll e zoom
@@ -367,37 +323,30 @@ baseCanvas.getCanvas().setOnMouseDragged(e -> {
                 (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
             double scrollYOffset = scrollPane.getVvalue() * 
                 (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
-
             if (toolContext.getStrategy() != null) {
                 toolContext.getStrategy().setOffset(scrollXOffset, scrollYOffset, zoomFactor);
             }
         toolContext.handleMouseDragged(e);
     }
-
     // Gestione spostamento/ridimensionamento selezione
     else if ("Select".equals(currentMouseCommand)) {
         ShapeBase selected = selectShape.getSelectedShape();
         if (selected == null) return;
-
         double scrollXOffset = scrollPane.getHvalue() * (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
         double scrollYOffset = scrollPane.getVvalue() * (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
         double mouseX = (e.getX() / zoomFactor) + scrollXOffset;
         double mouseY = (e.getY() / zoomFactor) + scrollYOffset;
-
         if (lastMousePos == null) {
             lastMousePos = new Point2D(mouseX, mouseY);
             return;
         }
-
         double dx = mouseX - lastMousePos.getX();
         double dy = mouseY - lastMousePos.getY();
-
         if (e.isControlDown()) {
             selected.translate(dx, dy);
         } else {
             this.resizeShape(selected, mouseX, mouseY);
         }
-
         lastMousePos = new Point2D(mouseX, mouseY);
         redraw(baseCanvas.getGc());
     }
@@ -405,49 +354,39 @@ baseCanvas.getCanvas().setOnMouseDragged(e -> {
     //forzano il ridisegno del canvas ad ogni scroll orizzontale o verticale
     scrollPane.hvalueProperty().addListener((obs, oldVal, newVal) -> redraw(baseCanvas.getGc()));
     scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> redraw(baseCanvas.getGc()));
-    
     }
        
 private void showInfo(String title, String message) {
     Alert alert = new Alert(AlertType.INFORMATION);
     alert.setTitle(title);
     alert.setHeaderText(null);
-    alert.setContentText(message);
-    
+    alert.setContentText(message);  
     // Applica il CSS personalizzato al DialogPane
     DialogPane dialogPane = alert.getDialogPane();
     dialogPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
     dialogPane.getStyleClass().add("root");  // o altra classe definita nel tuo CSS
-
     alert.showAndWait();
 }
-
-    
+ 
 private void redraw(GraphicsContext gc) {
     gc.clearRect(0, 0, baseCanvas.getCanvas().getWidth(), baseCanvas.getCanvas().getHeight());
     gc.save();
-
     double scrollXOffset = scrollPane.getHvalue() *
         (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
     double scrollYOffset = scrollPane.getVvalue() *
         (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
-
     gc.translate(-scrollXOffset * zoomFactor, -scrollYOffset * zoomFactor);
     gc.scale(zoomFactor, zoomFactor);
-
     if (isGridVisible) {
         gridDecorator.drawGrid(gc, scrollXOffset, scrollYOffset, zoomFactor);
     }
-
     for (ShapeBase shape : shapes) {
         shape.draw(gc);
     }
-
     ShapeBase selected = selectShape.getSelectedShape();
     if (selected != null) {
         gc.setStroke(Color.RED);
         gc.setLineWidth(3.0);
-
         if (selected instanceof ShapeRectangle) {
             ShapeRectangle rect = (ShapeRectangle) selected;
             gc.setLineWidth(2.0);
@@ -469,14 +408,11 @@ private void redraw(GraphicsContext gc) {
                 .toArray(Coordinate[]::new);
             coords = Arrays.copyOf(coords, coords.length + 1);
             coords[coords.length - 1] = coords[0];
-
             GeometryFactory gf = new GeometryFactory();
             LinearRing ring = gf.createLinearRing(coords);
             Polygon jtsPoly = gf.createPolygon(ring);
-
             Geometry outline = jtsPoly.buffer(5.0);
             Coordinate[] offsetCoords = outline.getCoordinates();
-
             gc.beginPath();
             gc.setStroke(Color.RED);
             gc.setLineWidth(2.0);
@@ -492,7 +428,6 @@ private void redraw(GraphicsContext gc) {
             gc.strokeRect(box.getX(), box.getY(), w, h);
         }
     }
-
     if (isDrawingPolygon && polygonPoints.size() >= 1 && currentMouseX >= 0 && currentMouseY >= 0) {
         gc.setStroke(strokeColorPicker.getValue());
         gc.setLineWidth(1.0);
@@ -504,7 +439,6 @@ private void redraw(GraphicsContext gc) {
         Point2D last = polygonPoints.get(polygonPoints.size() - 1);
         gc.strokeLine(last.getX(), last.getY(), currentMouseX, currentMouseY);
     }
-
     if (toolContext.getStrategy() != null && toolContext.getStrategy().getPreviewShape() != null) {
         toolContext.getStrategy().getPreviewShape().draw(gc);
     }
@@ -513,38 +447,8 @@ private void redraw(GraphicsContext gc) {
     if (preview != null) {
         preview.draw(gc);
     }
-
     gc.restore();
     canvasPlaceholder.requestLayout();
-}
-
-
-    
-private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeight) {
-    double currentWidth = baseCanvas.getCanvas().getWidth();
-    double currentHeight = baseCanvas.getCanvas().getHeight();
-
-    if (requiredWidth > currentWidth || requiredHeight > currentHeight) {
-        double newWidth = Math.max(currentWidth, requiredWidth);
-        double newHeight = Math.max(currentHeight, requiredHeight);
-
-        baseCanvas.getCanvas().setWidth(newWidth);
-        baseCanvas.getCanvas().setHeight(newHeight);
-
-        // Imposta il canvasPlaceholder alle stesse dimensioni del canvas
-        canvasPlaceholder.setPrefSize(newWidth, newHeight);
-        canvasPlaceholder.setMinSize(newWidth, newHeight);
-        canvasPlaceholder.setMaxSize(newWidth, newHeight);
-        canvasPlaceholder.resize(newWidth, newHeight);
-        canvasPlaceholder.layout();
-        scrollPane.layout();  // forza il ricalcolo della viewport della ScrollPane
-        
-        // Applica lo zoom come scaling (non va usato *zoomFactor nelle size)
-        updateScrollPaneViewport();
-        scrollPane.setHvalue(scrollPane.getHvalue()); // forza aggiornamento
-        scrollPane.setVvalue(scrollPane.getVvalue());
-
-    }
 }
 
     // Select method for selecting shapes
@@ -553,14 +457,11 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
         (baseCanvas.getCanvas().getWidth() - scrollPane.getViewportBounds().getWidth()) / zoomFactor;
     double scrollYOffset = scrollPane.getVvalue() *
         (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
-
     double clickX = (event.getX() / zoomFactor) + scrollXOffset;
     double clickY = (event.getY() / zoomFactor) + scrollYOffset;
-
         // Scroll through the forms from newest to oldest
         for (int i = shapes.size() - 1; i >= 0; i--) {
             ShapeBase shape = shapes.get(i);
-
             // Check if the clicked point is inside the figure
             if (shape.containsPoint(clickX, clickY)) {
                 // If so, set the figure as selected
@@ -575,69 +476,58 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
         selectShape.setSelectedShape(null);
         redraw(baseCanvas.getGc());
     }
-
+    
     // Drop-down menù after right-click
     private void initContextMenu() {
         contextMenu.getItems().clear();
         ShapeBase selected = selectShape.getSelectedShape();
         if (selected == null) return;
-
         List<String> actions = selected.getSupportedActions(); // Questo metodo deve essere definito in ShapeBase e nelle sottoclassi
-
         if (actions.contains("delete")) {
             MenuItem delete = new MenuItem("Delete");
             delete.setOnAction(e -> menuDeleteHandler());
             contextMenu.getItems().add(delete);
         }
-
         if (actions.contains("copy")) {
             MenuItem copy = new MenuItem("Copy");
             copy.setOnAction(e -> menuCopyHandler());
             contextMenu.getItems().add(copy);
         }
-
         if (actions.contains("paste")) {
             MenuItem paste = new MenuItem("Paste");
             paste.setOnAction(e -> menuPasteHandler());
             contextMenu.getItems().add(paste);
         }
-
         if (actions.contains("strokeColor")) {
             MenuItem strokeColor = new MenuItem("Set border color");
             strokeColor.setOnAction(e -> menuModifyColorStroke());
             contextMenu.getItems().add(strokeColor);
         }
-
         if (actions.contains("strokeWidth")) {
             MenuItem strokeWidth = new MenuItem("Set border thickness");
             strokeWidth.setOnAction(e -> menuModifyWidthStroke());
             contextMenu.getItems().add(strokeWidth);
         }
-
         if (actions.contains("fillColor")) {
             MenuItem fillColor = new MenuItem("Set fill color");
             fillColor.setOnAction(e -> menuModifyColorFill());
             contextMenu.getItems().add(fillColor);
         }
-
         if (actions.contains("toFront")) {
             MenuItem front = new MenuItem("ToFront");
             front.setOnAction(e -> toFront(shapes.indexOf(selected), shapes.size()));
             contextMenu.getItems().add(front);
         }
-
         if (actions.contains("toBack")) {
             MenuItem back = new MenuItem("ToBack");
             back.setOnAction(e -> toBack(shapes.indexOf(selected)));
             contextMenu.getItems().add(back);
         }
-
         if (actions.contains("modifyText")) {
             MenuItem modifyText = new MenuItem("Modify text");
             modifyText.setOnAction(e -> menuModifyText());
             contextMenu.getItems().add(modifyText);
         }
-
         baseCanvas.getCanvas().setOnContextMenuRequested(e -> {
             if (isDrawingPolygon) {
                 e.consume(); // Impedisce il menu mentre disegni un poligono
@@ -647,17 +537,14 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
         });
     }
 
-    
-    public void menuModifyColorStroke() {
-        
+    public void menuModifyColorStroke() {   
         command = new ModColorCommand(selectShape,"stroke");
         invoker.setCommand(command);
         invoker.startCommand();
         redraw(baseCanvas.getGc());
     } 
      
-    public void menuModifyColorFill() {
-        
+    public void menuModifyColorFill() {   
         command = new ModColorCommand(selectShape,"fill");
         invoker.setCommand(command);
         invoker.startCommand();
@@ -671,11 +558,9 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
         redraw(baseCanvas.getGc());
     }  
     
-    public void menuCopyHandler (){
-        
+    public void menuCopyHandler (){   
         command = new CopyCommand(selectShape);
-        command.execute();
-        
+        command.execute();   
     } 
      
     public void menuPasteHandler(){     
@@ -685,39 +570,35 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
         redraw(baseCanvas.getGc());  
     }
      
-     
-     public void menuDeleteHandler() {
+    public void menuDeleteHandler() {
         command = new DeleteCommand(selectShape);
         invoker.setCommand(command);
         invoker.startCommand();
         redraw(baseCanvas.getGc());
     }
      
-     //il command toFront è creato passando come argomenti la posizione della forma selezionata nella lista e la dimensione della lista stessa;
-     //infine è invocato il command
-      public void toFront(double index, double size) {
+    //il command toFront è creato passando come argomenti la posizione della forma selezionata nella lista e la dimensione della lista stessa;
+    //infine è invocato il command
+    public void toFront(double index, double size) {
         command = new ToFrontCommand(selectShape, index, size);
         invoker.setCommand(command);
         invoker.startCommand();
         redraw(baseCanvas.getGc());
-
     }
       
-     //il command toBack è creato passando come argomento la posizione della forma selezionata nella lista;
-     //infine è invocato il command
-       public void toBack(double index) {
+    //il command toBack è creato passando come argomento la posizione della forma selezionata nella lista;
+    //infine è invocato il command
+    public void toBack(double index) {
         command = new ToBackCommand(selectShape, index);
         invoker.setCommand(command);
         invoker.startCommand();
         redraw(baseCanvas.getGc());
-
     }
          
     // Save/Load logic implementation
     public void saveShapes(List<ShapeBase> shapes, File file){
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
         try {
             mapper.writeValue(file, shapes);
             System.out.println("Saved " + shapes.size() + " shapes to " + file.getAbsolutePath());
@@ -729,7 +610,6 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
     public List<ShapeBase> loadShapes(File file) {
         ObjectMapper mapper = new ObjectMapper();
         List<ShapeBase> shapes = null;
-
         try {
             shapes = mapper.readValue(file, 
                     mapper.getTypeFactory().constructCollectionType(List.class, ShapeBase.class));
@@ -778,16 +658,13 @@ private void adjustCanvasSizeIfNeeded(double requiredWidth, double requiredHeigh
 private void updateScrollPaneViewport() {
     double canvasWidth = baseCanvas.getCanvas().getWidth();
     double canvasHeight = baseCanvas.getCanvas().getHeight();
-
     // Calcola le dimensioni scalate per il canvas
     double scaledWidth = canvasWidth * zoomFactor;
     double scaledHeight = canvasHeight * zoomFactor;
-
     // Imposta le dimensioni effettive del canvasPlaceholder (e quindi dello ScrollPane)
     canvasPlaceholder.setPrefSize(scaledWidth, scaledHeight);
     canvasPlaceholder.setMinSize(scaledWidth, scaledHeight);
     canvasPlaceholder.setMaxSize(scaledWidth, scaledHeight);
-    
     // forza aggiornamento layout
     canvasPlaceholder.requestLayout();
     scrollPane.layout();
@@ -812,14 +689,11 @@ private void updateScrollPaneViewport() {
     private void undoCommand(ActionEvent e) {
             if (selectShape.getMemory().canUndo()) {
         ShapeBase oldSelected = selectShape.getSelectedShape();
-
         shapes.clear();
         List<ShapeBase> restored = selectShape.getMemory().restoreLastState();
         shapes.addAll(restored);
-
         // Deselect by default
         selectShape.setSelectedShape(null);
-
         // Facoltativo: ripristina selezione se esiste equivalente
         if (oldSelected != null) {
             for (ShapeBase shape : restored) {
@@ -843,7 +717,6 @@ private void updateScrollPaneViewport() {
          btnEllipse.setStyle("");
          btnPolygon.setStyle("");
          btnTextBox.setStyle("");
-
          if (activeButton != null) {
              activeButton.setStyle("-fx-background-color: lightblue;");
          }
@@ -857,44 +730,35 @@ private void updateScrollPaneViewport() {
             double newHeight = Math.max(10, mouseY - rect.getY());
             rect.setWidth(newWidth);
             rect.setHeight(newHeight);
-
         } else if (selected instanceof ShapeEllipse) {
             ShapeEllipse ellipse = (ShapeEllipse) selected;
             double newWidth = Math.max(10, mouseX - ellipse.getX());
             double newHeight = Math.max(10, mouseY - ellipse.getY());
             ellipse.setWidth(newWidth);
             ellipse.setHeight(newHeight);
-
         } else if (selected instanceof ShapeLine) {
             ShapeLine line = (ShapeLine) selected;
             line.setEndX(mouseX);
             line.setEndY(mouseY);
-
         } else if (selected instanceof ShapePolygon) {
             ShapePolygon polygon = (ShapePolygon) selected;
             Point2D anchor = polygon.getResizeAnchor();
             double anchorX = anchor.getX();
             double anchorY = anchor.getY();
-
             double initialWidth = polygon.getOriginalBoundingBoxWidth();
             double initialHeight = polygon.getOriginalBoundingBoxHeight();
             if (initialWidth == 0 || initialHeight == 0) return;
-
             double newWidth = Math.max(10, mouseX - anchorX);
             double newHeight = Math.max(10, mouseY - anchorY);
-
             double scaleX = Math.max(0.1, newWidth / initialWidth);
             double scaleY = Math.max(0.1, newHeight / initialHeight);
-
             List<Point2D> scaled = new ArrayList<>();
             for (Point2D pt : polygon.getOriginalVertices()) {
                 double dx = pt.getX() - anchorX;
                 double dy = pt.getY() - anchorY;
                 scaled.add(new Point2D(anchorX + dx * scaleX, anchorY + dy * scaleY));
             }
-
             polygon.setVertices(scaled);
-
         } else if (selected instanceof ShapeTextBox) {
             ShapeTextBox text = (ShapeTextBox) selected;
             double newFontSize = Math.max(8, mouseY - text.getY());
@@ -914,13 +778,11 @@ private void updateScrollPaneViewport() {
         TextInputDialog dialog = new TextInputDialog(textBox.getText());
         dialog.setTitle("Modify Text");
         dialog.setHeaderText("Enter new text for the TextBox:");
-        dialog.setContentText("Text:");
-        
+        dialog.setContentText("Text:");      
         // Applica il CSS personalizzato alla dialog
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
         dialogPane.getStyleClass().add("root");  // opzionale, aggiunge la classe 'root'
-
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(newText -> {
             textBox.setText(newText);
@@ -928,41 +790,42 @@ private void updateScrollPaneViewport() {
         });
     }
 }
+    
     private void setupShapeIcons() {
-    setButtonIcon(btnRectangle, "/icons/rectangle.png", "Rectangle",48);
-    setButtonIcon(btnEllipse, "/icons/ellipse.png", "Ellipse", 48);
-    setButtonIcon(btnLine, "/icons/line.png", "Line", 48);
-    setButtonIcon(btnPolygon, "/icons/polygon.png", "Polygon", 48);
-    setButtonIcon(btnTextBox, "/icons/text.png", "Text", 48);
-    setButtonIcon(btnSelect, "/icons/select.png", "Select", 20);
-    setButtonIcon(btnUndo, "/icons/undo.png", "Undo", 20);
-    setButtonIcon(btnPan, "/icons/pan.png", "Pan", 20);
-    setButtonIcon(btnToggleGrid, "/icons/grid.png", "Grid", 20);
-    setButtonIcon(btnZoomIn, "/icons/zoom_in.png", "Zoom In", 20);
-    setButtonIcon(btnZoomOut, "/icons/zoom_out.png", "Zoom Out", 20);
-}
-
-private void setButtonIcon(Button button, String iconPath, String label, double size) {
-    try {
-        Image image = new Image(getClass().getResourceAsStream(iconPath));
-        ImageView icon = new ImageView(image);
-        icon.setFitWidth(size);
-        icon.setFitHeight(size);
-        button.setGraphic(icon);
-        button.setText(label);
-        button.setContentDisplay(ContentDisplay.TOP);  // icona sopra, testo sotto
-    } catch (Exception e) {
-        System.err.println("Errore caricando " + iconPath);
+        setButtonIcon(btnRectangle, "/icons/rectangle.png", "Rectangle",48);
+        setButtonIcon(btnEllipse, "/icons/ellipse.png", "Ellipse", 48);
+        setButtonIcon(btnLine, "/icons/line.png", "Line", 48);
+        setButtonIcon(btnPolygon, "/icons/polygon.png", "Polygon", 48);
+        setButtonIcon(btnTextBox, "/icons/text.png", "Text", 48);
+        setButtonIcon(btnSelect, "/icons/select.png", "Select", 20);
+        setButtonIcon(btnUndo, "/icons/undo.png", "Undo", 20);
+        setButtonIcon(btnPan, "/icons/pan.png", "Pan", 20);
+        setButtonIcon(btnToggleGrid, "/icons/grid.png", "Grid", 20);
+        setButtonIcon(btnZoomIn, "/icons/zoom_in.png", "Zoom In", 20);
+        setButtonIcon(btnZoomOut, "/icons/zoom_out.png", "Zoom Out", 20);
     }
-}
+
+    private void setButtonIcon(Button button, String iconPath, String label, double size) {
+        try {
+            Image image = new Image(getClass().getResourceAsStream(iconPath));
+            ImageView icon = new ImageView(image);
+            icon.setFitWidth(size);
+            icon.setFitHeight(size);
+            button.setGraphic(icon);
+            button.setText(label);
+            button.setContentDisplay(ContentDisplay.TOP);  // icona sopra, testo sotto
+        } catch (Exception e) {
+            System.err.println("Errore caricando " + iconPath);
+        }
+    }
     
     //Funzione da chiamare quando si vuole disabilitare la modalità Pan
     private void disablePanMode() {
-    if (scrollPane.isPannable()) {
-        scrollPane.setPannable(false);
-        isPanMode = false;  // se usi questa variabile
-        setActiveToolButton(null); // resetto evidenziazione bottoni
+        if (scrollPane.isPannable()) {
+            scrollPane.setPannable(false);
+            isPanMode = false;  // se usi questa variabile
+            setActiveToolButton(null); // resetto evidenziazione bottoni
+        }
     }
-}
    
 }
