@@ -40,6 +40,7 @@ import javafx.scene.paint.Color;
 
 import com.group21.controller.Strategy.*;
 import com.group21.controller.Visitor.*;
+import com.group21.model.Decorator.CanvasInterface;
 
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.DialogPane;
@@ -353,9 +354,13 @@ public class FXMLController implements Initializable {
             (baseCanvas.getCanvas().getHeight() - scrollPane.getViewportBounds().getHeight()) / zoomFactor;
         gc.translate(-scrollXOffset * zoomFactor, -scrollYOffset * zoomFactor);
         gc.scale(zoomFactor, zoomFactor);
+        CanvasInterface canvasToDraw = baseCanvas;
         if (isGridVisible) {
-            gridDecorator.drawGrid(gc, scrollXOffset, scrollYOffset, zoomFactor);
+            GridDecorator grid = new GridDecorator(canvasToDraw);
+            grid.setOffset(scrollXOffset, scrollYOffset, zoomFactor);
+            canvasToDraw = grid;
         }
+        canvasToDraw.execute();
         for (ShapeBase shape : shapes) {
             shape.draw(gc);
         }

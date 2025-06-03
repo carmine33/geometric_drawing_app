@@ -1,55 +1,66 @@
 package com.group21.model.Decorator;
 
-/**
- *
- * @author Mikel
- */
-
-
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class GridDecorator {
-    private BaseCanvas canvas; // Riferimento al canvas sottostante
-    private double gridSize = 50; // Dimensione della cella della griglia in pixel
+public class GridDecorator implements CanvasInterface {
+    private final CanvasInterface decoratedCanvas;
+
+    private double gridSize = 50;
     private Color gridColor = Color.LIGHTGRAY;
     private double gridLineWidth = 0.5;
 
-    public GridDecorator(BaseCanvas canvas) {
-        this.canvas = canvas;
+    // Scroll e zoom da aggiornare prima di eseguire
+    private double scrollXOffset = 0;
+    private double scrollYOffset = 0;
+    private double zoomFactor = 1.0;
+
+    public GridDecorator(CanvasInterface decoratedCanvas) {
+        this.decoratedCanvas = decoratedCanvas;
     }
 
-    public void drawGrid(GraphicsContext gc, double scrollXOffset, double scrollYOffset, double zoomFactor) {
+    public void setOffset(double scrollXOffset, double scrollYOffset, double zoomFactor) {
+        this.scrollXOffset = scrollXOffset;
+        this.scrollYOffset = scrollYOffset;
+        this.zoomFactor = zoomFactor;
+    }
+
+    @Override
+    public void execute() {
+        decoratedCanvas.execute();  // disegna forme
+
+        GraphicsContext gc = decoratedCanvas.getCanvas().getGraphicsContext2D();
         gc.setStroke(gridColor);
-        gc.setLineWidth(gridLineWidth / zoomFactor); // Mantieni spessore costante con lo zoom
+        gc.setLineWidth(gridLineWidth / zoomFactor);
 
-        double canvasWidth = canvas.getCanvas().getWidth() / zoomFactor;
-        double canvasHeight = canvas.getCanvas().getHeight() / zoomFactor;
-
-
+        double canvasWidth = decoratedCanvas.getCanvas().getWidth() / zoomFactor;
+        double canvasHeight = decoratedCanvas.getCanvas().getHeight() / zoomFactor;
         double scaledGridSize = gridSize * zoomFactor;
 
-    // Allineamento con lo scroll
-    double startX = -scrollXOffset % scaledGridSize;
-    double startY = -scrollYOffset % scaledGridSize;
+        double startX = -scrollXOffset % scaledGridSize;
+        double startY = -scrollYOffset % scaledGridSize;
 
-    for (double x = startX; x < canvasWidth; x += scaledGridSize) {
-        gc.strokeLine(x, 0, x, canvasHeight);
+        for (double x = startX; x < canvasWidth; x += scaledGridSize)
+            gc.strokeLine(x, 0, x, canvasHeight);
+
+        for (double y = startY; y < canvasHeight; y += scaledGridSize)
+            gc.strokeLine(0, y, canvasWidth, y);
     }
 
-    for (double y = startY; y < canvasHeight; y += scaledGridSize) {
-        gc.strokeLine(0, y, canvasWidth, y);
+    @Override
+    public Canvas getCanvas() {
+        return decoratedCanvas.getCanvas();
     }
-}
 
+    @Override
+    public void clear() {
+        decoratedCanvas.clear();
+    }
 
-
-
-    // Metodi per configurare la griglia 
+    // Metodi di configurazione opzionale
     public void setGridSize(double gridSize) {
-        if (gridSize > 0) {
-            this.gridSize = gridSize;
-        }
+        if (gridSize > 0) this.gridSize = gridSize;
     }
 
     public void setGridColor(Color gridColor) {
@@ -57,8 +68,6 @@ public class GridDecorator {
     }
 
     public void setGridLineWidth(double gridLineWidth) {
-        if (gridLineWidth > 0) {
-            this.gridLineWidth = gridLineWidth;
-        }
+        if (gridLineWidth > 0) this.gridLineWidth = gridLineWidth;
     }
 }

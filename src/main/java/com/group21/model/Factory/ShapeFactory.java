@@ -7,7 +7,7 @@ package com.group21.model.Factory;
 /**
  *
  * @author matte
- */
+ *//*
 public class ShapeFactory {
 
     public static Creator getCreator(String mode) {
@@ -27,3 +27,4 @@ public class ShapeFactory {
         }
     }
 }
+*/
