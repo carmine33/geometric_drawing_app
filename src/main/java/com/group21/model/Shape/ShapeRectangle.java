@@ -5,6 +5,7 @@
 package com.group21.model.Shape;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.group21.controller.Visitor.ShapeVisitor;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javafx.geometry.Bounds;
@@ -45,28 +46,24 @@ import javafx.scene.paint.Color;
         return x >= this.x && x <= this.x + this.getWidth() &&
         y >= this.y && y <= this.y + this.getHeight();
     }
-    
-    
+     
     @Override
     public ShapeBase copy() {
-    ShapeRectangle copy = new ShapeRectangle(x, y, this.getWidth(), this.getHeight(), fillColor, strokeColor,strokeWidth);
-    copy.setStrokeWidth(this.strokeWidth); // <-- copia strokeWidth
-    copy.setFillColor(this.getFillColor());
-    copy.setStrokeColor(this.getStrokeColor());    
-    return copy;
-    } 
-
+        ShapeRectangle copy = new ShapeRectangle(x, y, this.getWidth(), this.getHeight(), fillColor, strokeColor,strokeWidth);
+        copy.setStrokeWidth(this.strokeWidth); // <-- copia strokeWidth
+        copy.setFillColor(this.getFillColor());
+        copy.setStrokeColor(this.getStrokeColor());    
+        return copy;
+    }
+    
     @Override
-    public void translate(double dx, double dy) {
-        this.x += dx;
-        this.y += dy;
+    public void accept(ShapeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @JsonIgnore
     @Override
-public List<String> getSupportedActions() {
-    return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
-}
-
-
+    public List<String> getSupportedActions() {
+        return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+    }
 }

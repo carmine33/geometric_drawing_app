@@ -4,6 +4,8 @@
  */
 package com.group21.model.Command;
 
+import com.group21.controller.Visitor.ShapeVisitor;
+import com.group21.controller.Visitor.TranslateVisitor;
 import com.group21.model.Memento.Memory;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,32 +90,31 @@ public class ShapeSelector {
      }
     }
 
-    
-public ShapeBase pasteShape() {
-    ShapeBase toPaste = this.memory.getCopiedShape();
-    if (toPaste != null) {
-        this.memory.saveState(new ArrayList<>(list));
-        ShapeBase newShape = (ShapeBase) toPaste.copy();
+    public ShapeBase pasteShape() {
+        ShapeBase toPaste = this.memory.getCopiedShape();
+        if (toPaste != null) {
+            this.memory.saveState(new ArrayList<>(list));
+            ShapeBase newShape = (ShapeBase) toPaste.copy();
 
-        // Gestione specifica per ShapePolygon se serve
-        if (newShape instanceof ShapePolygon) {
-            ShapePolygon poly = (ShapePolygon) newShape;
-            List<Point2D> shifted = new ArrayList<>();
-            for (Point2D p : poly.getVertices()) {
-                shifted.add(new Point2D(p.getX() + 10, p.getY() + 10));
+            // Gestione specifica per ShapePolygon se serve
+            if (newShape instanceof ShapePolygon) {
+                ShapePolygon poly = (ShapePolygon) newShape;
+                List<Point2D> shifted = new ArrayList<>();
+                for (Point2D p : poly.getVertices()) {
+                    shifted.add(new Point2D(p.getX() + 10, p.getY() + 10));
+                }
+                poly.setVertices(shifted);
+            } else {
+                ShapeVisitor translateVisitor = new TranslateVisitor(10, 10);
+                selectedShape.accept(translateVisitor);
             }
-            poly.setVertices(shifted);
-        } else {
-            newShape.translate(10, 10);
+
+            this.list.add(newShape);
+            return newShape;
         }
-
-        this.list.add(newShape);
-        return newShape;
+        return null;
     }
-    return null;
-}
 
-    
     
     public void copyShape() {
     if (this.selectedShape != null) {

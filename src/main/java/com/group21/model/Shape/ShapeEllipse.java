@@ -10,9 +10,9 @@ package com.group21.model.Shape;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.group21.controller.Visitor.ShapeVisitor;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -54,19 +54,15 @@ public class ShapeEllipse extends ShapeBase{
         copy.setStrokeColor(this.getStrokeColor());
         return copy;
     }
-
+    
     @Override
-    public void translate(double dx, double dy) {
-        this.x += dx;
-        this.y += dy;
+    public void accept(ShapeVisitor visitor) {
+        visitor.visit(this);
     }
     
     @JsonIgnore
     @Override
-public List<String> getSupportedActions() {
-    return List.of("delete", "copy","paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
-}
-
-
-
+    public List<String> getSupportedActions() {
+        return List.of("delete", "copy","paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+    }
 }

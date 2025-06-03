@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.group21.controller.Visitor.ShapeVisitor;
 import java.util.List;
 
 @JsonTypeInfo(
@@ -32,17 +33,14 @@ public abstract class ShapeBase implements Shape {
     protected double x, y;
     private double width;
     private double height;
-    
     @JsonIgnore
     protected Color fillColor;
-
-    protected double strokeWidth = 1.0;
-    
     @JsonIgnore
     protected Color strokeColor;
-
+    protected double strokeWidth = 1.0;
     protected String type;
 
+    // For serialization purposes
     public ShapeBase() {}
 
     public ShapeBase(double x, double y, double width, double height, Color fillColor, Color strokeColor, double strokeWidth) {
@@ -81,6 +79,7 @@ public abstract class ShapeBase implements Shape {
     public void setX(double x) { 
         this.x = x; 
     }
+    
     public void setY(double y) { 
         this.y = y; 
     }
@@ -88,6 +87,7 @@ public abstract class ShapeBase implements Shape {
     public Color getFillColor() { 
         return fillColor; 
     }
+    
     public Color getStrokeColor() { 
         return strokeColor; 
     }
@@ -100,19 +100,14 @@ public abstract class ShapeBase implements Shape {
         this.strokeColor = strokeColor; 
     }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getType() { 
+        return type; 
+    }
+    
+    public void setType(String type) { 
+        this.type = type; 
+    }
 
-    public abstract void draw(GraphicsContext gc);
-    
-    // contains serve per capire se un punto (click del mouse) è all'interno della figura.
-    // public abstract boolean contains(double x, double y);   
-    
-     
-    public abstract void translate(double dx, double dy);
-    
-    public abstract ShapeBase copy();
-    
     @JsonIgnore
     public abstract List<String> getSupportedActions();
         
@@ -123,6 +118,14 @@ public abstract class ShapeBase implements Shape {
     public void setStrokeWidth(double strokeWidth) {
         this.strokeWidth = strokeWidth;
     }
+    
+    // -------------------------------
+    // Abstract methods
+    // -------------------------------
+    public abstract void draw(GraphicsContext gc);
+    public abstract boolean containsPoint(double x, double y);   
+    public abstract ShapeBase copy();
+    public abstract void accept(ShapeVisitor visitor);
     
     // -------------------------------
     // JSON Serialization/Deserialization

@@ -12,11 +12,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Arrays;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.Polygon;
+import com.group21.controller.Visitor.ShapeVisitor;
 
 /**
  * 
@@ -156,7 +152,7 @@ public class ShapePolygon extends ShapeBase{
         double maxY = originalVertices.stream().mapToDouble(Point2D::getY).max().orElse(0);
         return maxY - minY;
     }
-    
+        
     // -------------------------------
     // JSON Serialization/Deserialization
     // -------------------------------
@@ -213,20 +209,15 @@ public class ShapePolygon extends ShapeBase{
             this.resizeAnchor = new Point2D(arr[0], arr[1]);
         }
     }
-
+    
     @Override
-    public void translate(double dx, double dy) {
-        List<Point2D> movedVertices = new ArrayList<>();
-        for (Point2D pt : this.getVertices()) {
-            movedVertices.add(new Point2D(pt.getX() + dx, pt.getY() + dy));
-        }
-        this.setVertices(movedVertices);
+    public void accept(ShapeVisitor visitor) {
+        visitor.visit(this);
     }
     
     @JsonIgnore
     @Override
-public List<String> getSupportedActions() {
-    return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
-}
-    
+    public List<String> getSupportedActions() {
+        return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+    }
 }

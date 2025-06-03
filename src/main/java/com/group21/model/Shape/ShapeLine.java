@@ -5,6 +5,7 @@
 package com.group21.model.Shape;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.group21.controller.Visitor.ShapeVisitor;
 import java.awt.geom.Line2D;
 import java.util.List;
 import javafx.geometry.Bounds;
@@ -73,20 +74,15 @@ public class ShapeLine extends ShapeBase{
         copy.setFillColor(this.getFillColor());
         return copy;
     }
-
+    
     @Override
-    public void translate(double dx, double dy) {
-        this.x += dx;
-        this.y += dy;
-        this.endX += dx;
-        this.endY += dy;
+    public void accept(ShapeVisitor visitor) {
+        visitor.visit(this);
     }
     
     @JsonIgnore
     @Override
-public List<String> getSupportedActions() {
-    return List.of("delete", "copy","paste", "toFront", "toBack", "strokeColor", "strokeWidth");
-}
-
-    
+    public List<String> getSupportedActions() {
+        return List.of("delete", "copy","paste", "toFront", "toBack", "strokeColor", "strokeWidth");
+    } 
 }

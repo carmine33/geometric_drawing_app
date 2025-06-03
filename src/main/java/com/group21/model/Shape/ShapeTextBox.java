@@ -14,8 +14,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.group21.controller.Visitor.ShapeVisitor;
 import java.util.List;
-import javafx.geometry.Bounds;
 
 public class ShapeTextBox extends ShapeBase {
 
@@ -125,7 +125,6 @@ public class ShapeTextBox extends ShapeBase {
                py >= y && py <= y + getTextHeight() + 6;
     }
 
-
     /**
      * Crea una copia della ShapeTextBox con stessi parametri e colore testo.
      * @return 
@@ -175,18 +174,17 @@ public class ShapeTextBox extends ShapeBase {
     public void setTextHeight(double textHeight) {
         this.textHeight = textHeight;
     }
-
+       
     @Override
-    public void translate(double dx, double dy) {
-        this.x += dx;
-        this.y += dy;
+    public void accept(ShapeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @JsonIgnore
     @Override
-public List<String> getSupportedActions() {
-    return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "modifyText");
-}
+    public List<String> getSupportedActions() {
+        return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "modifyText");
+    }
 
 }
 
