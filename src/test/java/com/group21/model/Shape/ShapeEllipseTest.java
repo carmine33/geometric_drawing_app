@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ShapeEllipseTest {
-/*
+
     private GraphicsContext dummyGC() {
         return new Canvas(200, 200).getGraphicsContext2D();
     }
@@ -31,7 +31,7 @@ public class ShapeEllipseTest {
         assertTrue(ellipse.containsPoint(70, 70));
         assertFalse(ellipse.containsPoint(200, 200));
         assertNotNull(ellipse.copy());
-        assertNotNull(ellipse.clone());
-    }*/
+    
+    }
 }
 

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ShapeLineTest {
-/*
+
     private GraphicsContext dummyGC() {
         return new Canvas(200, 200).getGraphicsContext2D();
     }
@@ -41,6 +41,6 @@ public class ShapeLineTest {
         assertFalse(line.containsPoint(50, 0), "Expected point off the line");
 
         assertNotNull(line.copy());
-        assertNotNull(line.clone());
-    }*/
+       
+    }
 }
