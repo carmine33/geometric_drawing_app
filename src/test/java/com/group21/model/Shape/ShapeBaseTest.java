@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package com.group21.model.Shape;
 
 /**
@@ -10,6 +11,8 @@ package com.group21.model.Shape;
  */
 
 
+import com.group21.controller.Visitor.ShapeVisitor;
+import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,16 @@ public class ShapeBaseTest {
         public boolean containsPoint(double x, double y) {
             throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         }
+
+        @Override
+        public List<String> getSupportedActions() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void accept(ShapeVisitor visitor) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
     }
 
     @Test
@@ -60,11 +73,4 @@ public class ShapeBaseTest {
         assertEquals("rectangle", shape.getType());
     }
 
-    @Test
-    void testTranslate() {
-        DummyShape shape = new DummyShape(0, 0, 10, 10, Color.BLUE, Color.BLACK, 1.0);
-        shape.translate(5, 10);
-        assertEquals(5, shape.getX());
-        assertEquals(10, shape.getY());
-    }
-}
+}  

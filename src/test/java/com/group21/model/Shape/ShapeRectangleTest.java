@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ShapeRectangleTest {
+public class ShapeRectangleTest { 
 
     private GraphicsContext dummyGC() {
         return new Canvas(200, 200).getGraphicsContext2D();

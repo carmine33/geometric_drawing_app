@@ -16,7 +16,7 @@ import com.group21.model.Shape.*;
  * @author matte
  */
 
-import com.group21.model.Shape.ShapeBase;
+
 import com.group21.model.Shape.ShapeRectangle;
 import javafx.scene.paint.Color;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,5 +53,5 @@ class ToFrontCommandTest {
 
         assertEquals(shape2, shapeList.get(0), "La shape in fondo dovrebbe ora essere in prima posizione.");
         assertEquals(shape1, shapeList.get(1), "La shape selezionata dovrebbe essere stata portata avanti.");
-    }
+    }   
 }

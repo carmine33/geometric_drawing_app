@@ -16,7 +16,7 @@ import com.group21.model.Shape.*;
  * @author matte
  */
 
-import com.group21.model.Shape.ShapeBase;
+
 import com.group21.model.Shape.ShapeRectangle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ToBackCommandTest {
+class ToBackCommandTest { 
 
     private ShapeSelector shapeSelector;
     private List<ShapeBase> shapeList;
@@ -53,6 +53,6 @@ class ToBackCommandTest {
 
         assertEquals(shape2, shapeList.get(0), "La shape selezionata dovrebbe essere spostata indietro nella lista.");
         assertEquals(shape1, shapeList.get(1), "La shape precedentemente prima dovrebbe ora essere dopo.");
-    }
+    }   
 }
 

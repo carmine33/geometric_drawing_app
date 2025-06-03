@@ -10,6 +10,7 @@ package com.group21.model.Command;
  */
 
 
+
 import com.group21.model.Shape.ShapeBase;
 import com.group21.model.Shape.ShapeRectangle;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ShapeSelectorTest {
+public class ShapeSelectorTest {  
 
     private ShapeSelector shapeSelector;
     private List<ShapeBase> shapeList;
@@ -73,6 +74,6 @@ public class ShapeSelectorTest {
         assertNull(shapeSelector.getSelectedShape(), "Selected shape should be null after reset");
         shapeSelector.setSelectedShape(shape);
         assertEquals(shape, shapeSelector.getSelectedShape(), "Selected shape should be the one set");
-    }
+    }   
 }
 

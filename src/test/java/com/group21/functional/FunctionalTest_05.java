@@ -8,7 +8,7 @@ package com.group21.functional;
  *
  * @author carmi
  */
-import javafx.scene.canvas.Canvas;
+
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
