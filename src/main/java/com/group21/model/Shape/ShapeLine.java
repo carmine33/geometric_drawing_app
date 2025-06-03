@@ -83,6 +83,6 @@ public class ShapeLine extends ShapeBase{
     @JsonIgnore
     @Override
     public List<String> getSupportedActions() {
-        return List.of("delete", "copy","paste", "toFront", "toBack", "strokeColor", "strokeWidth");
+        return List.of("delete", "copy","paste", "cut","toFront", "toBack", "strokeColor", "strokeWidth");
     } 
 }

@@ -63,6 +63,6 @@ public class ShapeEllipse extends ShapeBase{
     @JsonIgnore
     @Override
     public List<String> getSupportedActions() {
-        return List.of("delete", "copy","paste", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+        return List.of("delete", "copy","paste", "cut", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
     }
 }

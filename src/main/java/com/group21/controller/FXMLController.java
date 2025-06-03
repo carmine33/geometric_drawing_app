@@ -94,7 +94,7 @@ public class FXMLController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        baseCanvas = new BaseCanvas(4000,4000);
+        baseCanvas = new BaseCanvas(2000,2000);
         baseCanvas.getCanvas().setCache(false);
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         setupShapeIcons();//crica icone dei bottoni
@@ -419,13 +419,24 @@ public class FXMLController implements Initializable {
     private void initContextMenu() {
         contextMenu.getItems().clear();
         ShapeBase selected = selectShape.getSelectedShape();
-        if (selected == null) return;
+        if (selected == null) {
+        // Nessuna figura selezionata: mostra solo le azioni generali, per esempio Paste
+        MenuItem paste = new MenuItem("Paste");
+        paste.setOnAction(e -> menuPasteHandler());
+        contextMenu.getItems().add(paste);
+        return;
+        }
         List<String> actions = selected.getSupportedActions(); // Questo metodo deve essere definito in ShapeBase e nelle sottoclassi
         if (actions.contains("delete")) {
             MenuItem delete = new MenuItem("Delete");
             delete.setOnAction(e -> menuDeleteHandler());
             contextMenu.getItems().add(delete);
         }
+        if (actions.contains("cut")) {
+            MenuItem cut = new MenuItem("Cut");
+            cut.setOnAction(e -> menuCutHandler());
+            contextMenu.getItems().add(cut);
+        } 
         if (actions.contains("copy")) {
             MenuItem copy = new MenuItem("Copy");
             copy.setOnAction(e -> menuCopyHandler());
@@ -499,6 +510,12 @@ public class FXMLController implements Initializable {
     public void menuCopyHandler (){   
         command = new CopyCommand(selectShape);
         command.execute();   
+    } 
+    
+    public void menuCutHandler (){   
+        command = new CutCommand(selectShape);
+        command.execute();  
+        redraw(baseCanvas.getGc());
     } 
      
     public void menuPasteHandler(){     

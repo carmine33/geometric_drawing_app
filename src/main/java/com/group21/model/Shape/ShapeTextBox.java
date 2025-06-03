@@ -183,7 +183,7 @@ public class ShapeTextBox extends ShapeBase {
     @JsonIgnore
     @Override
     public List<String> getSupportedActions() {
-        return List.of("delete", "copy", "paste", "toFront", "toBack", "fillColor", "modifyText");
+        return List.of("delete", "copy", "paste", "cut","toFront", "toBack", "fillColor", "modifyText");
     }
 
 }

@@ -106,7 +106,7 @@ public class ShapeSelector {
                 poly.setVertices(shifted);
             } else {
                 ShapeVisitor translateVisitor = new TranslateVisitor(10, 10);
-                selectedShape.accept(translateVisitor);
+                newShape.accept(translateVisitor);
             }
 
             this.list.add(newShape);
@@ -205,6 +205,12 @@ public void modColorShape(String tipo) {
         }
     }
 }
+
+    void cutShape() {
+        
+        this.copyShape();
+        this.deleteShape();
+    }
 
 
 }
