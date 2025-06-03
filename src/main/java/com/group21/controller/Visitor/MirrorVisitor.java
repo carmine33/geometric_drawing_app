@@ -63,9 +63,7 @@ public class MirrorVisitor implements ShapeVisitor{
     
     public void visit(ShapeLine line){
         double x1 = line.getX();
-        //double y1 = line.getY();
         double x2 = line.getEndX();
-        //double y2 = line.getEndY();
 
         if (mirrorHorizontally) {
             double originalWidth = x2 - x1;
@@ -95,18 +93,17 @@ public class MirrorVisitor implements ShapeVisitor{
     
     public void visit(ShapeTextBox textBox){
         double x = textBox.getX();
-        double y = textBox.getY();
-        double width = textBox.getWidth();
-        double height = textBox.getHeight();
+        double textWidth = textBox.getTextWidth();
+        String reversed = null;
 
         if (mirrorHorizontally) {
-            x = x + width;
+            x = x + textWidth;
+            reversed = new StringBuilder(textBox.getText()).reverse().toString();
         }
-        if (mirrorVertically) {
-            y = y + height;
+        
+        if(reversed != null){
+            textBox.setText(reversed);
+            textBox.setX(x);
         }
-
-        textBox.setX(x);
-        textBox.setY(y);
     }
 }

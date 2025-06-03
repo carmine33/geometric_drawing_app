@@ -185,8 +185,7 @@ public class ShapeTextBox extends ShapeBase {
     @Override
     public List<String> getSupportedActions() {
         return List.of("delete", "copy", "paste", "cut","toFront", 
-                       "toBack", "fillColor", "modifyText", "HMirror",
-                       "VMirror");
+                       "toBack", "fillColor", "modifyText", "HMirror");
     }
 
 }

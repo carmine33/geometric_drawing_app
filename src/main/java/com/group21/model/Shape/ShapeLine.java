@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group21.controller.Visitor.ShapeVisitor;
 import java.awt.geom.Line2D;
 import java.util.List;
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -85,7 +84,6 @@ public class ShapeLine extends ShapeBase{
     @Override
     public List<String> getSupportedActions() {
         return List.of("delete", "copy","paste", "cut",
-                      "toFront", "toBack", "strokeColor", "strokeWidth", "HMirror",
-                       "VMirror");
+                      "toFront", "toBack", "strokeColor", "strokeWidth", "HMirror");
     } 
 }
