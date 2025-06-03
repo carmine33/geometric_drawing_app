@@ -420,11 +420,11 @@ public class FXMLController implements Initializable {
         contextMenu.getItems().clear();
         ShapeBase selected = selectShape.getSelectedShape();
         if (selected == null) {
-        // Nessuna figura selezionata: mostra solo le azioni generali, per esempio Paste
-        MenuItem paste = new MenuItem("Paste");
-        paste.setOnAction(e -> menuPasteHandler());
-        contextMenu.getItems().add(paste);
-        return;
+            // Nessuna figura selezionata: mostra solo le azioni generali, per esempio Paste
+            MenuItem paste = new MenuItem("Paste");
+            paste.setOnAction(e -> menuPasteHandler());
+            contextMenu.getItems().add(paste);
+            return;
         }
         List<String> actions = selected.getSupportedActions(); // Questo metodo deve essere definito in ShapeBase e nelle sottoclassi
         if (actions.contains("delete")) {
@@ -477,6 +477,16 @@ public class FXMLController implements Initializable {
             modifyText.setOnAction(e -> menuModifyText());
             contextMenu.getItems().add(modifyText);
         }
+        if (actions.contains("HMirror")) { 
+            MenuItem mirrorHorizontally = new MenuItem("Mirror Horizontally");
+            mirrorHorizontally.setOnAction(e -> menuHMirror(selected));
+            contextMenu.getItems().add(mirrorHorizontally);
+        }
+        if (actions.contains("VMirror")) { 
+            MenuItem mirrorVertically = new MenuItem("Mirror Vertically");
+            mirrorVertically.setOnAction(e -> menuVMirror(selected));
+            contextMenu.getItems().add(mirrorVertically);
+        }
         baseCanvas.getCanvas().setOnContextMenuRequested(e -> {
             if (isDrawingPolygon) {
                 e.consume(); // Impedisce il menu mentre disegni un poligono
@@ -498,7 +508,7 @@ public class FXMLController implements Initializable {
         invoker.setCommand(command);
         invoker.startCommand();
         redraw(baseCanvas.getGc());
-        }
+    }
     
     public void menuModifyWidthStroke(){
         command = new ModStrWidthCommand(selectShape);
@@ -545,6 +555,24 @@ public class FXMLController implements Initializable {
     //infine è invocato il command
     public void toBack(double index) {
         command = new ToBackCommand(selectShape, index);
+        invoker.setCommand(command);
+        invoker.startCommand();
+        redraw(baseCanvas.getGc());
+    }
+    
+    public void menuHMirror(ShapeBase selected) {
+        double centerX = baseCanvas.getCanvas().getWidth() / 2;
+        double centerY = baseCanvas.getCanvas().getHeight() / 2;
+        command = new MirrorCommand(selected, true, false, centerX, centerY);
+        invoker.setCommand(command);
+        invoker.startCommand();
+        redraw(baseCanvas.getGc());
+    }
+    
+    public void menuVMirror(ShapeBase selected) {
+        double centerX = baseCanvas.getCanvas().getWidth() / 2;
+        double centerY = baseCanvas.getCanvas().getHeight() / 2;
+        command = new MirrorCommand(selected, false, true, centerX, centerY);  // vertical only
         invoker.setCommand(command);
         invoker.startCommand();
         redraw(baseCanvas.getGc());

@@ -10,7 +10,7 @@ package com.group21.model.Command;
  */
 public class CutCommand implements Command{
     
-     private ShapeSelector shape;
+    private ShapeSelector shape;
     
     public CutCommand(ShapeSelector shape) {
         this.shape = shape;
@@ -18,7 +18,7 @@ public class CutCommand implements Command{
     
     @Override
     public void execute() {
-         shape.cutShape();
+        shape.cutShape();
     }
   
 }

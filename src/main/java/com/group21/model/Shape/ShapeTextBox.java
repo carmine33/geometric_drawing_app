@@ -174,7 +174,8 @@ public class ShapeTextBox extends ShapeBase {
     public void setTextHeight(double textHeight) {
         this.textHeight = textHeight;
     }
-       
+    
+    @JsonIgnore
     @Override
     public void accept(ShapeVisitor visitor) {
         visitor.visit(this);
@@ -183,7 +184,9 @@ public class ShapeTextBox extends ShapeBase {
     @JsonIgnore
     @Override
     public List<String> getSupportedActions() {
-        return List.of("delete", "copy", "paste", "cut","toFront", "toBack", "fillColor", "modifyText");
+        return List.of("delete", "copy", "paste", "cut","toFront", 
+                       "toBack", "fillColor", "modifyText", "HMirror",
+                       "VMirror");
     }
 
 }

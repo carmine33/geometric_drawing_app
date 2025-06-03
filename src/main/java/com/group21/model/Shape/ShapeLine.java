@@ -75,6 +75,7 @@ public class ShapeLine extends ShapeBase{
         return copy;
     }
     
+    @JsonIgnore
     @Override
     public void accept(ShapeVisitor visitor) {
         visitor.visit(this);
@@ -83,6 +84,8 @@ public class ShapeLine extends ShapeBase{
     @JsonIgnore
     @Override
     public List<String> getSupportedActions() {
-        return List.of("delete", "copy","paste", "cut","toFront", "toBack", "strokeColor", "strokeWidth");
+        return List.of("delete", "copy","paste", "cut",
+                      "toFront", "toBack", "strokeColor", "strokeWidth", "HMirror",
+                       "VMirror");
     } 
 }

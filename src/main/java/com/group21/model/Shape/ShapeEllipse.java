@@ -55,6 +55,7 @@ public class ShapeEllipse extends ShapeBase{
         return copy;
     }
     
+    @JsonIgnore
     @Override
     public void accept(ShapeVisitor visitor) {
         visitor.visit(this);
@@ -63,6 +64,8 @@ public class ShapeEllipse extends ShapeBase{
     @JsonIgnore
     @Override
     public List<String> getSupportedActions() {
-        return List.of("delete", "copy","paste", "cut", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+        return List.of("delete", "copy","paste", "cut", "toFront", 
+                       "toBack", "fillColor", "strokeColor", "strokeWidth", "HMirror",
+                       "VMirror");
     }
 }

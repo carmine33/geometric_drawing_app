@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group21.controller.Visitor.ShapeVisitor;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -56,6 +55,7 @@ import javafx.scene.paint.Color;
         return copy;
     }
     
+    @JsonIgnore
     @Override
     public void accept(ShapeVisitor visitor) {
         visitor.visit(this);
@@ -64,6 +64,8 @@ import javafx.scene.paint.Color;
     @JsonIgnore
     @Override
     public List<String> getSupportedActions() {
-        return List.of("delete", "copy", "paste","cut", "toFront", "toBack", "fillColor", "strokeColor", "strokeWidth");
+        return List.of("delete", "copy", "paste","cut", "toFront",
+                       "toBack", "fillColor", "strokeColor", "strokeWidth", "HMirror",
+                       "VMirror");
     }
 }
