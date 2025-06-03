@@ -64,15 +64,20 @@ public class MirrorVisitor implements ShapeVisitor{
     public void visit(ShapeLine line){
         double x1 = line.getX();
         double x2 = line.getEndX();
+        double y1 = line.getY();
+        double y2 = line.getEndY();
 
         if (mirrorHorizontally) {
             double originalWidth = x2 - x1;
             x1 = x2;
             x2 = x2 + originalWidth;
-        }
 
+        }
+        
         line.setX(x1);
+        line.setY(y2);
         line.setEndX(x2);
+        line.setEndY(y1);
     }
     
     public void visit(ShapePolygon polygon){
