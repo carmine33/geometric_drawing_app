@@ -56,8 +56,8 @@ public void onMousePressed(MouseEvent e) {
         double endX = (e.getX() / zoomFactor) + offsetX;
         double endY = (e.getY() / zoomFactor) + offsetY;
         ShapeBase finalShape = new ConcreteCreatorLine().createShape(startX, startY, endX, endY, strokeColor);
-        selectShape.getMemory().saveState(new ArrayList<>(shapes));
-        shapes.add(finalShape);
+        selectShape.saveState();       
+        selectShape.addShape(finalShape);
         previewShape = null;
         onUpdateCallback.run();
     }

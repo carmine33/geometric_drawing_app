@@ -27,14 +27,15 @@ import javafx.scene.control.DialogPane;
  */
 public class ShapeSelector {
 
-    private List<ShapeBase> list;
+    
     private ShapeBase selectedShape;
     private Memory memory;
     @FXML private ColorPicker fillColorPicker;
     @FXML private ColorPicker strokeColorPicker;
+    private List<ShapeBase> list = new ArrayList<>();
 
-    public ShapeSelector(List<ShapeBase> listShape, ShapeBase selectedShape, ColorPicker fillColorPicker, ColorPicker strokeColorPicker) {
-        this.list = listShape;
+    public ShapeSelector(ColorPicker fillColorPicker, ColorPicker strokeColorPicker) {
+        this.list = new ArrayList<>();
         this.selectedShape = selectedShape;
         this.fillColorPicker = fillColorPicker;
         this.strokeColorPicker = strokeColorPicker;
@@ -210,6 +211,31 @@ public void modColorShape(String tipo) {
         this.copyShape();
         this.deleteShape();
     }
+    
+    public void addShape(ShapeBase shape) {
+    list.add(shape);
+}
+
+public void removeShape(ShapeBase shape) {
+    list.remove(shape);
+}
+
+public void clearShapes() {
+    list.clear();
+}
+
+public List<ShapeBase> getShapes() {
+    return new ArrayList<>(list);
+}
+
+public void saveState() {
+    memory.saveState(new ArrayList<>(list));
+}
+
+public void restoreLastState() {
+    list.clear();
+    list.addAll(memory.restoreLastState());
+}
 
 
 }

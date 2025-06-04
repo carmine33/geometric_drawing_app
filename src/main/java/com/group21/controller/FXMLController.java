@@ -75,7 +75,6 @@ public class FXMLController implements Initializable {
     
     private Invoker invoker;
     private ShapeSelector selectShape;
-    private List<ShapeBase> shapes = new ArrayList<>();
     ContextMenu contextMenu = new ContextMenu();
     private List<Point2D> polygonPoints = new ArrayList<>();
     private String currentMouseCommand = null;
@@ -100,7 +99,7 @@ public class FXMLController implements Initializable {
         canvasPlaceholder.getChildren().add(baseCanvas.getCanvas());
         setupShapeIcons();//crica icone dei bottoni
         scrollPane.setPannable(false);//scrollPane inizialmente inattivo
-        selectShape = new ShapeSelector(shapes, null,fillColorPicker, strokeColorPicker);
+        selectShape = new ShapeSelector(fillColorPicker, strokeColorPicker);
         strokeColorPicker.setValue(Color.web("#000000"));
         invoker = new Invoker();
         gridDecorator = new GridDecorator(baseCanvas);
@@ -117,7 +116,7 @@ public class FXMLController implements Initializable {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new LineTool(shapes, strokeColorPicker.getValue(), selectShape, callback);
+            toolHolder[0] = new LineTool(selectShape.getShapes(), strokeColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
         btnRectangle.setOnAction(e -> {
@@ -128,7 +127,7 @@ public class FXMLController implements Initializable {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new RectangleTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(),selectShape, callback);
+            toolHolder[0] = new RectangleTool(selectShape.getShapes(), strokeColorPicker.getValue(), fillColorPicker.getValue(),selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
         btnEllipse.setOnAction(e -> {
@@ -139,7 +138,7 @@ public class FXMLController implements Initializable {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new EllipseTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
+            toolHolder[0] = new EllipseTool(selectShape.getShapes(), strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
         btnTextBox.setOnAction(e -> {
@@ -150,7 +149,7 @@ public class FXMLController implements Initializable {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new TextBoxTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
+            toolHolder[0] = new TextBoxTool(selectShape.getShapes(), strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         });
         btnPolygon.setOnAction(e -> {
@@ -161,7 +160,7 @@ public class FXMLController implements Initializable {
                 setPreviewShape(toolHolder[0].getPreviewShape());
                 redraw(baseCanvas.getGc());
             };
-            toolHolder[0] = new PolygonTool(shapes, strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
+            toolHolder[0] = new PolygonTool(selectShape.getShapes(), strokeColorPicker.getValue(), fillColorPicker.getValue(), selectShape, callback);
             toolContext.setStrategy(toolHolder[0]);
         }); 
          btnZoomIn.setOnAction(e -> {
@@ -237,7 +236,7 @@ public class FXMLController implements Initializable {
                select(e);  // <-- essenziale per selezionare figura cliccata
                ShapeBase selected = selectShape.getSelectedShape();
                 if (selected != null) {
-                   selectShape.getMemory().saveState(new ArrayList<>(shapes));
+                   selectShape.getMemory().saveState(new ArrayList<>(selectShape.getShapes()));
                 }
             }
             // Altrimenti: modalità disegno (linea, rettangolo, ecc.)
@@ -361,7 +360,7 @@ public class FXMLController implements Initializable {
             canvasToDraw = grid;
         }
         canvasToDraw.execute();
-        for (ShapeBase shape : shapes) {
+        for (ShapeBase shape : selectShape.getShapes()) {
             shape.draw(gc);
         }
         ShapeBase selected = selectShape.getSelectedShape();
@@ -403,8 +402,8 @@ public class FXMLController implements Initializable {
     double clickX = (event.getX() / zoomFactor) + scrollXOffset;
     double clickY = (event.getY() / zoomFactor) + scrollYOffset;
         // Scroll through the forms from newest to oldest
-        for (int i = shapes.size() - 1; i >= 0; i--) {
-            ShapeBase shape = shapes.get(i);
+        for (int i = selectShape.getShapes().size() - 1; i >= 0; i--) {
+            ShapeBase shape = selectShape.getShapes().get(i);
             // Check if the clicked point is inside the figure
             if (shape.containsPoint(clickX, clickY)) {
                 // If so, set the figure as selected
@@ -469,12 +468,12 @@ public class FXMLController implements Initializable {
         }
         if (actions.contains("toFront")) {
             MenuItem front = new MenuItem("ToFront");
-            front.setOnAction(e -> toFront(shapes.indexOf(selected), shapes.size()));
+            front.setOnAction(e -> toFront(selectShape.getShapes().indexOf(selected), selectShape.getShapes().size()));
             contextMenu.getItems().add(front);
         }
         if (actions.contains("toBack")) {
             MenuItem back = new MenuItem("ToBack");
-            back.setOnAction(e -> toBack(shapes.indexOf(selected)));
+            back.setOnAction(e -> toBack(selectShape.getShapes().indexOf(selected)));
             contextMenu.getItems().add(back);
         }
         if (actions.contains("modifyText")) {
@@ -617,8 +616,8 @@ public class FXMLController implements Initializable {
         Window window = baseCanvas.getCanvas().getScene().getWindow();
         File file = fileChooser.showSaveDialog(window);
         if (file != null) {
-            saveShapes(shapes, file);
-            showInfo("Save successful", "Saved " + shapes.size() + " shapes.");
+            saveShapes(selectShape.getShapes(), file);
+            showInfo("Save successful", "Saved " + selectShape.getShapes().size() + " shapes.");
         }
     }
 
@@ -632,13 +631,13 @@ public class FXMLController implements Initializable {
         if (file != null) {
             List<ShapeBase> loadedShapes = loadShapes(file);
             if (loadedShapes != null) {
-                selectShape.getMemory().saveState(new ArrayList<>(shapes));
-                shapes.clear();
+                selectShape.saveState();
+                selectShape.clearShapes();
                 selectShape.setSelectedShape(null);
-                shapes.addAll(loadedShapes);
+                loadedShapes.forEach(selectShape::addShape);
                 GraphicsContext gc = baseCanvas.getCanvas().getGraphicsContext2D();
                 redraw(gc);
-                showInfo("Load successful", "Loaded " + shapes.size() + " shapes.");
+                showInfo("Load successful", "Loaded " + selectShape.getShapes().size() + " shapes.");
             }
         }
     }
@@ -660,11 +659,11 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void handleNew() {
-        selectShape.getMemory().saveState(new ArrayList<>(shapes));
-        baseCanvas.clear();
-        shapes.clear();
-        selectShape.setSelectedShape(null);
-        this.redraw(baseCanvas.getGc());
+        selectShape.saveState();            // salva lo stato corrente
+        selectShape.clearShapes();          // svuota tutte le forme
+        selectShape.setSelectedShape(null); // deseleziona
+        baseCanvas.clear();                 // svuota il canvas
+        this.redraw(baseCanvas.getGc());    // ridisegna
     }
 
     @FXML
@@ -677,25 +676,25 @@ public class FXMLController implements Initializable {
     private void undoCommand(ActionEvent e) {
         if (selectShape.getMemory().canUndo()) {
             ShapeBase oldSelected = selectShape.getSelectedShape();
-            shapes.clear();
-            List<ShapeBase> restored = selectShape.getMemory().restoreLastState();
-            shapes.addAll(restored);
-            // Deselect by default
+            selectShape.restoreLastState();  // ripristina internamente lo stato
+
+            // Deseleziona di default
             selectShape.setSelectedShape(null);
-            // Facoltativo: ripristina selezione se esiste equivalente
-            if (oldSelected != null) {
-                for (ShapeBase shape : restored) {
-                    if (shape.equals(oldSelected)) {  // usa equals definito correttamente
-                        selectShape.setSelectedShape(shape);
-                        break;
-                    }
+
+            // Facoltativo: ripristina la selezione se esiste equivalente
+            for (ShapeBase shape : selectShape.getShapes()) {
+                if (shape.equals(oldSelected)) {
+                    selectShape.setSelectedShape(shape);
+                    break;
                 }
             }
+
             redraw(baseCanvas.getGc());
         } else {
             showInfo("Undo", "Nessuno stato precedente disponibile.");
         }
     }
+
     
     private void setActiveToolButton(Button activeButton) {
          btnPan.setStyle("");

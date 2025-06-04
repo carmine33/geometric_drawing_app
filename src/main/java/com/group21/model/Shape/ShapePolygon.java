@@ -50,7 +50,7 @@ public class ShapePolygon extends ShapeBase{
         vertices.add(p);
     }
 
-    @Override
+@Override
     public void draw(GraphicsContext gc) {
         int count = vertices.size();
         if (count < 2) return;
@@ -66,14 +66,10 @@ public class ShapePolygon extends ShapeBase{
             yPoints[i] = vertices.get(i).getY();
         }
 
-        if (count == 2) {
-            gc.strokeLine(xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
-        } else {
-            if (fillColor != null) gc.fillPolygon(xPoints, yPoints, count);
-            gc.strokePolygon(xPoints, yPoints, count);
-        }
+        if (fillColor != null) gc.fillPolygon(xPoints, yPoints, count);
+        gc.strokePolygon(xPoints, yPoints, count);
     }
-
+    
     @Override
     public ShapeBase copy() {
         ShapePolygon copy = new ShapePolygon(vertices, fillColor, strokeColor,strokeWidth);

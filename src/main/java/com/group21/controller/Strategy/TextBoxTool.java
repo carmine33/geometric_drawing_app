@@ -82,8 +82,8 @@ public class TextBoxTool implements DrawingToolStrategy {
             ShapeTextBox box = new ConcreteCreatorText().createShape(x, y, strokeColor, fillColor, text.get(), fontSize);
             box.setFontSize(fontSize);
             box.setFontFamily(fontFamily);
-            selectShape.getMemory().saveState(new ArrayList<>(shapes));
-            shapes.add(box);
+            selectShape.saveState();       
+            selectShape.addShape(box);
             if (redrawCallback != null) redrawCallback.run();
         }
 

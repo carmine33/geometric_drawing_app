@@ -72,8 +72,8 @@ public class EllipseTool implements DrawingToolStrategy {
         if (h == 0) h = 40;
 
         ShapeBase ellipse = new ConcreteCreatorEllipse().createShape(x, y, w, h, strokeColor, fillColor);
-        selectShape.getMemory().saveState(new ArrayList<>(shapes));
-        shapes.add(ellipse);
+        selectShape.saveState();       
+        selectShape.addShape(ellipse);
 
         previewShape = null;
         if (redrawCallback != null) redrawCallback.run();

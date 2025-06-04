@@ -53,11 +53,12 @@ public class PolygonTool implements DrawingToolStrategy {
                 Point2D p2 = polygonPoints.get(1);
                 ShapeLine line = new ShapeLine(p1.getX(), p1.getY(), 0, 0,
                         p2.getX(), p2.getY(), strokeColor, 1);
-                shapes.add(line);
+                             
+                        selectShape.addShape(line);
             } else if (polygonPoints.size() >= 3) {
                 ShapePolygon polygon = new ShapePolygon(new ArrayList<>(polygonPoints), fillColor, strokeColor, 1);
-                selectShape.getMemory().saveState(new ArrayList<>(shapes));
-                shapes.add(polygon);
+                selectShape.saveState();       
+                selectShape.addShape(polygon);
             }
             polygonPoints.clear();
         }

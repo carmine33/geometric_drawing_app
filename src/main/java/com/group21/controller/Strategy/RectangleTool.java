@@ -68,8 +68,8 @@ public class RectangleTool implements DrawingToolStrategy {
         if (height == 0) height = 40;
 
         ShapeBase finalShape = new ConcreteCreatorRectangle().createShape(x, y, width, height, strokeColor, fillColor);
-        selectShape.getMemory().saveState(new ArrayList<>(shapes));
-        shapes.add(finalShape);
+        selectShape.saveState();       
+        selectShape.addShape(finalShape);
 
         previewShape = null;
         if (redrawCallback != null) redrawCallback.run();
