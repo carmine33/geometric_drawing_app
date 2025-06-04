@@ -10,7 +10,6 @@ package com.group21.controller.Strategy;
  */
 
 import com.group21.model.Command.ShapeSelector;
-import com.group21.model.Factory.ConcreteCreatorIrregularPolygon;
 import com.group21.model.Shape.ShapePolygon;
 import com.group21.model.Shape.ShapeBase;
 import com.group21.model.Shape.ShapeLine;

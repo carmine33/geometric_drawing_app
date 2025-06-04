@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.control.ColorPicker;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,9 +42,11 @@ class ToFrontCommandTest {
         shapeList = new ArrayList<>();
         shapeList.add(shape1);
         shapeList.add(shape2);
+        
+        ColorPicker fillColorPicker = new ColorPicker(Color.RED);
+        ColorPicker strokeColorPicker = new ColorPicker(Color.BLUE);
 
-        // selezioniamo shape1 che è in posizione 0
-        shapeSelector = new ShapeSelector(shapeList, shape1, null, null);
+        shapeSelector = new ShapeSelector(fillColorPicker,strokeColorPicker);
     }
 
     @Test

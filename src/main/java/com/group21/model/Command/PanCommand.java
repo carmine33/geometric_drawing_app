@@ -1,6 +1,5 @@
 package com.group21.model.Command;
 
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.control.ScrollPane;
 

@@ -15,6 +15,8 @@ import com.group21.model.Shape.ShapeBase;
 import com.group21.model.Shape.ShapeRectangle;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.paint.Color;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +32,10 @@ public class ShapeSelectorTest {
         shapeList = new ArrayList<>();
         shape = new ShapeRectangle(10, 10, 20, 20, null, null, 1.0);
         shapeList.add(shape);
-        shapeSelector = new ShapeSelector(shapeList, shape, null, null);
+        ColorPicker fillColorPicker = new ColorPicker(Color.RED);
+        ColorPicker strokeColorPicker = new ColorPicker(Color.BLUE);
+
+        shapeSelector = new ShapeSelector(fillColorPicker,strokeColorPicker);
     }
 
     @Test

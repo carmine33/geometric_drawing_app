@@ -24,6 +24,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.control.ColorPicker;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,8 +43,10 @@ class ToBackCommandTest {
         shapeList.add(shape1);
         shapeList.add(shape2);
 
-        // selezioniamo shape2 che è all'indice 1
-        shapeSelector = new ShapeSelector(shapeList, shape2, null, null);
+        ColorPicker fillColorPicker = new ColorPicker(Color.RED);
+        ColorPicker strokeColorPicker = new ColorPicker(Color.BLUE);
+
+        shapeSelector = new ShapeSelector(fillColorPicker,strokeColorPicker);
     }
 
     @Test

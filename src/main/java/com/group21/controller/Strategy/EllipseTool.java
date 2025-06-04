@@ -12,7 +12,6 @@ package com.group21.controller.Strategy;
 import com.group21.model.Command.ShapeSelector;
 import com.group21.model.Factory.ConcreteCreatorEllipse;
 import com.group21.model.Shape.ShapeBase;
-import com.group21.model.Shape.ShapeEllipse;
 import java.util.ArrayList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
